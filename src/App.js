@@ -106,7 +106,7 @@ const awkPlugin = {
   command: "awk",
   parse: (args) => ({
     type: "awk",
-    program: args.join(" ").replace(/^'/, "").replace(/'$/, ""),
+    program: args.join(" ").replace(/^"/, "").replace(/"$/, ""),
   }),
   component: ({ program, setProgram }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -127,7 +127,7 @@ const sedPlugin = {
   command: "sed",
   parse: (args) => ({
     type: "sed",
-    script: args.join(" ").replace(/^'/, "").replace(/'$/, ""),
+    script: args.join(" ").replace(/^"/, "").replace(/"$/, ""),
     flags: [],
   }),
   component: ({ script, setScript, flags, setFlags }) => (
@@ -197,7 +197,11 @@ const echoPlugin = {
   command: "echo",
   parse: (args) => ({
     type: "echo",
-    text: args.join(" ").replace(/^'/, "").replace(/'$/, ""),
+    text: args
+      .join(" ")
+      .replace(/^"/, "")
+      .replace(/"$/, "")
+      .replace(/\\n/g, "\n"),
   }),
   component: ({ text, setText }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -294,6 +298,15 @@ const App = () => {
     store.compileCommand();
   }, [store.modules]);
 
+  const handleInputChange = (e) => {
+    store.setInputCommand(e.target.value);
+  };
+
+  // Function to prepare the command for display
+  const prepareCommandForDisplay = (cmd) => {
+    return cmd.replace(/\\n/g, "\n").replace(/\n/g, "\\n");
+  };
+
   const renderModule = (module, index) => {
     const plugin = Plugins.get(module.type);
     if (!plugin) return null;
@@ -327,11 +340,11 @@ const App = () => {
         <div className="flex items-center mb-2">
           <Terminal className="text-white mr-2" />
           <input
-            type="text"
-            value={store.inputCommand}
-            onChange={(e) => store.setInputCommand(e.target.value)}
+            value={prepareCommandForDisplay(store.inputCommand)}
+            onChange={handleInputChange}
             className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600"
             placeholder="Enter command..."
+            rows={3}
           />
           <button
             onClick={store.executeCommand}
