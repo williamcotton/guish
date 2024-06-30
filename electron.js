@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import parse from "bash-parser";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,9 +52,24 @@ function createWindow() {
   });
 
   ipcMain.on("execute-command", (event, args) => {
-    exec("source ~/dotfiles/.functions && " + args, (error, stdout, stderr) => {
-      if (error) {
-        event.reply("execute-command-result", { error: error.message });
+    const zsh = spawn("zsh", ["-c", `source ~/.zshrc && ${args}`], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    zsh.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    zsh.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    zsh.on("close", (code) => {
+      if (code !== 0) {
+        event.reply("execute-command-result", { error: stderr });
       } else {
         event.reply("execute-command-result", { output: stdout || stderr });
       }
