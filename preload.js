@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld("electron", {
       }
     },
     receive: (channel, func) => {
-      let validChannels = ["fromMain", "parse-command-result"];
+      let validChannels = ["fromMain", "parse-command-result", "execute-command-result"];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));

@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import parse from "bash-parser";
+import { exec } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,7 +39,13 @@ function createWindow() {
   });
 
   ipcMain.on("execute-command", (event, args) => {
-    console.log(args); // Corrected typo here
+    exec(args, (error, stdout, stderr) => {
+      if (error) {
+        event.reply("execute-command-result", { error: error.message });
+      } else {
+        event.reply("execute-command-result", { output: stdout || stderr });
+      }
+    });
   });
 }
 

@@ -423,7 +423,7 @@ const useStore = () => {
   };
 
   const executeCommand = async () => {
-    window.electron.executeCommand(compiledCommand);
+    window.electron.executeCommand(inputCommand);
   };
 
   return {
