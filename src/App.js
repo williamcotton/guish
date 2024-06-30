@@ -68,13 +68,19 @@ class Plugins {
 const pgPlugin = {
   name: "PostgreSQL",
   command: "pg",
-  parse: (command) => ({
-    type: "pg",
-    command,
-    query:
-      command.suffix.find((arg) => arg.text.startsWith("-c"))?.text.slice(3) ||
-      "",
-  }),
+  parse: (command) => {
+    let query = "";
+    if (command.suffix) {
+      const cArgIndex = command.suffix.findIndex((arg) => arg.text === "-c");
+      if (cArgIndex !== -1 && cArgIndex + 1 < command.suffix.length) {
+        query = command.suffix[cArgIndex + 1].text;
+      }
+    }
+    return {
+      type: "pg",
+      query: query,
+    };
+  },
   component: ({ query, setQuery }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
       <h2 className="text-lg font-semibold mb-2">PostgreSQL Query (pg)</h2>
@@ -89,7 +95,12 @@ const pgPlugin = {
   compile: (module) => ({
     type: "Command",
     name: { text: "pg" },
-    suffix: module.command.suffix,
+    suffix: module.query
+      ? [
+          { type: "Word", text: "-c" },
+          { type: "Word", text: module.query },
+        ]
+      : [],
   }),
 };
 
@@ -99,15 +110,19 @@ const grepPlugin = {
   parse: (command) => ({
     type: "grep",
     flags: command.suffix
-      .filter((arg) => arg.text.startsWith("-"))
-      .map((arg) => arg.text.slice(1))
-      .join(""),
+      ? command.suffix
+          .filter((arg) => arg.text.startsWith("-"))
+          .map((arg) => arg.text.slice(1))
+          .join("")
+      : "",
     pattern: command.suffix
-      .filter((arg) => !arg.text.startsWith("-"))
-      .map((arg) => arg.text)
-      .join(" ")
-      .replace(/^"/, "")
-      .replace(/"$/, ""),
+      ? command.suffix
+          .filter((arg) => !arg.text.startsWith("-"))
+          .map((arg) => arg.text)
+          .join(" ")
+          .replace(/^"/, "")
+          .replace(/"$/, "")
+      : "",
   }),
   component: ({ pattern, setPattern, flags, setFlags }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -156,7 +171,7 @@ const grepPlugin = {
     name: { text: "grep" },
     suffix: [
       ...(module.flags ? [{ type: "Word", text: `-${module.flags}` }] : []),
-      { type: "Word", text: module.pattern || "" },
+      ...(module.pattern ? [{ type: "Word", text: module.pattern }] : []),
     ],
   }),
 };
@@ -167,10 +182,12 @@ const awkPlugin = {
   parse: (command) => ({
     type: "awk",
     program: command.suffix
-      .map((arg) => arg.text)
-      .join(" ")
-      .replace(/^"/, "")
-      .replace(/"$/, ""),
+      ? command.suffix
+          .map((arg) => arg.text)
+          .join(" ")
+          .replace(/^"/, "")
+          .replace(/"$/, "")
+      : "",
   }),
   component: ({ program, setProgram }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -186,7 +203,7 @@ const awkPlugin = {
   compile: (module) => ({
     type: "Command",
     name: { text: "awk" },
-    suffix: [{ type: "Word", text: module.program }],
+    suffix: module.program ? [{ type: "Word", text: module.program }] : [],
   }),
 };
 
@@ -196,15 +213,19 @@ const sedPlugin = {
   parse: (command) => ({
     type: "sed",
     flags: command.suffix
-      .filter((arg) => arg.text.startsWith("-"))
-      .map((arg) => arg.text.slice(1))
-      .join(""),
+      ? command.suffix
+          .filter((arg) => arg.text.startsWith("-"))
+          .map((arg) => arg.text.slice(1))
+          .join("")
+      : "",
     script: command.suffix
-      .filter((arg) => !arg.text.startsWith("-"))
-      .map((arg) => arg.text)
-      .join(" ")
-      .replace(/^'/, "")
-      .replace(/'$/, ""),
+      ? command.suffix
+          .filter((arg) => !arg.text.startsWith("-"))
+          .map((arg) => arg.text)
+          .join(" ")
+          .replace(/^'/, "")
+          .replace(/'$/, "")
+      : "",
   }),
   component: ({ script, setScript, flags, setFlags }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -253,7 +274,7 @@ const sedPlugin = {
     name: { text: "sed" },
     suffix: [
       ...(module.flags ? [{ type: "Word", text: `-${module.flags}` }] : []),
-      { type: "Word", text: module.script || "" },
+      ...(module.script ? [{ type: "Word", text: module.script }] : []),
     ],
   }),
 };
@@ -263,7 +284,7 @@ const catPlugin = {
   command: "cat",
   parse: (command) => ({
     type: "cat",
-    files: command.suffix.map((arg) => arg.text),
+    files: command.suffix ? command.suffix.map((arg) => arg.text) : [],
   }),
   component: ({ files, setFiles }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -289,11 +310,13 @@ const echoPlugin = {
   parse: (command) => ({
     type: "echo",
     text: command.suffix
-      .map((arg) => arg.text)
-      .join(" ")
-      .replace(/^"/, "")
-      .replace(/"$/, "")
-      .replace(/\\n/g, "\n"),
+      ? command.suffix
+          .map((arg) => arg.text)
+          .join(" ")
+          .replace(/^"/, "")
+          .replace(/"$/, "")
+          .replace(/\\n/g, "\n")
+      : "",
   }),
   component: ({ text, setText }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -309,7 +332,7 @@ const echoPlugin = {
   compile: (module) => ({
     type: "Command",
     name: { text: "echo" },
-    suffix: [{ type: "Word", text: module.text }],
+    suffix: module.text ? [{ type: "Word", text: module.text }] : [],
   }),
 };
 
@@ -364,16 +387,21 @@ const useStore = () => {
   useEffect(() => {
     window.electron.ipcRenderer.receive("parse-command-result", (result) => {
       if (result.error) {
-        console.error(result.error);
+        // console.error(result.error);
       } else {
         setAst(result);
+        if (result.type === "Script" && result.commands) {
+          let commandsToProcess = [];
+          if (result.commands[0].type === "Pipeline") {
+            commandsToProcess = result.commands[0].commands;
+          } else if (result.commands[0].type === "Command") {
+            commandsToProcess = [result.commands[0]];
+          } else {
+            console.error("Unexpected command structure in AST");
+            return;
+          }
 
-        if (
-          result.type === "Script" &&
-          result.commands &&
-          result.commands[0].type === "Pipeline"
-        ) {
-          const newModules = result.commands[0].commands
+          const newModules = commandsToProcess
             .map((command) => {
               const plugin = Plugins.get(command.name.text);
               if (plugin) {

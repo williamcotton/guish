@@ -30,16 +30,29 @@ function createWindow() {
   }
 
   ipcMain.on("parse-command", (event, args) => {
-    try {
-      const ast = parse(args);
-      event.reply("parse-command-result", ast);
-    } catch (error) {
-      event.reply("parse-command-result", { error: error.message });
+    if (!args || args.trim() === "") {
+      // Return an empty AST structure for empty input
+      event.reply("parse-command-result", {
+        type: "Script",
+        commands: [
+          {
+            type: "Pipeline",
+            commands: [],
+          },
+        ],
+      });
+    } else {
+      try {
+        const ast = parse(args);
+        event.reply("parse-command-result", ast);
+      } catch (error) {
+        event.reply("parse-command-result", { error: error.message });
+      }
     }
   });
 
   ipcMain.on("execute-command", (event, args) => {
-    exec(args, (error, stdout, stderr) => {
+    exec("source ~/dotfiles/.functions && " + args, (error, stdout, stderr) => {
       if (error) {
         event.reply("execute-command-result", { error: error.message });
       } else {
