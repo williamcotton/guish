@@ -49,9 +49,6 @@ class Plugins {
   static plugins = {};
 
   static register(plugin) {
-    if (!plugin.command) {
-      throw new Error("Plugin must have a command property");
-    }
     this.plugins[plugin.command] = plugin;
   }
 
@@ -64,13 +61,41 @@ class Plugins {
   }
 }
 
+const genericPlugin = {
+  name: "Generic Command",
+  command: "",
+  parse: (command) => ({
+    type: "generic",
+    command: command.name.text,
+    args: command.suffix ? command.suffix.map((arg) => arg.text).join(" ") : "",
+  }),
+  component: ({ command, args }) => (
+    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+      <h2 className="text-lg font-semibold mb-2">{command}</h2>
+      {args && <p className="text-sm text-gray-600">Args: {args}</p>}
+    </div>
+  ),
+  compile: (module) => ({
+    type: "Command",
+    name: { text: module.command },
+    suffix: module.args
+      ? module.args.split(" ").map((arg) => ({ type: "Word", text: arg }))
+      : [],
+  }),
+};
+
 // Modified plugin definitions
 const pgPlugin = {
   name: "PostgreSQL",
   command: "pg",
   parse: (command) => {
     let query = "";
+    let database = "";
     if (command.suffix) {
+      const dArgIndex = command.suffix.findIndex((arg) => arg.text === "-d");
+      if (dArgIndex !== -1 && dArgIndex + 1 < command.suffix.length) {
+        database = command.suffix[dArgIndex + 1].text;
+      }
       const cArgIndex = command.suffix.findIndex((arg) => arg.text === "-c");
       if (cArgIndex !== -1 && cArgIndex + 1 < command.suffix.length) {
         query = command.suffix[cArgIndex + 1].text;
@@ -78,29 +103,53 @@ const pgPlugin = {
     }
     return {
       type: "pg",
+      database: database,
       query: query,
     };
   },
-  component: ({ query, setQuery }) => (
+  component: ({ database, query, setDatabase, setQuery }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
       <h2 className="text-lg font-semibold mb-2">PostgreSQL Query (pg)</h2>
-      <textarea
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full h-64 p-2 border rounded"
-        placeholder="Enter PostgreSQL query..."
-      />
+      <div className="mb-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Database
+        </label>
+        <input
+          type="text"
+          value={database}
+          onChange={(e) => setDatabase(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          placeholder="Enter database name..."
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Query</label>
+        <textarea
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="mt-1 block w-full h-32 border border-gray-300 rounded-md shadow-sm p-2"
+          placeholder="Enter PostgreSQL query..."
+        />
+      </div>
     </div>
   ),
   compile: (module) => ({
     type: "Command",
     name: { text: "pg" },
-    suffix: module.query
-      ? [
-          { type: "Word", text: "-c" },
-          { type: "Word", text: module.query },
-        ]
-      : [],
+    suffix: [
+      ...(module.database
+        ? [
+            { type: "Word", text: "-d" },
+            { type: "Word", text: module.database },
+          ]
+        : []),
+      ...(module.query
+        ? [
+            { type: "Word", text: "-c" },
+            { type: "Word", text: module.query },
+          ]
+        : []),
+    ],
   }),
 };
 
@@ -337,6 +386,7 @@ const echoPlugin = {
 };
 
 // Register plugins
+Plugins.register(genericPlugin);
 Plugins.register(pgPlugin);
 Plugins.register(grepPlugin);
 Plugins.register(awkPlugin);
@@ -403,7 +453,7 @@ const useStore = () => {
 
           const newModules = commandsToProcess
             .map((command) => {
-              const plugin = Plugins.get(command.name.text);
+              const plugin = Plugins.get(command.name.text) || genericPlugin;
               if (plugin) {
                 return plugin.parse(command);
               }
@@ -495,7 +545,7 @@ const App = () => {
   };
 
   const renderModule = (module, index) => {
-    const plugin = Plugins.get(module.type);
+    const plugin = Plugins.get(module.type) || genericPlugin;
     if (!plugin) return null;
 
     const Component = plugin.component;

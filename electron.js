@@ -52,7 +52,7 @@ function createWindow() {
   });
 
   ipcMain.on("execute-command", (event, args) => {
-    const zsh = spawn("zsh", ["-c", `source ~/.zshrc && ${args}`], {
+    const zsh = spawn("zsh", ["-c", `source ~/dotfiles/.functions && ${args}`], {
       stdio: ["pipe", "pipe", "pipe"],
     });
 
