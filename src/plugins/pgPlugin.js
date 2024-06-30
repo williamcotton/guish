@@ -25,7 +25,7 @@ export const pgPlugin = {
   },
   component: ({ database, query, setDatabase, setQuery }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
-      <h2 className="text-lg font-semibold mb-2">PostgreSQL Query (pg)</h2>
+      <h2 className="text-lg font-semibold mb-2">pg</h2>
       <div className="mb-2">
         <label className="block text-sm font-medium text-gray-700">
           Database

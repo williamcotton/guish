@@ -1,7 +1,7 @@
 import React from "react";
 
 export const catPlugin = {
-  name: "CAT",
+  name: "cat",
   command: "cat",
   parse: (command) => ({
     type: "cat",
@@ -9,7 +9,7 @@ export const catPlugin = {
   }),
   component: ({ files, setFiles }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
-      <h2 className="text-lg font-semibold mb-2">CAT</h2>
+      <h2 className="text-lg font-semibold mb-2">cat</h2>
       <textarea
         value={files.join("\n")}
         onChange={(e) => setFiles(e.target.value.split("\n"))}

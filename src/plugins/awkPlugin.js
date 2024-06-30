@@ -1,7 +1,7 @@
 import React from "react";
 
 export const awkPlugin = {
-  name: "AWK",
+  name: "awk",
   command: "awk",
   parse: (command) => ({
     type: "awk",
@@ -15,7 +15,7 @@ export const awkPlugin = {
   }),
   component: ({ program, setProgram }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
-      <h2 className="text-lg font-semibold mb-2">AWK</h2>
+      <h2 className="text-lg font-semibold mb-2">awk</h2>
       <textarea
         value={program}
         onChange={(e) => setProgram(e.target.value)}
