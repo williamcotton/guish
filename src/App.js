@@ -454,6 +454,13 @@ const App = () => {
     store.setInputCommand(e.target.value);
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Prevent default to avoid line break
+      store.executeCommand();
+    }
+  };
+
   // Function to prepare the command for display
   const prepareCommandForDisplay = (cmd) => {
     return cmd.replace(/\\n/g, "\n").replace(/\n/g, "\\n");
@@ -494,6 +501,7 @@ const App = () => {
           <input
             value={prepareCommandForDisplay(store.inputCommand)}
             onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
             className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600"
             placeholder="Enter command..."
             rows={3}
