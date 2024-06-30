@@ -1,5 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Terminal } from "lucide-react";
+
+function astToCommand(ast) {
+  function handleNode(node) {
+    switch (node.type) {
+      case "Script":
+        return node.commands.map(handleNode).join("; ");
+      case "Pipeline":
+        return node.commands.map(handleNode).join(" | ");
+      case "Command":
+        return [node.name.text, ...node.suffix.map(handleNode)].join(" ");
+      case "Word":
+        if (node.text.startsWith('"') && node.text.endsWith('"')) {
+          return node.text;
+        }
+        if (node.text.includes("\n")) {
+          return `"${node.text}"`;
+        }
+        if (
+          node.text.includes(" ") ||
+          node.text.includes('"') ||
+          node.text.includes("'")
+        ) {
+          return `"${node.text}"`;
+        }
+        return node.text;
+      case "AssignmentWord":
+        return node.text;
+      case "Redirect":
+        const operator = node.op.text;
+        const file = handleNode(node.file);
+        return `${operator}${file}`;
+      case "CommandExpansion":
+        return `$(${handleNode(node.command)})`;
+      case "ParameterExpansion":
+        return `$${node.parameter}`;
+      default:
+        if (node.text) return node.text;
+        console.warn(`Unhandled node type: ${node.type}`);
+        return "";
+    }
+  }
+  return handleNode(ast);
+}
 
 // Plugin management system
 class Plugins {
@@ -21,14 +64,16 @@ class Plugins {
   }
 }
 
-// Plugin definitions (these would typically be in separate files)
+// Modified plugin definitions
 const pgPlugin = {
   name: "PostgreSQL",
   command: "pg",
-  parse: (args) => ({
+  parse: (command) => ({
     type: "pg",
-    args,
-    query: args.find((arg) => arg.startsWith("-c"))?.slice(3) || "",
+    command,
+    query:
+      command.suffix.find((arg) => arg.text.startsWith("-c"))?.text.slice(3) ||
+      "",
   }),
   component: ({ query, setQuery }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -41,26 +86,35 @@ const pgPlugin = {
       />
     </div>
   ),
-  compile: (module) =>
-    `pg ${module.args.join(" ")} ${
-      module.query ? `-c "${module.query}"` : ""
-    }`.trim(),
+  compile: (module) => ({
+    type: "Command",
+    name: { text: "pg" },
+    suffix: module.command.suffix,
+  }),
 };
 
 const grepPlugin = {
   name: "GREP",
   command: "grep",
-  parse: (args) => ({
+  parse: (command) => ({
     type: "grep",
-    pattern: args.join(" ").replace(/^"/, "").replace(/"$/, ""),
-    flags: [],
+    flags: command.suffix
+      .filter((arg) => arg.text.startsWith("-"))
+      .map((arg) => arg.text.slice(1))
+      .join(""),
+    pattern: command.suffix
+      .filter((arg) => !arg.text.startsWith("-"))
+      .map((arg) => arg.text)
+      .join(" ")
+      .replace(/^"/, "")
+      .replace(/"$/, ""),
   }),
   component: ({ pattern, setPattern, flags, setFlags }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
       <h2 className="text-lg font-semibold mb-2">GREP</h2>
       <input
         type="text"
-        value={pattern}
+        value={pattern || ""}
         onChange={(e) => setPattern(e.target.value)}
         className="w-full p-2 border rounded mb-2"
         placeholder="Enter grep pattern..."
@@ -69,44 +123,54 @@ const grepPlugin = {
         <label className="mr-4 mb-2">
           <input
             type="checkbox"
-            checked={(flags || []).includes("i")}
-            onChange={(e) =>
-              setFlags((prev) =>
-                e.target.checked
-                  ? [...(prev || []), "i"]
-                  : (prev || []).filter((f) => f !== "i")
-              )
-            }
+            checked={flags.includes("i")}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFlags(flags + "i");
+              } else {
+                setFlags(flags.replace("i", ""));
+              }
+            }}
           />{" "}
           -i (Case insensitive)
         </label>
         <label className="mr-4 mb-2">
           <input
             type="checkbox"
-            checked={(flags || []).includes("v")}
-            onChange={(e) =>
-              setFlags((prev) =>
-                e.target.checked
-                  ? [...(prev || []), "v"]
-                  : (prev || []).filter((f) => f !== "v")
-              )
-            }
+            checked={flags.includes("v")}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFlags(flags + "v");
+              } else {
+                setFlags(flags.replace("v", ""));
+              }
+            }}
           />{" "}
           -v (Invert match)
         </label>
       </div>
     </div>
   ),
-  compile: (module) =>
-    `grep ${module.flags.map((f) => `-${f}`).join(" ")} "${module.pattern}"`,
+  compile: (module) => ({
+    type: "Command",
+    name: { text: "grep" },
+    suffix: [
+      ...(module.flags ? [{ type: "Word", text: `-${module.flags}` }] : []),
+      { type: "Word", text: module.pattern || "" },
+    ],
+  }),
 };
 
 const awkPlugin = {
   name: "AWK",
   command: "awk",
-  parse: (args) => ({
+  parse: (command) => ({
     type: "awk",
-    program: args.join(" ").replace(/^"/, "").replace(/"$/, ""),
+    program: command.suffix
+      .map((arg) => arg.text)
+      .join(" ")
+      .replace(/^"/, "")
+      .replace(/"$/, ""),
   }),
   component: ({ program, setProgram }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
@@ -119,65 +183,88 @@ const awkPlugin = {
       />
     </div>
   ),
-  compile: (module) => `awk '${module.program}'`,
+  compile: (module) => ({
+    type: "Command",
+    name: { text: "awk" },
+    suffix: [{ type: "Word", text: module.program }],
+  }),
 };
 
 const sedPlugin = {
   name: "SED",
   command: "sed",
-  parse: (args) => ({
+  parse: (command) => ({
     type: "sed",
-    script: args.join(" ").replace(/^"/, "").replace(/"$/, ""),
-    flags: [],
+    flags: command.suffix
+      .filter((arg) => arg.text.startsWith("-"))
+      .map((arg) => arg.text.slice(1))
+      .join(""),
+    script: command.suffix
+      .filter((arg) => !arg.text.startsWith("-"))
+      .map((arg) => arg.text)
+      .join(" ")
+      .replace(/^'/, "")
+      .replace(/'$/, ""),
   }),
   component: ({ script, setScript, flags, setFlags }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
       <h2 className="text-lg font-semibold mb-2">SED</h2>
-      <textarea
-        value={script}
+      <input
+        type="text"
+        value={script || ""}
         onChange={(e) => setScript(e.target.value)}
-        className="w-full h-32 p-2 border rounded mb-2"
-        placeholder="Enter sed script..."
+        className="w-full p-2 border rounded mb-2"
+        placeholder="Enter sed script (e.g., s/foo/bar/)"
       />
       <div className="flex flex-wrap">
         <label className="mr-4 mb-2">
           <input
             type="checkbox"
-            checked={(flags || []).includes("g")}
-            onChange={(e) =>
-              setFlags((prev) =>
-                e.target.checked
-                  ? [...(prev || []), "g"]
-                  : (prev || []).filter((f) => f !== "g")
-              )
-            }
+            checked={flags.includes("g")}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFlags(flags + "g");
+              } else {
+                setFlags(flags.replace("g", ""));
+              }
+            }}
           />{" "}
           -g (Global replacement)
         </label>
         <label className="mr-4 mb-2">
           <input
             type="checkbox"
-            checked={(flags || []).includes("i")}
-            onChange={(e) =>
-              setFlags((prev) =>
-                e.target.checked
-                  ? [...(prev || []), "i"]
-                  : (prev || []).filter((f) => f !== "i")
-              )
-            }
+            checked={flags.includes("i")}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFlags(flags + "i");
+              } else {
+                setFlags(flags.replace("i", ""));
+              }
+            }}
           />{" "}
           -i (Case insensitive)
         </label>
       </div>
     </div>
   ),
-  compile: (module) => `sed '${module.flags.includes("g") ? "g" : ""}${module.script}'`,
+  compile: (module) => ({
+    type: "Command",
+    name: { text: "sed" },
+    suffix: [
+      ...(module.flags ? [{ type: "Word", text: `-${module.flags}` }] : []),
+      { type: "Word", text: module.script || "" },
+    ],
+  }),
 };
 
 const catPlugin = {
   name: "CAT",
   command: "cat",
-  parse: (args) => ({ type: "cat", files: args }),
+  parse: (command) => ({
+    type: "cat",
+    files: command.suffix.map((arg) => arg.text),
+  }),
   component: ({ files, setFiles }) => (
     <div className="flex-1 bg-white p-4 rounded shadow mx-2">
       <h2 className="text-lg font-semibold mb-2">CAT</h2>
@@ -189,15 +276,20 @@ const catPlugin = {
       />
     </div>
   ),
-  compile: (module) => `cat ${module.files.join(" ")}`,
+  compile: (module) => ({
+    type: "Command",
+    name: { text: "cat" },
+    suffix: module.files.map((file) => ({ type: "Word", text: file })),
+  }),
 };
 
 const echoPlugin = {
   name: "ECHO",
   command: "echo",
-  parse: (args) => ({
+  parse: (command) => ({
     type: "echo",
-    text: args
+    text: command.suffix
+      .map((arg) => arg.text)
       .join(" ")
       .replace(/^"/, "")
       .replace(/"$/, "")
@@ -214,7 +306,11 @@ const echoPlugin = {
       />
     </div>
   ),
-  compile: (module) => `echo "${module.text}"`,
+  compile: (module) => ({
+    type: "Command",
+    name: { text: "echo" },
+    suffix: [{ type: "Word", text: module.text }],
+  }),
 };
 
 // Register plugins
@@ -228,35 +324,97 @@ Plugins.register(echoPlugin);
 // App-level store
 const useStore = () => {
   const [inputCommand, setInputCommand] = useState(
-    'echo "foo\nbrick\nbonk" | grep "foo" | awk "{print $1}" | sed "s/foo/bar/g"'
+    'echo "foo\\nbrick\\nbonk" | grep -i "foo" | awk "{print $1}" | sed "s/foo/bar/g"'
   );
   const [modules, setModules] = useState([]);
   const [compiledCommand, setCompiledCommand] = useState("");
   const [output, setOutput] = useState("");
+  const [ast, setAst] = useState(null);
+  const [updateSource, setUpdateSource] = useState(null);
 
-  const parseCommand = (cmd) => {
-    const parts = cmd.split("|").map((part) => part.trim());
-    const newModules = parts
-      .map((part) => {
-        const [command, ...args] = part.split(" ");
-        const plugin = Plugins.get(command);
-        return plugin ? plugin.parse(args) : null;
-      })
-      .filter(Boolean);
-    setModules(newModules);
-  };
+  const parseCommand = useCallback((cmd) => {
+    window.electron.parseCommand(cmd);
+  }, []);
 
-  const compileCommand = () => {
-    const cmd = modules
-      .map((module) => {
-        const plugin = Plugins.get(module.type);
-        return plugin ? plugin.compile(module) : "";
-      })
-      .join(" | ");
+  const compileCommand = useCallback(() => {
+    const compiledAst = {
+      type: "Script",
+      commands: [
+        {
+          type: "Pipeline",
+          commands: modules
+            .map((module) => {
+              const plugin = Plugins.get(module.type);
+              return plugin ? plugin.compile(module) : null;
+            })
+            .filter(Boolean),
+        },
+      ],
+    };
+    const cmd = astToCommand(compiledAst);
     setCompiledCommand(cmd);
-  };
+    return cmd;
+  }, [modules]);
+
+  useEffect(() => {
+    // Parse the initial command when the component mounts
+    parseCommand(inputCommand);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  useEffect(() => {
+    window.electron.ipcRenderer.receive("parse-command-result", (result) => {
+      if (result.error) {
+        console.error(result.error);
+      } else {
+        setAst(result);
+
+        if (
+          result.type === "Script" &&
+          result.commands &&
+          result.commands[0].type === "Pipeline"
+        ) {
+          const newModules = result.commands[0].commands
+            .map((command) => {
+              const plugin = Plugins.get(command.name.text);
+              if (plugin) {
+                return plugin.parse(command);
+              }
+              return null;
+            })
+            .filter(Boolean);
+
+          setUpdateSource("input");
+          setModules(newModules);
+        } else {
+          console.error("Unexpected AST structure");
+        }
+      }
+    });
+
+    window.electron.ipcRenderer.receive("execute-command-result", (result) => {
+      if (result.error) {
+        setOutput(`Error: ${result.error}`);
+      } else {
+        setOutput(result.output);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (updateSource === "input") {
+      parseCommand(inputCommand);
+    }
+  }, [inputCommand, parseCommand, updateSource]);
+
+  useEffect(() => {
+    if (updateSource === "modules") {
+      const cmd = compileCommand();
+      setInputCommand(cmd);
+    }
+  }, [modules, compileCommand, updateSource]);
 
   const updateModule = (index, updates) => {
+    setUpdateSource("modules");
     setModules((prevModules) =>
       prevModules.map((module, i) =>
         i === index ? { ...module, ...updates } : module
@@ -265,15 +423,15 @@ const useStore = () => {
   };
 
   const executeCommand = async () => {
-    // Mock execution for browser testing
-    setOutput(
-      `Executing command: ${compiledCommand}\n\nThis is a mock output for browser testing.`
-    );
+    window.electron.executeCommand(compiledCommand);
   };
 
   return {
     inputCommand,
-    setInputCommand,
+    setInputCommand: (cmd) => {
+      setUpdateSource("input");
+      setInputCommand(cmd);
+    },
     modules,
     setModules,
     compiledCommand,
@@ -284,19 +442,13 @@ const useStore = () => {
     compileCommand,
     updateModule,
     executeCommand,
+    ast,
+    setAst,
   };
 };
 
 const App = () => {
   const store = useStore();
-
-  useEffect(() => {
-    store.parseCommand(store.inputCommand);
-  }, [store.inputCommand]);
-
-  useEffect(() => {
-    store.compileCommand();
-  }, [store.modules]);
 
   const handleInputChange = (e) => {
     store.setInputCommand(e.target.value);
@@ -352,10 +504,6 @@ const App = () => {
           >
             Execute
           </button>
-        </div>
-        <div className="bg-gray-600 text-white p-2 rounded mb-2">
-          Compiled Command:{" "}
-          <span className="font-mono">{store.compiledCommand}</span>
         </div>
         <div className="bg-black text-green-400 p-2 rounded h-32 overflow-auto">
           <pre>{store.output}</pre>
