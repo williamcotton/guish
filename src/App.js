@@ -57,12 +57,21 @@ const useStore = () => {
       commands: [
         {
           type: "Pipeline",
-          commands: modules
-            .map((module) => {
-              const plugin = Plugins.get(module.type);
-              return plugin ? plugin.compile(module) : null;
-            })
-            .filter(Boolean),
+          commands: modules.map((module) => {
+            const plugin = Plugins.get(module.type);
+            if (plugin) {
+              return plugin.compile(module);
+            } else {
+              // For generic commands, create a basic Command structure
+              return {
+                type: "Command",
+                name: { text: module.command },
+                suffix: module.args
+                  ? module.args.split(" ").map((arg) => ({ type: "Word", text: arg }))
+                  : [],
+              };
+            }
+          }),
         },
       ],
     };
