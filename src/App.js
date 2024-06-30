@@ -8,6 +8,7 @@ import { awkPlugin } from "./plugins/awkPlugin.js";
 import { sedPlugin } from "./plugins/sedPlugin.js";
 import { catPlugin } from "./plugins/catPlugin.js";
 import { echoPlugin } from "./plugins/echoPlugin.js";
+import { ggplotPlugin } from "./plugins/ggplotPlugin.js";
 import { astToCommand } from "./astToCommand.js";
 
 // Plugin management system
@@ -35,6 +36,7 @@ Plugins.register(awkPlugin);
 Plugins.register(sedPlugin);
 Plugins.register(catPlugin);
 Plugins.register(echoPlugin);
+Plugins.register(ggplotPlugin);
 
 // App-level store
 const useStore = () => {
@@ -178,6 +180,7 @@ const useStore = () => {
 
 const App = () => {
   const store = useStore();
+  const [showHtml, setShowHtml] = useState(false);
 
   const handleInputChange = (e) => {
     store.setInputCommand(e.target.value);
@@ -242,9 +245,33 @@ const App = () => {
             Execute
           </button>
         </div>
-        <div className="bg-black text-green-400 p-2 rounded h-32 overflow-auto">
-          <pre>{store.output}</pre>
+        <div className="flex mb-2">
+          <button
+            onClick={() => setShowHtml(false)}
+            className={`px-4 py-2 rounded-l ${
+              !showHtml ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
+            }`}
+          >
+            Plain Text
+          </button>
+          <button
+            onClick={() => setShowHtml(true)}
+            className={`px-4 py-2 rounded-r ${
+              showHtml ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
+            }`}
+          >
+            HTML
+          </button>
         </div>
+        {!showHtml ? (
+          <div className="bg-black text-green-400 p-2 rounded h-32 overflow-auto">
+            <pre>{store.output}</pre>
+          </div>
+        ) : (
+          <div className="bg-white p-2 rounded h-32 overflow-auto">
+            <div dangerouslySetInnerHTML={{ __html: store.output }} />
+          </div>
+        )}
       </div>
     </div>
   );
