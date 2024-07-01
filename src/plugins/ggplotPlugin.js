@@ -26,6 +26,6 @@ export const ggplotPlugin = {
   compile: (module) => ({
     type: "Command",
     name: { text: "ggplot" },
-    suffix: module.code ? [{ type: "Word", text: `"${module.code}"` }] : [],
+    suffix: module.code ? [{ type: "Word", text: module.code}] : [],
   }),
 };
