@@ -10,6 +10,8 @@ guish is a dynamic data pipeline UI that allows users to visually construct and 
 - Bidirectional updates from CLI or GUI command modules
 - HTML rendering of command output
 - Electron-based desktop application for cross-platform support
+- Code editor integration for complex commands (e.g., SQL, AWK)
+- Keyboard shortcut (Alt+Enter) for quick command execution
 
 ## Screenshots
 
@@ -28,6 +30,14 @@ guish currently supports the following commands and plugins:
 - awk
 - PostgreSQL queries (pg)
 - ggplot (for data visualization)
+- sort
+- uniq
+- wc (word count)
+- head
+- tr (translate)
+- cut
+- tee
+- xargs
 - Generic command support for unsupported commands
 
 ## Getting Started
@@ -75,7 +85,7 @@ This will create distributable packages for your platform in the `dist` director
 1. Enter your command pipeline in the input area at the bottom of the screen.
 2. The pipeline will be parsed and represented visually as a series of modules.
 3. Modify individual command parameters using the provided UI components or in the CLI.
-4. Click the "Execute" button or press Ctrl+Enter (Cmd+Enter on macOS) to run the pipeline.
+4. Click the "Execute" button or press Alt+Enter to run the pipeline.
 5. View the output in the terminal-like display below the input area.
 6. For HTML output, check the right-hand panel for rendered results.
 
@@ -97,4 +107,3 @@ This project is licensed under the ISC License. See the `LICENSE` file for detai
 
 - This project uses various open-source libraries and tools. We're grateful to the developers and contributors of these projects.
 - Special thanks to the Electron, React, and Tailwind CSS communities for their excellent frameworks and documentation.
-Write shell pipelines with bidirectional GUI modules.
