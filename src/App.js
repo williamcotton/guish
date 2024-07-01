@@ -195,10 +195,21 @@ const App = () => {
     }
   };
 
-  // Function to prepare the command for display
-  const prepareCommandForDisplay = (cmd) => {
-    return cmd.replace(/\\n/g, "\n").replace(/\n/g, "\\n");
-  };
+  useEffect(() => {
+    const handleGlobalKeyPress = (e) => {
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        store.executeCommand();
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyPress);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyPress);
+    };
+  }, [store]);
 
   const renderModule = (module, index) => {
     const plugin = Plugins.get(module.type) || genericPlugin;
@@ -224,7 +235,7 @@ const App = () => {
       {/* Main content column */}
       <div className="flex flex-col w-3/4">
         <header className="bg-gray-800 text-white p-4">
-          <h1 className="text-2xl font-bold">Dynamic Data Pipeline UI</h1>
+          <h1 className="text-2xl font-bold">guish</h1>
         </header>
 
         <div className="flex-1 flex flex-col overflow-hidden p-4">
@@ -235,13 +246,13 @@ const App = () => {
           <div className="bg-gray-800 p-4 mt-4">
             <div className="flex items-center mb-2">
               <Terminal className="text-white mr-2" />
-              <input
-                value={prepareCommandForDisplay(store.inputCommand)}
+              <textarea
+                value={store.inputCommand}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
                 className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600"
                 placeholder="Enter command..."
-                rows={3}
+                rows={store.inputCommand.split("\n").length}
               />
               <button
                 onClick={store.executeCommand}
