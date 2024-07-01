@@ -55,7 +55,7 @@ const App = () => {
       {/* Main content column */}
       <div className="flex flex-col w-3/4">
         <header className="bg-gray-800 text-white p-4">
-          <h1 className="text-2xl font-bold">guish</h1>
+          <h1 className="text-2xl font-bold pl-2">guish</h1>
         </header>
 
         <div className="flex-1 flex flex-col overflow-hidden p-4">
