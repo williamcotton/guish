@@ -38,13 +38,14 @@ Plugins.register(catPlugin);
 Plugins.register(echoPlugin);
 Plugins.register(ggplotPlugin);
 
+const defaultCommand =
+  'echo "foo\\nbrick\\nbonk" | grep -i "foo" | awk "{print $1}" | sed "s/foo/bar/g"';
+
 // App-level store
 const useStore = () => {
-  const [inputCommand, setInputCommand] = useState(
-    'echo "foo\\nbrick\\nbonk" | grep -i "foo" | awk "{print $1}" | sed "s/foo/bar/g"'
-  );
+  const [inputCommand, setInputCommand] = useState(defaultCommand);
   const [modules, setModules] = useState([]);
-  const [compiledCommand, setCompiledCommand] = useState("");
+  const [compiledCommand, setCompiledCommand] = useState(defaultCommand);
   const [output, setOutput] = useState("");
   const [ast, setAst] = useState(null);
   const [updateSource, setUpdateSource] = useState(null);
@@ -155,7 +156,7 @@ const useStore = () => {
 
   const executeCommand = async () => {
     console.log(compiledCommand);
-    window.electron.executeCommand(inputCommand);
+    window.electron.executeCommand(compiledCommand);
   };
 
   return {
@@ -163,6 +164,7 @@ const useStore = () => {
     setInputCommand: (cmd) => {
       setUpdateSource("input");
       setInputCommand(cmd);
+      setCompiledCommand(cmd);
     },
     modules,
     setModules,
