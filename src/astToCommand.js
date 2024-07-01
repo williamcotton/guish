@@ -8,16 +8,14 @@ export function astToCommand(ast) {
       case "Command":
         return [node.name.text, ...node.suffix.map(handleNode)].join(" ");
       case "Word":
-        if (node.text.startsWith('"') && node.text.endsWith('"')) {
-          return node.text;
-        }
-        if (node.text.includes("\n")) {
-          return `"${node.text}"`;
-        }
-        if (node.text.includes(" ") ||
+        const quoteChar = node.text.includes('"') ? "'" : '"';
+        if (
+          node.text.includes("\n") ||
+          node.text.includes(" ") ||
           node.text.includes('"') ||
-          node.text.includes("'")) {
-          return `"${node.text}"`;
+          node.text.includes("'")
+        ) {
+          return `${quoteChar}${node.text}${quoteChar}`;
         }
         return node.text;
       case "AssignmentWord":
