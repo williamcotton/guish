@@ -5,10 +5,9 @@ guish is a dynamic data pipeline UI that allows users to visually construct and 
 ## Features
 
 - Visual representation of command-line pipelines
-- Real-time parsing and execution of commands
+- Real-time parsing of commands
 - Support for custom plugins and command modules
-- Interactive command input with syntax highlighting
-- Live output display
+- Bidirectional updates from CLI or GUI command modules
 - HTML rendering of command output
 - Electron-based desktop application for cross-platform support
 
@@ -75,7 +74,7 @@ This will create distributable packages for your platform in the `dist` director
 
 1. Enter your command pipeline in the input area at the bottom of the screen.
 2. The pipeline will be parsed and represented visually as a series of modules.
-3. Modify individual command parameters using the provided UI components.
+3. Modify individual command parameters using the provided UI components or in the CLI.
 4. Click the "Execute" button or press Ctrl+Enter (Cmd+Enter on macOS) to run the pipeline.
 5. View the output in the terminal-like display below the input area.
 6. For HTML output, check the right-hand panel for rendered results.
