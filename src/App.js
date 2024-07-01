@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Terminal } from "lucide-react";
+import { Terminal, X } from "lucide-react";
 
 import { useStore } from "./useStore.js";
 import { Plugins } from "./Plugins.js";
@@ -25,7 +25,6 @@ const App = () => {
 
     window.addEventListener("keydown", handleGlobalKeyPress);
 
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener("keydown", handleGlobalKeyPress);
     };
@@ -37,16 +36,28 @@ const App = () => {
 
     const Component = plugin.component;
     return (
-      <Component
+      <div
         key={`${module.type}-${index}`}
-        {...module}
-        {...Object.fromEntries(
-          Object.keys(module).map((key) => [
-            `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
-            (value) => store.updateModule(index, { [key]: value }),
-          ])
-        )}
-      />
+        className="flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"
+        style={{ resize: "vertical" }}
+      >
+        <button
+          onClick={() => store.removeModule(index)}
+          className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Close module"
+        >
+          <X size={16} />
+        </button>
+        <Component
+          {...module}
+          {...Object.fromEntries(
+            Object.keys(module).map((key) => [
+              `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
+              (value) => store.updateModule(index, { [key]: value }),
+            ])
+          )}
+        />
+      </div>
     );
   };
 

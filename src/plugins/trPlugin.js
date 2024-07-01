@@ -17,7 +17,7 @@ export const trPlugin = {
       command.suffix && command.suffix.length > 1 ? command.suffix[1].text : "",
   }),
   component: ({ flags, set1, set2, setFlags, setSet1, setSet2 }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">tr (Translate)</h2>
       <div className="flex flex-wrap mb-2">
         <label className="mr-4 mb-2">
@@ -63,7 +63,7 @@ export const trPlugin = {
         className="w-full p-2 border rounded"
         placeholder="Set 2 (characters to translate to)"
       />
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

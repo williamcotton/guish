@@ -15,13 +15,10 @@ export const awkPlugin = {
       : "",
   }),
   component: ({ program, setProgram }) => (
-    <div
-      className="flex-1 bg-white p-4 rounded shadow mx-2 overflow-auto"
-      style={{ resize: "vertical" }}
-    >
+    <>
       <h2 className="text-lg font-semibold mb-2">awk</h2>
       <CodeEditor value={program} onChange={setProgram} language="awk" />
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

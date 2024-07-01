@@ -17,7 +17,7 @@ export const cutPlugin = {
       : "",
   }),
   component: ({ delimiter, fields, setDelimiter, setFields }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">cut</h2>
       <div className="mb-2">
         <label className="block text-sm font-medium text-gray-700">
@@ -43,7 +43,7 @@ export const cutPlugin = {
           placeholder="Enter fields (e.g., 1,2,3 or 1-3)"
         />
       </div>
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

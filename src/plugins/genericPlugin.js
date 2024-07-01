@@ -9,7 +9,7 @@ export const genericPlugin = {
     args: command.suffix ? command.suffix.map((arg) => arg.text).join(" ") : "",
   }),
   component: ({ command, args }) => (
-    <div className="bg-white p-2 rounded shadow mx-2 inline-block">
+    <>
       <div className="flex items-center">
         <span className="font-semibold mr-2">{command}</span>
         {args && (
@@ -21,7 +21,7 @@ export const genericPlugin = {
           </span>
         )}
       </div>
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

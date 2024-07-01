@@ -6,6 +6,7 @@ const CodeEditorComponent = ({ value, onChange, language }) => {
     <Editor
       height="100%"
       width="100%"
+      loading={false}
       language={language}
       value={value}
       onChange={onChange}

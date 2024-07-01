@@ -24,7 +24,7 @@ export const xargsPlugin = {
     const iFlag = flagsArray.find((flag) => flag.startsWith("-I")) || "-I{}";
 
     return (
-      <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+      <>
         <h2 className="text-lg font-semibold mb-2">xargs</h2>
         <div className="flex flex-wrap mb-2">
           <label className="mr-4 mb-2">
@@ -90,7 +90,7 @@ export const xargsPlugin = {
             placeholder="Enter command to execute"
           />
         </div>
-      </div>
+      </>
     );
   },
   compile: (module) => ({

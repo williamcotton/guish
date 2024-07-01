@@ -96,6 +96,11 @@ export const useStore = () => {
     );
   };
 
+  const removeModule = (index) => {
+    setUpdateSource("modules");
+    setModules((prevModules) => prevModules.filter((_, i) => i !== index));
+  };
+
   const executeCommand = async () => {
     window.electron.executeCommand(compiledCommand);
   };
@@ -118,6 +123,7 @@ export const useStore = () => {
     parseCommand,
     compileCommand,
     updateModule,
+    removeModule,
     executeCommand,
     ast,
     setAst,

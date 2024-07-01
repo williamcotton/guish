@@ -21,7 +21,7 @@ export const sedPlugin = {
       : "",
   }),
   component: ({ script, setScript, flags, setFlags }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">sed</h2>
       <input
         type="text"
@@ -57,7 +57,7 @@ export const sedPlugin = {
           -i (Case insensitive)
         </label>
       </div>
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

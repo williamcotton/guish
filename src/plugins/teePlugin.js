@@ -16,7 +16,7 @@ export const teePlugin = {
       : "",
   }),
   component: ({ flags, file, setFlags, setFile }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">tee</h2>
       <div className="flex flex-wrap mb-2">
         <label className="mr-4 mb-2">
@@ -41,7 +41,7 @@ export const teePlugin = {
         className="w-full p-2 border rounded"
         placeholder="Enter filename"
       />
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

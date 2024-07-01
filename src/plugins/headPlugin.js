@@ -10,7 +10,7 @@ export const headPlugin = {
       : "10",
   }),
   component: ({ lines, setLines }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">head</h2>
       <div className="flex items-center">
         <label className="mr-2">Number of lines:</label>
@@ -22,7 +22,7 @@ export const headPlugin = {
           min="1"
         />
       </div>
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

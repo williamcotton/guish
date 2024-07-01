@@ -8,14 +8,14 @@ export const catPlugin = {
     files: command.suffix ? command.suffix.map((arg) => arg.text) : [],
   }),
   component: ({ files, setFiles }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">cat</h2>
       <textarea
         value={files.join("\n")}
         onChange={(e) => setFiles(e.target.value.split("\n"))}
         className="w-full h-32 p-2 border rounded"
         placeholder="Enter filenames (one per line)..." />
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

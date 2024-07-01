@@ -25,7 +25,7 @@ export const pgPlugin = {
     };
   },
   component: ({ database, query, setDatabase, setQuery }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2 overflow-auto" style={{ resize: "vertical" }} >
+    <>
       <h2 className="text-lg font-semibold mb-2">pg</h2>
       <div className="mb-2">
         <label className="block text-sm font-medium text-gray-700">
@@ -43,7 +43,7 @@ export const pgPlugin = {
         <label className="block text-sm font-medium text-gray-700">Query</label>
         <CodeEditor value={query} onChange={setQuery} language="sql" />
       </div>
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

@@ -21,7 +21,7 @@ export const grepPlugin = {
       : "",
   }),
   component: ({ pattern, setPattern, flags, setFlags }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <>
       <h2 className="text-lg font-semibold mb-2">grep</h2>
       <input
         type="text"
@@ -57,7 +57,7 @@ export const grepPlugin = {
           -v (Invert match)
         </label>
       </div>
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",

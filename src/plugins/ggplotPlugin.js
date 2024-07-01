@@ -15,13 +15,10 @@ export const ggplotPlugin = {
       : "",
   }),
   component: ({ code, setCode }) => (
-    <div
-      className="flex-1 bg-white p-4 rounded shadow mx-2 overflow-auto"
-      style={{ resize: "vertical" }}
-    >
+    <>
       <h2 className="text-lg font-semibold mb-2">ggplot</h2>
       <CodeEditor value={code} onChange={setCode} language="r" />
-    </div>
+    </>
   ),
   compile: (module) => ({
     type: "Command",
