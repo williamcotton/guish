@@ -154,6 +154,7 @@ const useStore = () => {
   };
 
   const executeCommand = async () => {
+    console.log(compiledCommand);
     window.electron.executeCommand(inputCommand);
   };
 
@@ -180,7 +181,6 @@ const useStore = () => {
 
 const App = () => {
   const store = useStore();
-  const [showHtml, setShowHtml] = useState(false);
 
   const handleInputChange = (e) => {
     store.setInputCommand(e.target.value);
@@ -218,60 +218,47 @@ const App = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <header className="bg-gray-800 text-white p-4">
-        <h1 className="text-2xl font-bold">Dynamic Data Pipeline UI</h1>
-      </header>
+    <div className="flex h-screen bg-gray-100">
+      {/* Main content column */}
+      <div className="flex flex-col w-3/4">
+        <header className="bg-gray-800 text-white p-4">
+          <h1 className="text-2xl font-bold">Dynamic Data Pipeline UI</h1>
+        </header>
 
-      <div className="flex-1 flex overflow-hidden p-4">
-        {store.modules.map(renderModule)}
+        <div className="flex-1 flex flex-col overflow-hidden p-4">
+          <div className="flex-1 flex overflow-auto">
+            {store.modules.map(renderModule)}
+          </div>
+
+          <div className="bg-gray-800 p-4 mt-4">
+            <div className="flex items-center mb-2">
+              <Terminal className="text-white mr-2" />
+              <input
+                value={prepareCommandForDisplay(store.inputCommand)}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600"
+                placeholder="Enter command..."
+                rows={3}
+              />
+              <button
+                onClick={store.executeCommand}
+                className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Execute
+              </button>
+            </div>
+            <div className="bg-black text-green-400 p-2 rounded h-32 overflow-auto">
+              <pre>{store.output}</pre>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-gray-800 p-4">
-        <div className="flex items-center mb-2">
-          <Terminal className="text-white mr-2" />
-          <input
-            value={prepareCommandForDisplay(store.inputCommand)}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600"
-            placeholder="Enter command..."
-            rows={3}
-          />
-          <button
-            onClick={store.executeCommand}
-            className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Execute
-          </button>
-        </div>
-        <div className="flex mb-2">
-          <button
-            onClick={() => setShowHtml(false)}
-            className={`px-4 py-2 rounded-l ${
-              !showHtml ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
-            }`}
-          >
-            Plain Text
-          </button>
-          <button
-            onClick={() => setShowHtml(true)}
-            className={`px-4 py-2 rounded-r ${
-              showHtml ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-700"
-            }`}
-          >
-            HTML
-          </button>
-        </div>
-        {!showHtml ? (
-          <div className="bg-black text-green-400 p-2 rounded h-32 overflow-auto">
-            <pre>{store.output}</pre>
-          </div>
-        ) : (
-          <div className="bg-white p-2 rounded h-32 overflow-auto">
-            <div dangerouslySetInnerHTML={{ __html: store.output }} />
-          </div>
-        )}
+      {/* HTML output column */}
+      <div className="w-1/4 bg-white p-4 overflow-auto">
+        <h2 className="text-xl font-bold mb-4">HTML Output</h2>
+        <div dangerouslySetInnerHTML={{ __html: store.output }} />
       </div>
     </div>
   );
