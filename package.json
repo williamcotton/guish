@@ -6,7 +6,7 @@
   "homepage": "./",
   "build": {
     "extends": null,
-    "appId": "com.example.dynamic-data-pipeline-ui",
+    "appId": "com.williamcotton.guish",
     "files": [
       "dist/**/*",
       "build/**/*",
@@ -34,6 +34,7 @@
     "@electron-forge/cli": "^7.4.0",
     "@headlessui/react": "^2.1.1",
     "@heroicons/react": "^2.1.4",
+    "@monaco-editor/react": "^4.6.0",
     "bash-parser": "^0.5.0",
     "electron": "^31.1.0",
     "electron-builder": "^24.13.3",

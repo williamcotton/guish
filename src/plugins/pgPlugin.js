@@ -1,4 +1,5 @@
 import React from "react";
+import CodeEditor from "../codeEditor.js";
 
 // Modified plugin definitions
 export const pgPlugin = {
@@ -24,7 +25,7 @@ export const pgPlugin = {
     };
   },
   component: ({ database, query, setDatabase, setQuery }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <div className="flex-1 bg-white p-4 rounded shadow mx-2 overflow-auto" style={{ resize: "vertical" }} >
       <h2 className="text-lg font-semibold mb-2">pg</h2>
       <div className="mb-2">
         <label className="block text-sm font-medium text-gray-700">
@@ -35,15 +36,12 @@ export const pgPlugin = {
           value={database}
           onChange={(e) => setDatabase(e.target.value)}
           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          placeholder="Enter database name..." />
+          placeholder="Enter database name..."
+        />
       </div>
-      <div>
+      <div className="h-full">
         <label className="block text-sm font-medium text-gray-700">Query</label>
-        <textarea
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="mt-1 block w-full h-32 border border-gray-300 rounded-md shadow-sm p-2"
-          placeholder="Enter PostgreSQL query..." />
+        <CodeEditor value={query} onChange={setQuery} language="sql" />
       </div>
     </div>
   ),
@@ -53,15 +51,15 @@ export const pgPlugin = {
     suffix: [
       ...(module.database
         ? [
-          { type: "Word", text: "-d" },
-          { type: "Word", text: module.database },
-        ]
+            { type: "Word", text: "-d" },
+            { type: "Word", text: module.database },
+          ]
         : []),
       ...(module.query
         ? [
-          { type: "Word", text: "-c" },
-          { type: "Word", text: module.query },
-        ]
+            { type: "Word", text: "-c" },
+            { type: "Word", text: module.query },
+          ]
         : []),
     ],
   }),

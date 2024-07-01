@@ -1,4 +1,5 @@
 import React from "react";
+import CodeEditor from "../codeEditor.js";
 
 export const ggplotPlugin = {
   name: "ggplot",
@@ -14,18 +15,17 @@ export const ggplotPlugin = {
       : "",
   }),
   component: ({ code, setCode }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <div
+      className="flex-1 bg-white p-4 rounded shadow mx-2 overflow-auto"
+      style={{ resize: "vertical" }}
+    >
       <h2 className="text-lg font-semibold mb-2">ggplot</h2>
-      <textarea
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        className="w-full h-32 p-2 border rounded"
-        placeholder="Enter ggplot code..." />
+      <CodeEditor value={code} onChange={setCode} language="r" />
     </div>
   ),
   compile: (module) => ({
     type: "Command",
     name: { text: "ggplot" },
-    suffix: module.code ? [{ type: "Word", text: module.code}] : [],
+    suffix: module.code ? [{ type: "Word", text: module.code }] : [],
   }),
 };

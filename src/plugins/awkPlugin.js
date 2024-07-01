@@ -1,4 +1,5 @@
 import React from "react";
+import CodeEditor from "../codeEditor.js";
 
 export const awkPlugin = {
   name: "awk",
@@ -7,20 +8,19 @@ export const awkPlugin = {
     type: "awk",
     program: command.suffix
       ? command.suffix
-        .map((arg) => arg.text)
-        .join(" ")
-        .replace(/^"/, "")
-        .replace(/"$/, "")
+          .map((arg) => arg.text)
+          .join(" ")
+          .replace(/^"/, "")
+          .replace(/"$/, "")
       : "",
   }),
   component: ({ program, setProgram }) => (
-    <div className="flex-1 bg-white p-4 rounded shadow mx-2">
+    <div
+      className="flex-1 bg-white p-4 rounded shadow mx-2 overflow-auto"
+      style={{ resize: "vertical" }}
+    >
       <h2 className="text-lg font-semibold mb-2">awk</h2>
-      <textarea
-        value={program}
-        onChange={(e) => setProgram(e.target.value)}
-        className="w-full h-32 p-2 border rounded"
-        placeholder="Enter awk program..." />
+      <CodeEditor value={program} onChange={setProgram} language="awk" />
     </div>
   ),
   compile: (module) => ({

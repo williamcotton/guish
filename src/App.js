@@ -17,7 +17,7 @@ const App = () => {
 
   useEffect(() => {
     const handleGlobalKeyPress = (e) => {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === "Enter" && e.altKey) {
         e.preventDefault();
         store.executeCommand();
       }

@@ -25,10 +25,6 @@ export class Plugins {
   static get(command) {
     return this.plugins[command];
   }
-
-  static getAll() {
-    return Object.values(this.plugins);
-  }
 }
 
 // Register plugins
