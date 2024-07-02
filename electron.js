@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
@@ -94,6 +94,10 @@ function createWindow() {
         event.reply("execute-command-result", { output: stdout || stderr });
       }
     });
+  });
+
+  ipcMain.handle("show-save-dialog", async (event, options) => {
+    return dialog.showSaveDialog(win, options);
   });
 }
 
