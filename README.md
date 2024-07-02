@@ -14,10 +14,9 @@ guish is a dynamic data pipeline UI that allows users to visually construct and 
 - Keyboard shortcut (Alt+Enter) for quick command execution
 - Configurable shell and preload script via `.guish` configuration file
 
-## Screenshots
+## Demo
 
-![Screenshot 2024-06-30 at 8 30 57 PM](https://github.com/williamcotton/guish/assets/13163/dd4ac407-aa77-4954-84e9-1b8c05874d56)
-![Screenshot 2024-06-30 at 8 32 33 PM](https://github.com/williamcotton/guish/assets/13163/6f36c384-34c3-49ca-ad80-bdfbb0c7e480)
+![guish-demo-lowres](https://github.com/williamcotton/guish/assets/13163/d9716a47-299c-4bd8-91a0-75615d97369d)
 
 
 ## Supported Commands
