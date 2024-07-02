@@ -102,6 +102,7 @@ export const useStore = () => {
   };
 
   const executeCommand = async () => {
+    console.log(compiledCommand);
     window.electron.executeCommand(compiledCommand);
   };
 
