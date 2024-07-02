@@ -14,6 +14,7 @@ import { trPlugin } from "./plugins/trPlugin.js";
 import { cutPlugin } from "./plugins/cutPlugin.js";
 import { teePlugin } from "./plugins/teePlugin.js";
 import { xargsPlugin } from "./plugins/xargsPlugin.js";
+import { prependcssPlugin } from "./plugins/prependcssPlugin.js";
 
 export class Plugins {
   static plugins = {};
@@ -44,3 +45,4 @@ Plugins.register(trPlugin);
 Plugins.register(cutPlugin);
 Plugins.register(teePlugin);
 Plugins.register(xargsPlugin);
+Plugins.register(prependcssPlugin);
