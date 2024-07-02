@@ -8,7 +8,7 @@ export const genericPlugin = {
     command: command.name.text,
     args: command.suffix ? command.suffix.map((arg) => arg.text).join(" ") : "",
   }),
-  containerClasses: "bg-white p-2 rounded shadow mx-2 inline-block",
+  containerClasses: "bg-white p-2 rounded shadow mx-2 relative pr-8 group",
   component: ({ command, args }) => (
     <>
       <div className="flex items-center">
