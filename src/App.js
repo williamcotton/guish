@@ -6,7 +6,7 @@ import { Plugins } from "./Plugins.js";
 import { genericPlugin } from "./plugins/genericPlugin.js";
 
 export const defaultCommand =
-  'echo "foo\\nbrick\\nbonk" | grep -i "foo" | awk "{print $1}" | sed "s/foo/bar/g"';
+  'echo "fad foo\\nbrick bro\\nbonk nonk" | grep -i "f" | awk \'{print $2}\' | sed "s/foo/bar/g"';
 
 const App = () => {
   const store = useStore();
