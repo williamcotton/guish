@@ -29,34 +29,6 @@ export const sedPlugin = {
         onChange={(e) => setScript(e.target.value)}
         className="w-full p-2 border rounded mb-2"
         placeholder="Enter sed script (e.g., s/foo/bar/)" />
-      <div className="flex flex-wrap">
-        <label className="mr-4 mb-2">
-          <input
-            type="checkbox"
-            checked={flags.includes("g")}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setFlags(flags + "g");
-              } else {
-                setFlags(flags.replace("g", ""));
-              }
-            }} />{" "}
-          -g (Global replacement)
-        </label>
-        <label className="mr-4 mb-2">
-          <input
-            type="checkbox"
-            checked={flags.includes("i")}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setFlags(flags + "i");
-              } else {
-                setFlags(flags.replace("i", ""));
-              }
-            }} />{" "}
-          -i (Case insensitive)
-        </label>
-      </div>
     </>
   ),
   compile: (module) => ({
