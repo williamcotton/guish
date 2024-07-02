@@ -38,7 +38,7 @@ const App = () => {
     return (
       <div
         key={`${module.type}-${index}`}
-        className="flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"
+        className={plugin.containerClasses || "flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"}
         style={{ resize: "vertical" }}
       >
         <button
@@ -82,7 +82,7 @@ const App = () => {
                 onChange={handleInputChange}
                 className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600"
                 placeholder="Enter command..."
-                rows={store.inputCommand.split("\n").length}
+                rows={Math.min(store.inputCommand.split("\n").length, 10)}
               />
               <button
                 onClick={store.executeCommand}
