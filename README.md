@@ -12,6 +12,7 @@ guish is a dynamic data pipeline UI that allows users to visually construct and 
 - Electron-based desktop application for cross-platform support
 - Code editor integration for complex commands (e.g., SQL, AWK)
 - Keyboard shortcut (Alt+Enter) for quick command execution
+- Configurable shell and preload script via `.guish` configuration file
 
 ## Screenshots
 
@@ -59,6 +60,31 @@ guish currently supports the following commands and plugins:
    ```
    npm install
    ```
+
+### Configuration
+
+guish uses a configuration file located at `~/.guish` to customize its behavior. If this file doesn't exist, guish will use default settings.
+
+To create or modify the configuration, create a file named `.guish` in your home directory with the following content:
+
+```json
+{
+  "shell": "zsh",
+  "preloadScript": ""
+}
+```
+
+- `shell`: Specifies the shell to use for executing commands (default: "zsh")
+- `preloadScript`: A script to run before executing each command (default: "")
+
+For example, if you want to source your custom functions before each command, you can set:
+
+```json
+{
+  "shell": "zsh",
+  "preloadScript": "source ~/dotfiles/.functions"
+}
+```
 
 ### Running the Application
 

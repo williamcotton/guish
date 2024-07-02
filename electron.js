@@ -4,17 +4,35 @@ import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import parse from "bash-parser";
 import { spawn } from "child_process";
+import fs from "fs";
+import os from "os";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load configuration
+const configPath = path.join(os.homedir(), ".guish");
+let config = {
+  shell: "zsh",
+  preloadScript: "", // Default to no preload script
+};
+
+try {
+  const configFile = fs.readFileSync(configPath, "utf8");
+  const userConfig = JSON.parse(configFile);
+  config = { ...config, ...userConfig };
+} catch (error) {
+  console.warn(`Could not read config file: ${error.message}`);
+  console.warn("Using default configuration");
+}
 
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: false, // It's better to disable nodeIntegration for security
-      enableRemoteModule: false, // `remote` module is deprecated, use contextBridge and ipcRenderer instead
+      nodeIntegration: false,
+      enableRemoteModule: false,
       preload: path.join(__dirname, "preload.js"),
     },
   });
@@ -31,7 +49,6 @@ function createWindow() {
 
   ipcMain.on("parse-command", (event, args) => {
     if (!args || args.trim() === "") {
-      // Return an empty AST structure for empty input
       event.reply("parse-command-result", {
         type: "Script",
         commands: [
@@ -52,22 +69,25 @@ function createWindow() {
   });
 
   ipcMain.on("execute-command", (event, args) => {
-    const zsh = spawn("zsh", ["-c", `source ~/dotfiles/.functions && ${args}`], {
+    const command = config.preloadScript
+      ? `${config.preloadScript} && ${args}`
+      : args;
+    const shellProcess = spawn(config.shell, ["-c", command], {
       stdio: ["pipe", "pipe", "pipe"],
     });
 
     let stdout = "";
     let stderr = "";
 
-    zsh.stdout.on("data", (data) => {
+    shellProcess.stdout.on("data", (data) => {
       stdout += data.toString();
     });
 
-    zsh.stderr.on("data", (data) => {
+    shellProcess.stderr.on("data", (data) => {
       stderr += data.toString();
     });
 
-    zsh.on("close", (code) => {
+    shellProcess.on("close", (code) => {
       if (code !== 0) {
         event.reply("execute-command-result", { error: stderr });
       } else {
