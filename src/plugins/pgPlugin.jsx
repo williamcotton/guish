@@ -1,5 +1,5 @@
 import React from "react";
-import CodeEditor from "../codeEditor.js";
+import CodeEditor from "../codeEditor";
 
 // Modified plugin definitions
 export const pgPlugin = {

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { genericPlugin } from "./plugins/genericPlugin.js";
-import { astToCommand } from "./astToCommand.js";
-import { defaultCommand } from "./App.js";
-import { Plugins } from "./Plugins.js";
+import { genericPlugin } from "./plugins/genericPlugin";
+import { astToCommand } from "./astToCommand";
+import { defaultCommand } from "./App";
+import { Plugins } from "./Plugins";
 
 // App-level store
 export const useStore = () => {

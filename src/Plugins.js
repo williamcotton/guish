@@ -1,20 +1,20 @@
-import { genericPlugin } from "./plugins/genericPlugin.js";
-import { pgPlugin } from "./plugins/pgPlugin.js";
-import { grepPlugin } from "./plugins/grepPlugin.js";
-import { awkPlugin } from "./plugins/awkPlugin.js";
-import { sedPlugin } from "./plugins/sedPlugin.js";
-import { catPlugin } from "./plugins/catPlugin.js";
-import { echoPlugin } from "./plugins/echoPlugin.js";
-import { ggplotPlugin } from "./plugins/ggplotPlugin.js";
-import { sortPlugin } from "./plugins/sortPlugin.js";
-import { uniqPlugin } from "./plugins/uniqPlugin.js";
-import { wcPlugin } from "./plugins/wcPlugin.js";
-import { headPlugin } from "./plugins/headPlugin.js";
-import { trPlugin } from "./plugins/trPlugin.js";
-import { cutPlugin } from "./plugins/cutPlugin.js";
-import { teePlugin } from "./plugins/teePlugin.js";
-import { xargsPlugin } from "./plugins/xargsPlugin.js";
-import { prependcssPlugin } from "./plugins/prependcssPlugin.js";
+import { genericPlugin } from "./plugins/genericPlugin";
+import { pgPlugin } from "./plugins/pgPlugin";
+import { grepPlugin } from "./plugins/grepPlugin";
+import { awkPlugin } from "./plugins/awkPlugin";
+import { sedPlugin } from "./plugins/sedPlugin";
+import { catPlugin } from "./plugins/catPlugin";
+import { echoPlugin } from "./plugins/echoPlugin";
+import { ggplotPlugin } from "./plugins/ggplotPlugin";
+import { sortPlugin } from "./plugins/sortPlugin";
+import { uniqPlugin } from "./plugins/uniqPlugin";
+import { wcPlugin } from "./plugins/wcPlugin";
+import { headPlugin } from "./plugins/headPlugin";
+import { trPlugin } from "./plugins/trPlugin";
+import { cutPlugin } from "./plugins/cutPlugin";
+import { teePlugin } from "./plugins/teePlugin";
+import { xargsPlugin } from "./plugins/xargsPlugin";
+import { prependcssPlugin } from "./plugins/prependcssPlugin";
 
 export class Plugins {
   static plugins = {};

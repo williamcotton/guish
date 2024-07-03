@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Terminal, X } from "lucide-react";
 
-import { useStore } from "./useStore.js";
-import { Plugins } from "./Plugins.js";
-import { genericPlugin } from "./plugins/genericPlugin.js";
+import { useStore } from "./useStore";
+import { Plugins } from "./Plugins";
+import { genericPlugin } from "./plugins/genericPlugin";
 
 export const defaultCommand =
   'echo "fad foo\\nbrick bro\\nbonk nonk" | grep -i "f" | awk \'{print $2}\' | sed "s/foo/bar/g"';
