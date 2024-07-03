@@ -1,12 +1,12 @@
 # guish
 
-guish is a dynamic data pipeline UI that allows users to visually construct and execute complex command-line pipelines. It provides an intuitive interface for chaining together various Unix commands and custom plugins, making it easier to build and understand data processing workflows.
+guish (goo-ish) is a dynamic data pipeline UI that allows users to visually construct and execute complex command-line pipelines. It provides an intuitive interface for chaining together various Unix commands and custom plugins, making it easier to build and understand data processing workflows.
 
 ## Motivation
 
 This is an exploratory project in nature, seeing how text input and GUI input can complement each other in a novel manner.
 
-I do a lot of data science and hop between the command line, Jupyter notebooks, R Studio, and VS Code, but there's something unsatifactory about all of them. Embedding a SQL query in another language like R puts the SQL in a secondary position. The command line keeps every language on the same level but is a rather poor interface for writing code. This application attemps to bridge the gap.
+I do a lot of data science and hop between the command line, Jupyter notebooks, R Studio, and VS Code, but there's something unsatifactory about all of them. Embedding a SQL query in another language like R puts the SQL in a secondary position. The command line keeps every language on the same level but is a rather poor interface for writing code. This application attempts to bridge the gap.
 
 Updates to the prompt are parsed into an AST and used to update the GUI. Updates in the GUI are used to build an AST to update the prompt.
 
@@ -67,6 +67,59 @@ guish currently supports the following commands and plugins:
 - tee
 - xargs
 - Generic command support for unsupported commands
+
+### pg and ggplot
+
+These are both custom shell functions that will need to be included in a file reference by the `preloadScript` section of the [`~/.guish`](https://github.com/williamcotton/guish/edit/main/README.md#configuration) configuration.
+
+`pg` requires that `psql` is on the host system.
+
+```sh
+function pg() {
+  local query=""
+  local args=()
+  local input_from_stdin=1  # Assume input is from stdin initially.
+
+  # Process arguments
+  while (( "$#" )); do
+    if [[ "$1" == "-c" ]]; then
+      if [[ -n "$2" ]]; then
+        query="$2"         # Set the query from the next argument
+        shift 2            # Skip the next argument as it's the query
+        input_from_stdin=0 # No input from stdin since query is specified
+        break
+      else
+        echo "Error: Expected a query after -c flag"
+        return 1
+      fi
+    else
+      args+=("$1")        # Collect other arguments
+      shift
+    fi
+  done
+
+  # Read query from stdin if not provided via -c
+  if [[ "$input_from_stdin" -eq 1 ]]; then
+    query=$(cat)
+  fi
+
+  # Execute the query with collected arguments
+  psql -X -A -F $'\t' --no-align --pset footer=off "${args[@]}" -c "$query"
+}
+```
+
+`ggplot` requires that R and [rush](https://jeroenjanssens.github.io/rush/) are on the host system.
+
+```sh
+function ggplot() {
+  if [[ "$1" == "-f" ]]; then
+    shift
+    rush run --library tidyverse "$(cat "$1")" -
+  else
+    rush run --library tidyverse "$@" -
+  fi
+}
+```
 
 ## Getting Started
 
