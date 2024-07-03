@@ -37,6 +37,11 @@ function createWindow() {
     },
   });
 
+  // Set dock icon for macOS
+  if (process.platform === "darwin") {
+    app.dock.setIcon(path.join(__dirname, "appIcon.png"));
+  }
+
   win.loadURL(
     isDev
       ? "http://localhost:3000"
