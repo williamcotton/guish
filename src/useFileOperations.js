@@ -1,0 +1,98 @@
+import { useCallback, useEffect } from "react";
+
+export const useFileOperations = (store) => {
+  const savePipeline = useCallback(
+    async (filePath = null) => {
+      try {
+        if (!filePath) {
+          const result = await window.electron.showSaveScriptDialog();
+          if (result.canceled || !result.filePath) {
+            return;
+          }
+          filePath = result.filePath;
+        }
+
+        const saveResult = await window.electron.saveScriptFile(
+          store.compiledCommand,
+          filePath
+        );
+        if (saveResult.success) {
+          store.setCurrentFilePath(filePath);
+        } else {
+          console.error("Failed to save script file:", saveResult.error);
+          // Here you might want to show an error message to the user
+        }
+      } catch (error) {
+        console.error("Error in save pipeline:", error);
+        // Here you might want to show an error message to the user
+      }
+    },
+    [store]
+  );
+
+  const handleNewPipeline = useCallback(() => {
+    store.setInputCommand("");
+    store.setOutput("");
+    store.setCurrentFilePath(null);
+  }, [store]);
+
+  const handleOpenPipeline = useCallback(async () => {
+    try {
+      const result = await window.electron.showOpenScriptDialog();
+      if (!result.canceled && result.filePaths.length > 0) {
+        const filePath = result.filePaths[0];
+        const fileContent = await window.electron.openScriptFile(filePath);
+        if (fileContent.success) {
+          store.setInputCommand(fileContent.content);
+          store.setCurrentFilePath(filePath);
+          store.setOutput(""); // Clear text output
+        } else {
+          console.error("Failed to open script file:", fileContent.error);
+          // Here you might want to show an error message to the user
+        }
+      }
+    } catch (error) {
+      console.error("Error in open pipeline:", error);
+      // Here you might want to show an error message to the user
+    }
+  }, [store]);
+
+  const handleSavePipeline = useCallback(() => {
+    savePipeline(store.currentFilePath);
+  }, [savePipeline, store.currentFilePath]);
+
+  const handleSavePipelineAs = useCallback(() => {
+    savePipeline();
+  }, [savePipeline]);
+
+  useEffect(() => {
+    // Set up IPC listeners
+    window.electron.ipcRenderer.receive("new-pipeline", handleNewPipeline);
+    window.electron.ipcRenderer.receive("open-pipeline", handleOpenPipeline);
+    window.electron.ipcRenderer.receive("save-pipeline", handleSavePipeline);
+    window.electron.ipcRenderer.receive(
+      "save-pipeline-as",
+      handleSavePipelineAs
+    );
+
+    // Cleanup function
+    return () => {
+      window.electron.ipcRenderer.removeAllListeners("new-pipeline");
+      window.electron.ipcRenderer.removeAllListeners("open-pipeline");
+      window.electron.ipcRenderer.removeAllListeners("save-pipeline");
+      window.electron.ipcRenderer.removeAllListeners("save-pipeline-as");
+    };
+  }, [
+    handleNewPipeline,
+    handleOpenPipeline,
+    handleSavePipeline,
+    handleSavePipelineAs,
+  ]);
+
+  return {
+    handleNewPipeline,
+    handleOpenPipeline,
+    handleSavePipeline,
+    handleSavePipelineAs,
+  };
+};
