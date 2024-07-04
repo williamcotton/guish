@@ -12,6 +12,7 @@ export const useStore = () => {
   const [output, setOutput] = useState("");
   const [ast, setAst] = useState(null);
   const [updateSource, setUpdateSource] = useState(null);
+  const [currentFilePath, setCurrentFilePath] = useState(null);
 
   const parseCommand = useCallback((cmd) => {
     window.electron.parseCommand(cmd);
@@ -128,5 +129,7 @@ export const useStore = () => {
     executeCommand,
     ast,
     setAst,
+    currentFilePath,
+    setCurrentFilePath,
   };
 };
