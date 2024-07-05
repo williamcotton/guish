@@ -18,6 +18,7 @@ import { cutPlugin } from "./plugins/cutPlugin";
 import { teePlugin } from "./plugins/teePlugin";
 import { xargsPlugin } from "./plugins/xargsPlugin";
 import { prependcssPlugin } from "./plugins/prependcssPlugin";
+import { cdPlugin } from "./plugins/cdPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -59,3 +60,4 @@ Plugins.register(cutPlugin);
 Plugins.register(teePlugin);
 Plugins.register(xargsPlugin);
 Plugins.register(prependcssPlugin);
+Plugins.register(cdPlugin);

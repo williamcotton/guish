@@ -53,6 +53,8 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("show-save-script-dialog", options),
   showOpenScriptDialog: (options: Electron.OpenDialogOptions) =>
     ipcRenderer.invoke("show-open-script-dialog", options),
+  showDirectoryDialog: (options: Electron.OpenDialogOptions) =>
+    ipcRenderer.invoke("show-directory-dialog", options),
   saveScriptFile: (content: string, filePath: string) =>
     ipcRenderer.invoke("save-script-file", { content, filePath }),
   openScriptFile: (filePath: string) =>

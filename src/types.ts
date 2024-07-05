@@ -218,6 +218,9 @@ export interface SaveDialogReturnValue {
 export interface ElectronAPI {
   showSaveScriptDialog: () => Promise<SaveScriptDialogResult>;
   showOpenScriptDialog: () => Promise<OpenScriptDialogResult>;
+  showDirectoryDialog: (
+    options: OpenDialogOptions
+  ) => Promise<OpenDialogReturnValue>;
   saveScriptFile: (
     content: string,
     filePath: string
@@ -243,6 +246,31 @@ export interface OpenScriptDialogResult {
   canceled: boolean;
   filePaths: string[];
 }
+
+export interface OpenDialogReturnValue {
+  canceled: boolean;
+  filePaths: string[];
+}
+
+export interface OpenDialogOptions {
+  title?: string;
+  defaultPath?: string;
+  buttonLabel?: string;
+  filters?: Array<{ name: string; extensions: string[] }>;
+  properties?: Array<
+    | "openFile"
+    | "openDirectory"
+    | "multiSelections"
+    | "showHiddenFiles"
+    | "createDirectory"
+    | "promptToCreate"
+    | "noResolveAliases"
+    | "treatPackageAsDirectory"
+    | "dontAddToRecent"
+  >;
+  message?: string;
+}
+
 
 export interface SaveScriptFileResult {
   success: boolean;

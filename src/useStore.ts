@@ -3,13 +3,24 @@ import { genericPlugin } from "./plugins/genericPlugin";
 import { astToCommand } from "./astToCommand";
 import { defaultCommand } from "./App";
 import { Plugins } from "./Plugins";
-import { ModuleType, ScriptNode } from "./types";
+import {
+  ModuleType,
+  ScriptNode,
+  CommandNode,
+  LogicalExpressionNode,
+  PipelineNode,
+  ASTType,
+} from "./types";
+
+export interface EnhancedModuleType extends ModuleType {
+  operator?: "and" | "pipe";
+}
 
 export interface UseStoreType {
   inputCommand: string;
   setInputCommand: (cmd: string) => void;
-  modules: ModuleType[];
-  setModules: (modules: ModuleType[]) => void;
+  modules: EnhancedModuleType[];
+  setModules: (modules: EnhancedModuleType[]) => void;
   compiledCommand: string;
   setCompiledCommand: (cmd: string) => void;
   output: string;
@@ -28,7 +39,7 @@ export interface UseStoreType {
 // App-level store
 export const useStore = (): UseStoreType => {
   const [inputCommand, setInputCommand] = useState<string>(defaultCommand);
-  const [modules, setModules] = useState<ModuleType[]>([]);
+  const [modules, setModules] = useState<EnhancedModuleType[]>([]);
   const [compiledCommand, setCompiledCommand] =
     useState<string>(defaultCommand);
   const [output, setOutput] = useState<string>("");
@@ -41,18 +52,48 @@ export const useStore = (): UseStoreType => {
   }, []);
 
   const compileCommand = useCallback((): string => {
+    const buildAst = (
+      modules: EnhancedModuleType[]
+    ): LogicalExpressionNode | PipelineNode | CommandNode => {
+      if (modules.length === 0) {
+        return { type: "Command", name: { text: "", type: "Word" } } as CommandNode;
+      }
+      if (modules.length === 1) {
+        const plugin = Plugins.get(modules[0].type) || genericPlugin;
+        return plugin.compile(modules[0]) as CommandNode;
+      }
+
+      let currentAst: ASTType = (
+        Plugins.get(modules[0].type) || genericPlugin
+      ).compile(modules[0]);
+
+      for (let i = 1; i < modules.length; i++) {
+        const plugin = Plugins.get(modules[i].type) || genericPlugin;
+        const compiledModule = plugin.compile(modules[i]);
+
+        if (modules[i - 1].operator === "and") {
+          currentAst = {
+            type: "LogicalExpression",
+            op: "&&",
+            left: currentAst,
+            right: compiledModule,
+          };
+        } else {
+          if (currentAst.type !== "Pipeline") {
+            currentAst = { type: "Pipeline", commands: [currentAst] };
+          }
+          (currentAst as PipelineNode).commands.push(compiledModule);
+        }
+      }
+
+      return currentAst as LogicalExpressionNode | PipelineNode | CommandNode;
+    };
+
     const compiledAst: ScriptNode = {
       type: "Script",
-      commands: [
-        {
-          type: "Pipeline",
-          commands: modules.map((module) => {
-            const plugin = Plugins.get(module.type) || genericPlugin;
-            return plugin.compile(module);
-          }),
-        },
-      ],
+      commands: [buildAst(modules)],
     };
+
     const cmd = astToCommand(compiledAst);
     setCompiledCommand(cmd);
     return cmd;
@@ -76,20 +117,36 @@ export const useStore = (): UseStoreType => {
           result.commands.length > 0
         ) {
           const firstCommand = result.commands[0];
-          const commandsToProcess =
-            firstCommand.type === "Pipeline" && firstCommand.commands
-              ? firstCommand.commands
-              : [firstCommand];
+          const newModules: EnhancedModuleType[] = [];
 
-          const newModules = commandsToProcess
-            .map((command) => {
-              if (command && command.name && command.name.text && command.type === "Command") {
-                const plugin = Plugins.get(command.name.text) || genericPlugin;
-                return plugin.parse(command);
-              }
-              return null;
-            })
-            .filter((module): module is ModuleType => module !== null);
+          const processCommand = (
+            command: CommandNode | LogicalExpressionNode | PipelineNode,
+            operator?: "and" | "pipe"
+          ) => {
+            if (command.type === "LogicalExpression") {
+              processCommand(command.left as CommandNode, "and");
+              processCommand(command.right as CommandNode);
+            } else if (command.type === "Pipeline") {
+              command.commands.forEach((cmd, index) => {
+                processCommand(
+                  cmd as CommandNode,
+                  index < command.commands.length - 1
+                    ? "pipe"
+                    : undefined
+                );
+              });
+            } else if (
+              command.type === "Command" &&
+              command.name &&
+              command.name.text
+            ) {
+              const plugin =
+                Plugins.get(command.name.text) || genericPlugin;
+              newModules.push({ ...plugin.parse(command), operator });
+            }
+          };
+
+          processCommand(firstCommand as CommandNode);
 
           setUpdateSource("input");
           setModules(newModules);

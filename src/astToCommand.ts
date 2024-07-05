@@ -104,6 +104,7 @@ export function astToCommand(ast: ScriptNode): string {
           node.text.includes("\n") ||
           node.text.includes(" ") ||
           node.text.includes('"') ||
+          node.text.includes('.') ||
           node.text.includes("'")
         ) {
           return `${quoteChar}${node.text}${quoteChar}`;

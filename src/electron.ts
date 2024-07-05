@@ -237,6 +237,28 @@ function createWindow() {
   );
 
   ipcMain.handle(
+    "show-directory-dialog",
+    async (event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) => {
+      const defaultOptions: Electron.OpenDialogOptions = {
+        properties: ["openDirectory"],
+      };
+      const mergedOptions = { ...defaultOptions, ...options };
+
+      try {
+        const result = await dialog.showOpenDialog(mainWindow, mergedOptions);
+        return result;
+      } catch (error) {
+        console.error("Error in directory selection dialog:", error);
+        return {
+          canceled: true,
+          filePaths: [],
+          error: (error as Error).message,
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
     "save-script-file",
     async (
       event: IpcMainInvokeEvent,
