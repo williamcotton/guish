@@ -67,7 +67,7 @@ export const useStore = (): UseStoreType => {
       result: ScriptNode | { error: string }
     ) => {
       if ("error" in result) {
-        console.error(result.error);
+        // console.error(result.error);
       } else {
         setAst(result);
         if (
