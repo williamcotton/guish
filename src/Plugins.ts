@@ -1,4 +1,4 @@
-import { ModuleType, ASTType } from "./types";
+import { ModuleType, CommandNode } from "./types";
 
 // Import all plugin types
 import { genericPlugin } from "./plugins/genericPlugin";
@@ -23,9 +23,9 @@ import { prependcssPlugin } from "./plugins/prependcssPlugin";
 export interface Plugin {
   name: string;
   command: string;
-  parse: (command: ASTType) => ModuleType;
+  parse: (command: CommandNode) => ModuleType;
   component: React.FC<any>;
-  compile: (module: ModuleType) => ASTType;
+  compile: (module: ModuleType) => CommandNode;
   containerClasses?: string;
 }
 

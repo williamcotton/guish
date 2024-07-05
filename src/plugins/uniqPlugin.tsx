@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
 interface UniqModuleType extends ModuleType {
   type: "uniq";
@@ -50,21 +50,21 @@ const UniqComponent: React.FC<UniqComponentProps> = ({ flags, setFlags }) => (
 export const uniqPlugin: Plugin = {
   name: "uniq",
   command: "uniq",
-  parse: (command: ASTType): UniqModuleType => ({
+  parse: (command: CommandNode): UniqModuleType => ({
     type: "uniq",
     flags: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "",
   }),
   component: UniqComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const uniqModule = module as UniqModuleType;
     return {
       type: "Command",
-      name: { text: "uniq" },
+      name: { text: "uniq", type: "Word" },
       suffix: uniqModule.flags
         ? [{ type: "Word", text: `-${uniqModule.flags}` }]
         : [],

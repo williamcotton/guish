@@ -1,7 +1,7 @@
 import React from "react";
 import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
 interface PrependcssModuleType extends ModuleType {
   type: "prependcss";
@@ -25,11 +25,11 @@ const PrependcssComponent: React.FC<PrependcssComponentProps> = ({
 export const prependcssPlugin: Plugin = {
   name: "prependcss",
   command: "prependcss",
-  parse: (command: ASTType): PrependcssModuleType => {
+  parse: (command: CommandNode): PrependcssModuleType => {
     let css = "";
     if (command.suffix) {
       const cArgIndex = command.suffix.findIndex(
-        (arg: ASTType) => arg.text === "-c"
+        (arg: WordNode | RedirectNode) => arg.text === "-c"
       );
       if (cArgIndex !== -1 && cArgIndex + 1 < command.suffix.length) {
         css = command.suffix[cArgIndex + 1].text || "";
@@ -41,11 +41,11 @@ export const prependcssPlugin: Plugin = {
     };
   },
   component: PrependcssComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const prependcssModule = module as PrependcssModuleType;
     return {
       type: "Command",
-      name: { text: "prependcss" },
+      name: { text: "prependcss", type: "Word" },
       suffix: prependcssModule.css
         ? [
             { type: "Word", text: "-c" },

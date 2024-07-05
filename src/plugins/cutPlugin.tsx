@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, CommandNode, WordNode, RedirectNode } from "../types";
 
 interface CutModuleType extends ModuleType {
   type: "cut";
@@ -49,17 +49,17 @@ const CutComponent: React.FC<CutComponentProps> = ({
 export const cutPlugin: Plugin = {
   name: "cut",
   command: "cut",
-  parse: (command: ASTType): CutModuleType => {
+  parse: (command: CommandNode): CutModuleType => {
     let delimiter = "";
     let fields = "";
     if (command.suffix) {
-      const dArg = command.suffix.find((arg: ASTType) =>
+      const dArg = command.suffix.find((arg: WordNode | RedirectNode) =>
         arg.text?.startsWith("-d")
       );
       if (dArg && dArg.text) {
         delimiter = dArg.text.slice(2);
       }
-      const fArg = command.suffix.find((arg: ASTType) =>
+      const fArg = command.suffix.find((arg: WordNode | RedirectNode) =>
         arg.text?.startsWith("-f")
       );
       if (fArg && fArg.text) {
@@ -73,17 +73,17 @@ export const cutPlugin: Plugin = {
     };
   },
   component: CutComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const cutModule = module as CutModuleType;
     return {
       type: "Command",
-      name: { text: "cut" },
+      name: { text: "cut", type: "Word" },
       suffix: [
         ...(cutModule.delimiter
-          ? [{ type: "Word", text: `-d${cutModule.delimiter}` }]
+          ? [{ type: "Word", text: `-d${cutModule.delimiter}` } as WordNode]
           : []),
         ...(cutModule.fields
-          ? [{ type: "Word", text: `-f${cutModule.fields}` }]
+          ? [{ type: "Word", text: `-f${cutModule.fields}` } as WordNode]
           : []),
       ],
     };

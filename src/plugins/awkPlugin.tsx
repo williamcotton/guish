@@ -1,7 +1,7 @@
 import React from "react";
 import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, CommandNode, WordNode, RedirectNode } from "../types";
 
 interface AwkModuleType extends ModuleType {
   type: "awk";
@@ -44,19 +44,19 @@ const AwkComponent: React.FC<AwkComponentProps> = ({
 export const awkPlugin: Plugin = {
   name: "awk",
   command: "awk",
-  parse: (command: ASTType): AwkModuleType => {
+  parse: (command: CommandNode): AwkModuleType => {
     let program = "";
     let fieldSeparator = "";
     if (command.suffix) {
-      const fArgIndex = command.suffix.findIndex((arg: ASTType) =>
+      const fArgIndex = command.suffix.findIndex((arg: WordNode | RedirectNode) =>
         arg.text?.startsWith("-F")
       );
       if (fArgIndex !== -1 && command.suffix[fArgIndex].text) {
         fieldSeparator = command.suffix[fArgIndex].text.slice(2);
       }
       program = command.suffix
-        .filter((arg: ASTType) => !arg.text?.startsWith("-F"))
-        .map((arg: ASTType) => arg.text)
+        .filter((arg: WordNode | RedirectNode) => !arg.text?.startsWith("-F"))
+        .map((arg: WordNode | RedirectNode) => arg.text)
         .filter(
           (text: string | undefined): text is string => text !== undefined
         )
@@ -71,17 +71,22 @@ export const awkPlugin: Plugin = {
     };
   },
   component: AwkComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const awkModule = module as AwkModuleType;
     return {
       type: "Command",
-      name: { text: "awk" },
+      name: { text: "awk", type: "Word" },
       suffix: [
         ...(awkModule.fieldSeparator
-          ? [{ type: "Word", text: `-F${awkModule.fieldSeparator}` }]
+          ? [
+              {
+                type: "Word",
+                text: `-F${awkModule.fieldSeparator}`,
+              } as WordNode,
+            ]
           : []),
         ...(awkModule.program
-          ? [{ type: "Word", text: awkModule.program }]
+          ? [{ type: "Word", text: awkModule.program } as WordNode]
           : []),
       ],
     };

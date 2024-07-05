@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface TrModuleType extends ModuleType {
   type: "tr";
@@ -75,12 +75,12 @@ const TrComponent: React.FC<TrComponentProps> = ({
 export const trPlugin: Plugin = {
   name: "tr",
   command: "tr",
-  parse: (command: ASTType): TrModuleType => ({
+  parse: (command: CommandNode): TrModuleType => ({
     type: "tr",
     flags: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "",
     set1:
@@ -93,17 +93,19 @@ export const trPlugin: Plugin = {
         : "",
   }),
   component: TrComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const trModule = module as TrModuleType;
     return {
       type: "Command",
-      name: { text: "tr" },
+      name: { text: "tr", type: "Word" },
       suffix: [
         ...(trModule.flags
-          ? [{ type: "Word", text: `-${trModule.flags}` }]
+          ? [{ type: "Word", text: `-${trModule.flags}` } as WordNode]
           : []),
-        { type: "Word", text: trModule.set1 },
-        ...(trModule.set2 ? [{ type: "Word", text: trModule.set2 }] : []),
+        { type: "Word", text: trModule.set1 } as WordNode,
+        ...(trModule.set2
+          ? [{ type: "Word", text: trModule.set2 } as WordNode]
+          : []),
       ],
     };
   },

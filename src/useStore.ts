@@ -3,7 +3,7 @@ import { genericPlugin } from "./plugins/genericPlugin";
 import { astToCommand } from "./astToCommand";
 import { defaultCommand } from "./App";
 import { Plugins } from "./Plugins";
-import { ModuleType, ASTType, ScriptNode } from "./types";
+import { ModuleType, ScriptNode } from "./types";
 
 export interface UseStoreType {
   inputCommand: string;
@@ -41,7 +41,7 @@ export const useStore = (): UseStoreType => {
   }, []);
 
   const compileCommand = useCallback((): string => {
-    const compiledAst: ASTType = {
+    const compiledAst: ScriptNode = {
       type: "Script",
       commands: [
         {
@@ -83,7 +83,7 @@ export const useStore = (): UseStoreType => {
 
           const newModules = commandsToProcess
             .map((command) => {
-              if (command && command.name && command.name.text) {
+              if (command && command.name && command.name.text && command.type === "Command") {
                 const plugin = Plugins.get(command.name.text) || genericPlugin;
                 return plugin.parse(command);
               }

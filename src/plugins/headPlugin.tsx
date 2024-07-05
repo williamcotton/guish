@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
 interface HeadModuleType extends ModuleType {
   type: "head";
@@ -30,20 +30,20 @@ const HeadComponent: React.FC<HeadComponentProps> = ({ lines, setLines }) => (
 export const headPlugin: Plugin = {
   name: "head",
   command: "head",
-  parse: (command: ASTType): HeadModuleType => ({
+  parse: (command: CommandNode): HeadModuleType => ({
     type: "head",
     lines: command.suffix
       ? command.suffix
-          .find((arg: ASTType) => arg.text?.startsWith("-n"))
+          .find((arg: WordNode | RedirectNode) => arg.text?.startsWith("-n"))
           ?.text?.slice(2) || "10"
       : "10",
   }),
   component: HeadComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const headModule = module as HeadModuleType;
     return {
       type: "Command",
-      name: { text: "head" },
+      name: { text: "head", type: "Word" },
       suffix: [{ type: "Word", text: `-n${headModule.lines}` }],
     };
   },

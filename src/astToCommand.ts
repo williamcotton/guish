@@ -33,7 +33,7 @@ function handleRedirect(node: RedirectNode): string {
   return `${node.op}${handleWord(node.file)}`;
 }
 
-export function astToCommand(ast: ASTType): string {
+export function astToCommand(ast: ScriptNode): string {
   function handleNode(node: ASTType): string {
     switch (node.type) {
       case "Script":

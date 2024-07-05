@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, CommandNode, WordNode, RedirectNode } from "../types";
 
 interface CatModuleType extends ModuleType {
   type: "cat";
@@ -26,18 +26,20 @@ const CatComponent: React.FC<CatComponentProps> = ({ files, setFiles }) => (
 export const catPlugin: Plugin = {
   name: "cat",
   command: "cat",
-  parse: (command: ASTType): CatModuleType => ({
+  parse: (command: CommandNode): CatModuleType => ({
     type: "cat",
     files: command.suffix
-      ? command.suffix.map((arg: ASTType) => arg.text || "").filter(Boolean)
+      ? command.suffix
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
+          .filter(Boolean)
       : [],
   }),
   component: CatComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const catModule = module as CatModuleType;
     return {
       type: "Command",
-      name: { text: "cat" },
+      name: { text: "cat", type: "Word" },
       suffix: catModule.files.map((file) => ({ type: "Word", text: file })),
     };
   },

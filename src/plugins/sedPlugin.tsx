@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface SedModuleType extends ModuleType {
   type: "sed";
@@ -32,17 +32,17 @@ const SedComponent: React.FC<SedComponentProps> = ({
 export const sedPlugin: Plugin = {
   name: "sed",
   command: "sed",
-  parse: (command: ASTType): SedModuleType => {
+  parse: (command: CommandNode): SedModuleType => {
     const flags = command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "";
     const script = command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => !arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text || "")
+          .filter((arg: WordNode | RedirectNode) => !arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
           .join(" ")
           .replace(/^'/, "")
           .replace(/'$/, "")
@@ -54,16 +54,18 @@ export const sedPlugin: Plugin = {
     };
   },
   component: SedComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const sedModule = module as SedModuleType;
     return {
       type: "Command",
-      name: { text: "sed" },
+      name: { text: "sed", type: "Word" },
       suffix: [
         ...(sedModule.flags
-          ? [{ type: "Word", text: `-${sedModule.flags}` }]
+          ? [{ type: "Word", text: `-${sedModule.flags}` } as WordNode]
           : []),
-        ...(sedModule.script ? [{ type: "Word", text: sedModule.script }] : []),
+        ...(sedModule.script
+          ? [{ type: "Word", text: sedModule.script } as WordNode]
+          : []),
       ],
     };
   },

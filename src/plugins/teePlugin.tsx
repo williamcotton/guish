@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface TeeModuleType extends ModuleType {
   type: "tee";
@@ -75,16 +75,17 @@ const TeeComponent: React.FC<TeeComponentProps> = ({
 export const teePlugin: Plugin = {
   name: "tee",
   command: "tee",
-  parse: (command: ASTType): TeeModuleType => {
+  parse: (command: CommandNode): TeeModuleType => {
     const flags = command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "";
     const file = command.suffix
-      ? command.suffix.find((arg: ASTType) => !arg.text?.startsWith("-"))
-          ?.text || ""
+      ? command.suffix.find(
+          (arg: WordNode | RedirectNode) => !arg.text?.startsWith("-")
+        )?.text || ""
       : "";
     return {
       type: "tee",
@@ -93,16 +94,18 @@ export const teePlugin: Plugin = {
     };
   },
   component: TeeComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const teeModule = module as TeeModuleType;
     return {
       type: "Command",
-      name: { text: "tee" },
+      name: { text: "tee", type: "Word" },
       suffix: [
         ...(teeModule.flags
-          ? [{ type: "Word", text: `-${teeModule.flags}` }]
+          ? [{ type: "Word", text: `-${teeModule.flags}` } as WordNode]
           : []),
-        ...(teeModule.file ? [{ type: "Word", text: teeModule.file }] : []),
+        ...(teeModule.file
+          ? [{ type: "Word", text: teeModule.file } as WordNode]
+          : []),
       ],
     };
   },

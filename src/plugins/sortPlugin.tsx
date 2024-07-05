@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface SortModuleType extends ModuleType {
   type: "sort";
@@ -64,35 +64,35 @@ const SortComponent: React.FC<SortComponentProps> = ({
 export const sortPlugin: Plugin = {
   name: "sort",
   command: "sort",
-  parse: (command: ASTType): SortModuleType => ({
+  parse: (command: CommandNode): SortModuleType => ({
     type: "sort",
     flags: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "",
     options: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => !arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text || "")
+          .filter((arg: WordNode | RedirectNode) => !arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
           .join(" ")
       : "",
   }),
   component: SortComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const sortModule = module as SortModuleType;
     return {
       type: "Command",
-      name: { text: "sort" },
+      name: { text: "sort", type: "Word" },
       suffix: [
         ...(sortModule.flags
-          ? [{ type: "Word", text: `-${sortModule.flags}` }]
+          ? [{ type: "Word", text: `-${sortModule.flags}` } as WordNode]
           : []),
         ...(sortModule.options
           ? sortModule.options
               .split(" ")
-              .map((opt) => ({ type: "Word", text: opt }))
+              .map((opt) => ({ type: "Word", text: opt } as WordNode))
           : []),
       ],
     };

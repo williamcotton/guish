@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
 interface GenericCommandModule extends ModuleType {
   command: string;
@@ -31,20 +31,20 @@ const GenericCommandComponent: React.FC<GenericCommandProps> = ({
 export const genericPlugin: Plugin = {
   name: "Generic Command",
   command: "",
-  parse: (command: ASTType): GenericCommandModule => ({
+  parse: (command: CommandNode): GenericCommandModule => ({
     type: "generic",
     command: command.name?.text || "",
     args: command.suffix
-      ? command.suffix.map((arg: ASTType) => arg.text).join(" ")
+      ? command.suffix.map((arg: WordNode | RedirectNode) => arg.text).join(" ")
       : "",
   }),
   containerClasses: "bg-white p-2 rounded shadow mx-2 relative pr-8 group",
   component: GenericCommandComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const genericModule = module as GenericCommandModule;
     return {
       type: "Command",
-      name: { text: genericModule.command },
+      name: { text: genericModule.command, type: "Word" },
       suffix: genericModule.args
         ? genericModule.args
             .split(" ")

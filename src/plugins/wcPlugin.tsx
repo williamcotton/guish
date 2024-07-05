@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
 interface WcModuleType extends ModuleType {
   type: "wc";
@@ -64,21 +64,21 @@ const WcComponent: React.FC<WcComponentProps> = ({ flags, setFlags }) => (
 export const wcPlugin: Plugin = {
   name: "wc",
   command: "wc",
-  parse: (command: ASTType): WcModuleType => ({
+  parse: (command: CommandNode): WcModuleType => ({
     type: "wc",
     flags: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "",
   }),
   component: WcComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const wcModule = module as WcModuleType;
     return {
       type: "Command",
-      name: { text: "wc" },
+      name: { text: "wc", type: "Word" },
       suffix: wcModule.flags
         ? [{ type: "Word", text: `-${wcModule.flags}` }]
         : [],

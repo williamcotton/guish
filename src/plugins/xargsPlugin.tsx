@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface XargsModuleType extends ModuleType {
   type: "xargs";
@@ -97,37 +97,37 @@ const XargsComponent: React.FC<XargsComponentProps> = ({
 export const xargsPlugin: Plugin = {
   name: "xargs",
   command: "xargs",
-  parse: (command: ASTType): XargsModuleType => ({
+  parse: (command: CommandNode): XargsModuleType => ({
     type: "xargs",
     flags: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
           .join(" ")
       : "",
     command: command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => !arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text || "")
+          .filter((arg: WordNode | RedirectNode) => !arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
           .join(" ")
       : "",
   }),
   component: XargsComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const xargsModule = module as XargsModuleType;
     return {
       type: "Command",
-      name: { text: "xargs" },
+      name: { text: "xargs", type: "Word" },
       suffix: [
         ...(xargsModule.flags
           ? xargsModule.flags
               .split(" ")
-              .map((flag) => ({ type: "Word", text: flag }))
+              .map((flag) => ({ type: "Word", text: flag } as WordNode))
           : []),
         ...(xargsModule.command
           ? xargsModule.command
               .split(" ")
-              .map((word) => ({ type: "Word", text: word }))
+              .map((word) => ({ type: "Word", text: word } as WordNode))
           : []),
       ],
     };

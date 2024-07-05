@@ -1,7 +1,7 @@
 import React from "react";
 import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface PgModuleType extends ModuleType {
   type: "pg";
@@ -44,18 +44,18 @@ const PgComponent: React.FC<PgComponentProps> = ({
 export const pgPlugin: Plugin = {
   name: "PostgreSQL",
   command: "pg",
-  parse: (command: ASTType): PgModuleType => {
+  parse: (command: CommandNode): PgModuleType => {
     let query = "";
     let database = "";
     if (command.suffix) {
       const dArgIndex = command.suffix.findIndex(
-        (arg: ASTType) => arg.text === "-d"
+        (arg: WordNode | RedirectNode) => arg.text === "-d"
       );
       if (dArgIndex !== -1 && dArgIndex + 1 < command.suffix.length) {
         database = command.suffix[dArgIndex + 1].text || "";
       }
       const cArgIndex = command.suffix.findIndex(
-        (arg: ASTType) => arg.text === "-c"
+        (arg: WordNode | RedirectNode) => arg.text === "-c"
       );
       if (cArgIndex !== -1 && cArgIndex + 1 < command.suffix.length) {
         query = command.suffix[cArgIndex + 1].text || "";
@@ -68,22 +68,22 @@ export const pgPlugin: Plugin = {
     };
   },
   component: PgComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const pgModule = module as PgModuleType;
     return {
       type: "Command",
-      name: { text: "pg" },
+      name: { text: "pg", type: "Word" },
       suffix: [
         ...(pgModule.database
           ? [
-              { type: "Word", text: "-d" },
-              { type: "Word", text: pgModule.database },
+              { type: "Word", text: "-d" } as WordNode,
+              { type: "Word", text: pgModule.database } as WordNode,
             ]
           : []),
         ...(pgModule.query
           ? [
-              { type: "Word", text: "-c" },
-              { type: "Word", text: pgModule.query },
+              { type: "Word", text: "-c" } as WordNode,
+              { type: "Word", text: pgModule.query } as WordNode,
             ]
           : []),
       ],

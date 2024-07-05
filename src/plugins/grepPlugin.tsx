@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
 interface GrepModuleType extends ModuleType {
   type: "grep";
@@ -64,17 +64,17 @@ const GrepComponent: React.FC<GrepComponentProps> = ({
 export const grepPlugin: Plugin = {
   name: "grep",
   command: "grep",
-  parse: (command: ASTType): GrepModuleType => {
+  parse: (command: CommandNode): GrepModuleType => {
     const flags = command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text?.slice(1) || "")
+          .filter((arg: WordNode | RedirectNode) => arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "";
     const pattern = command.suffix
       ? command.suffix
-          .filter((arg: ASTType) => !arg.text?.startsWith("-"))
-          .map((arg: ASTType) => arg.text || "")
+          .filter((arg: WordNode | RedirectNode) => !arg.text?.startsWith("-"))
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
           .join(" ")
           .replace(/^"/, "")
           .replace(/"$/, "")
@@ -86,17 +86,17 @@ export const grepPlugin: Plugin = {
     };
   },
   component: GrepComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const grepModule = module as GrepModuleType;
     return {
       type: "Command",
-      name: { text: "grep" },
+      name: { text: "grep", type: "Word" },
       suffix: [
         ...(grepModule.flags
-          ? [{ type: "Word", text: `-${grepModule.flags}` }]
+          ? [{ type: "Word", text: `-${grepModule.flags}` } as WordNode]
           : []),
         ...(grepModule.pattern
-          ? [{ type: "Word", text: grepModule.pattern }]
+          ? [{ type: "Word", text: grepModule.pattern } as WordNode]
           : []),
       ],
     };

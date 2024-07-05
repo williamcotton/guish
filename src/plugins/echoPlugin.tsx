@@ -1,6 +1,6 @@
 import React from "react";
 import { Plugin } from "../Plugins";
-import { ModuleType, ASTType } from "../types";
+import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
 interface EchoModuleType extends ModuleType {
   type: "echo";
@@ -26,11 +26,11 @@ const EchoComponent: React.FC<EchoComponentProps> = ({ text, setText }) => (
 export const echoPlugin: Plugin = {
   name: "echo",
   command: "echo",
-  parse: (command: ASTType): EchoModuleType => ({
+  parse: (command: CommandNode): EchoModuleType => ({
     type: "echo",
     text: command.suffix
       ? command.suffix
-          .map((arg: ASTType) => arg.text || "")
+          .map((arg: WordNode | RedirectNode) => arg.text || "")
           .join(" ")
           .replace(/^"/, "")
           .replace(/"$/, "")
@@ -38,11 +38,11 @@ export const echoPlugin: Plugin = {
       : "",
   }),
   component: EchoComponent,
-  compile: (module: ModuleType): ASTType => {
+  compile: (module: ModuleType): CommandNode => {
     const echoModule = module as EchoModuleType;
     return {
       type: "Command",
-      name: { text: "echo" },
+      name: { text: "echo", type: "Word" },
       suffix: echoModule.text ? [{ type: "Word", text: echoModule.text }] : [],
     };
   },
