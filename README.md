@@ -6,11 +6,11 @@ guish (goo-ish) is a dynamic data pipeline UI that allows users to visually cons
 
 This is an exploratory project in nature, seeing how text input and GUI input can complement each other in a novel manner.
 
-I do a lot of data science and hop between the command line, Jupyter notebooks, R Studio, and VS Code, but there's something unsatifactory about all of them. Embedding a SQL query in another language like R puts the SQL in a secondary position. The command line keeps every language on the same level but is a rather poor interface for writing code. This application attempts to bridge the gap.
+I do a lot of data science and hop between the command line, Jupyter notebooks, R Studio, and VS Code, but there's something unsatisfactory about all of them. Embedding a SQL query in another language like R puts the SQL in a secondary position. The command line keeps every language on the same level but is a rather poor interface for writing code. This application attempts to bridge the gap.
 
 Updates to the prompt are parsed into an AST and used to update the GUI. Updates in the GUI are used to build an AST to update the prompt.
 
-Instead of writting something like this into the line editor,
+Instead of writing something like this into the line editor,
 
 ```sh
 pg -d test_database -c 'SELECT * from test_table;' | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) +
@@ -39,9 +39,12 @@ Commands are executed as-is in a shell process. The application is merely a tool
 - Bidirectional updates from CLI or GUI command modules
 - HTML rendering of command output
 - Electron-based desktop application for cross-platform support
-- Code editor integration for complex commands (e.g., SQL, AWK)
+- Code editor integration for complex commands (e.g., SQL, AWK, R)
 - Keyboard shortcut (Alt+Enter) for quick command execution
 - Configurable shell and preload script via `.guish` configuration file
+- File operations (New, Open, Save, Save As) for pipeline scripts
+- Directory selection for the `cd` command
+- Support for logical operators (&&) between commands
 
 ## Demo
 
@@ -56,7 +59,7 @@ guish currently supports the following commands and plugins:
 - grep
 - sed
 - awk
-- pg
+- pg (PostgreSQL)
 - ggplot
 - sort
 - uniq
@@ -66,11 +69,13 @@ guish currently supports the following commands and plugins:
 - cut
 - tee
 - xargs
+- prependcss
+- cd
 - Generic command support for unsupported commands
 
 ### pg and ggplot
 
-These are both custom shell functions that will need to be included in a file reference by the `preloadScript` section of the [`~/.guish`](https://github.com/williamcotton/guish/edit/main/README.md#configuration) configuration.
+These are both custom shell functions that will need to be included in a file referenced by the `preloadScript` section of the [`~/.guish`](#configuration) configuration.
 
 `pg` requires that `psql` is on the host system.
 
@@ -194,6 +199,7 @@ This will create distributable packages for your platform in the `dist` director
 4. Click the "Execute" button or press Alt+Enter to run the pipeline.
 5. View the output in the terminal-like display below the input area.
 6. For HTML output, check the right-hand panel for rendered results.
+7. Use the File menu or keyboard shortcuts to create new pipelines, open existing ones, or save your work.
 
 ## Contributing
 
