@@ -99,7 +99,16 @@ export function astToCommand(ast: ScriptNode): string {
           node.do
         )}; done`;
       case "Word":
-        return handleWord(node as WordNode);
+        const quoteChar = node.text.includes("'") ? '"' : "'";
+        if (
+          node.text.includes("\n") ||
+          node.text.includes(" ") ||
+          node.text.includes('"') ||
+          node.text.includes("'")
+        ) {
+          return `${quoteChar}${node.text}${quoteChar}`;
+        }
+        return node.text;
       case "AssignmentWord":
         return (node as WordNode).text;
       case "Redirect":
