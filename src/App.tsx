@@ -13,7 +13,7 @@ export const defaultCommand =
 
 const App: React.FC = () => {
   const store: UseStoreType = useStore();
-  const fileOperations = useFileOperations(store);
+  useFileOperations(store);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setInputCommand(e.target.value);
