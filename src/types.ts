@@ -68,9 +68,9 @@ export interface LogicalExpressionNode extends ASTType {
 
 export interface CommandNode extends ASTType {
   type: "Command";
-  name?: WordNode;
+  name: WordNode;
   prefix?: Array<AssignmentWordNode | RedirectNode>;
-  suffix?: Array<WordNode | RedirectNode>;
+  suffix: Array<WordNode | RedirectNode>;
 }
 
 export interface FunctionNode extends ASTType {
