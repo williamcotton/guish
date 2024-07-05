@@ -4,22 +4,23 @@ import { Terminal, X } from "lucide-react";
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
 
-import { useStore } from "./useStore";
+import { useStore, UseStoreType } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
+import { ModuleType } from "./types";
 
 export const defaultCommand =
   'echo "fad foo\\nbrick bro\\nbonk nonk" | grep -i "f" | awk \'{print $2}\' | sed "s/foo/bar/g"';
 
-const App = () => {
-  const store = useStore();
+const App: React.FC = () => {
+  const store: UseStoreType = useStore();
   const fileOperations = useFileOperations(store);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setInputCommand(e.target.value);
   };
 
   useEffect(() => {
-    const handleGlobalKeyPress = (e) => {
+    const handleGlobalKeyPress = (e: KeyboardEvent) => {
       if (e.key === "Enter" && e.altKey) {
         e.preventDefault();
         store.executeCommand();
@@ -33,36 +34,42 @@ const App = () => {
     };
   }, [store]);
 
-  const renderModule = (module, index) => {
-    const plugin = Plugins.get(module.type) || genericPlugin;
-    if (!plugin) return null;
+  const renderModule = useCallback(
+    (module: ModuleType, index: number) => {
+      const plugin = Plugins.get(module.type) || genericPlugin;
+      if (!plugin) return null;
 
-    const Component = plugin.component;
-    return (
-      <div
-        key={`${module.type}-${index}`}
-        className={plugin.containerClasses || "flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"}
-        style={{ resize: "vertical" }}
-      >
-        <button
-          onClick={() => store.removeModule(index)}
-          className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Close module"
+      const Component = plugin.component;
+      return (
+        <div
+          key={`${module.type}-${index}`}
+          className={
+            plugin.containerClasses ||
+            "flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"
+          }
+          style={{ resize: "vertical" }}
         >
-          <X size={16} />
-        </button>
-        <Component
-          {...module}
-          {...Object.fromEntries(
-            Object.keys(module).map((key) => [
-              `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
-              (value) => store.updateModule(index, { [key]: value }),
-            ])
-          )}
-        />
-      </div>
-    );
-  };
+          <button
+            onClick={() => store.removeModule(index)}
+            className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Close module"
+          >
+            <X size={16} />
+          </button>
+          <Component
+            {...module}
+            {...Object.fromEntries(
+              Object.keys(module).map((key) => [
+                `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
+                (value: any) => store.updateModule(index, { [key]: value }),
+              ])
+            )}
+          />
+        </div>
+      );
+    },
+    [store]
+  );
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -88,7 +95,7 @@ const App = () => {
                 rows={Math.min(store.inputCommand.split("\n").length, 10)}
               />
               <button
-                onClick={store.executeCommand}
+                onClick={() => store.executeCommand()}
                 className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
                 Execute

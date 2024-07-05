@@ -1,3 +1,6 @@
+import { ModuleType, ASTType } from "./types";
+
+// Import all plugin types
 import { genericPlugin } from "./plugins/genericPlugin";
 import { pgPlugin } from "./plugins/pgPlugin";
 import { grepPlugin } from "./plugins/grepPlugin";
@@ -16,14 +19,24 @@ import { teePlugin } from "./plugins/teePlugin";
 import { xargsPlugin } from "./plugins/xargsPlugin";
 import { prependcssPlugin } from "./plugins/prependcssPlugin";
 
-export class Plugins {
-  static plugins = {};
+// Define the Plugin interface
+export interface Plugin {
+  name: string;
+  command: string;
+  parse: (command: ASTType) => ModuleType;
+  component: React.FC<any>;
+  compile: (module: ModuleType) => ASTType;
+  containerClasses?: string;
+}
 
-  static register(plugin) {
+export class Plugins {
+  private static plugins: { [key: string]: Plugin } = {};
+
+  static register(plugin: Plugin): void {
     this.plugins[plugin.command] = plugin;
   }
 
-  static get(command) {
+  static get(command: string): Plugin | undefined {
     return this.plugins[command];
   }
 }

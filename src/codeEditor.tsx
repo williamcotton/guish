@@ -1,7 +1,21 @@
-import React from 'react';
-import Editor from '@monaco-editor/react';
+import React from "react";
+import Editor from "@monaco-editor/react";
 
-const CodeEditorComponent = ({ value, onChange, language }) => {
+interface CodeEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+  language: string;
+}
+
+const CodeEditorComponent: React.FC<CodeEditorProps> = ({
+  value,
+  onChange,
+  language,
+}) => {
+  const handleEditorChange = (value: string | undefined) => {
+    onChange(value || "");
+  };
+
   return (
     <Editor
       height="100%"
@@ -9,7 +23,7 @@ const CodeEditorComponent = ({ value, onChange, language }) => {
       loading={false}
       language={language}
       value={value}
-      onChange={onChange}
+      onChange={handleEditorChange}
       options={{
         minimap: { enabled: false, showSlider: "mouseover" },
         scrollBeyondLastLine: false,

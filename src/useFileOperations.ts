@@ -1,8 +1,10 @@
 import { useCallback, useEffect } from "react";
 
-export const useFileOperations = (store) => {
+import { UseStoreType } from "./useStore";
+
+export const useFileOperations = (store: UseStoreType) => {
   const savePipeline = useCallback(
-    async (filePath = null) => {
+    async (filePath: string | null = null): Promise<void> => {
       try {
         if (!filePath) {
           const result = await window.electron.showSaveScriptDialog();
@@ -30,19 +32,19 @@ export const useFileOperations = (store) => {
     [store]
   );
 
-  const handleNewPipeline = useCallback(() => {
+  const handleNewPipeline = useCallback((): void => {
     store.setInputCommand("");
     store.setOutput("");
     store.setCurrentFilePath(null);
   }, [store]);
 
-  const handleOpenPipeline = useCallback(async () => {
+  const handleOpenPipeline = useCallback(async (): Promise<void> => {
     try {
       const result = await window.electron.showOpenScriptDialog();
       if (!result.canceled && result.filePaths.length > 0) {
         const filePath = result.filePaths[0];
         const fileContent = await window.electron.openScriptFile(filePath);
-        if (fileContent.success) {
+        if (fileContent.success && fileContent.content !== undefined) {
           store.setInputCommand(fileContent.content);
           store.setCurrentFilePath(filePath);
           store.setOutput(""); // Clear text output
@@ -57,11 +59,11 @@ export const useFileOperations = (store) => {
     }
   }, [store]);
 
-  const handleSavePipeline = useCallback(() => {
+  const handleSavePipeline = useCallback((): void => {
     savePipeline(store.currentFilePath);
   }, [savePipeline, store.currentFilePath]);
 
-  const handleSavePipelineAs = useCallback(() => {
+  const handleSavePipelineAs = useCallback((): void => {
     savePipeline();
   }, [savePipeline]);
 
