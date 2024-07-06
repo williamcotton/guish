@@ -4,27 +4,12 @@
   "main": "dist/electron.js",
   "type": "module",
   "homepage": "./",
-  "build": {
-    "extends": null,
-    "appId": "com.williamcotton.guish",
-    "files": [
-      "dist/**/*",
-      "build/**/*",
-      "node_modules/**/*",
-      "package.json"
-    ],
-    "directories": {
-      "buildResources": "assets"
-    }
-  },
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
     "clean": "rimraf dist",
     "electron:compile": "npm run clean && tsc -p tsconfig.electron.json && npm run copy-assets",
-    "electron:serve": "concurrently -k \"cross-env BROWSER=none npm start\" \"npm run electron:compile && npm run electron:start\"",
-    "electron:build": "npm run build && electron-builder -c.extraMetadata.main=dist/electron.js",
-    "electron:start": "wait-on tcp:3000 && electron .",
+    "electron:serve": "npm run electron:compile && npm run electron:start",
+    "electron:start": "concurrently -k \"npm:start\" \"wait-on tcp:3000 && electron-forge start\"",
     "copy-assets": "cp -R assets dist/"
   },
   "keywords": [],
@@ -35,8 +20,6 @@
     "@electron-forge/cli": "^7.4.0",
     "@monaco-editor/react": "^4.6.0",
     "bash-parser": "^0.5.0",
-    "electron": "^31.1.0",
-    "electron-builder": "^24.13.3",
     "electron-is-dev": "^3.0.1",
     "lucide-react": "^0.399.0",
     "react": "^18.3.1",
@@ -47,8 +30,9 @@
   "devDependencies": {
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^4.3.1", 
     "autoprefixer": "^10.4.19",
+    "electron": "^31.1.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "postcss": "^8.4.39",
