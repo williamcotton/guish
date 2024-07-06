@@ -187,14 +187,14 @@ function createWindow() {
 
   ipcMain.handle(
     "show-save-dialog",
-    async (event: IpcMainInvokeEvent, options: Electron.SaveDialogOptions) => {
+    async (_event: IpcMainInvokeEvent, options: Electron.SaveDialogOptions) => {
       return dialog.showSaveDialog(mainWindow, options);
     }
   );
 
   ipcMain.handle(
     "show-save-script-dialog",
-    async (event: IpcMainInvokeEvent, options: Electron.SaveDialogOptions) => {
+    async (_event: IpcMainInvokeEvent, options: Electron.SaveDialogOptions) => {
       const defaultOptions: Electron.SaveDialogOptions = {
         title: "Save Pipeline Script",
         filters: [{ name: "Shell Scripts", extensions: ["sh"] }],
@@ -214,7 +214,7 @@ function createWindow() {
 
   ipcMain.handle(
     "show-open-script-dialog",
-    async (event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) => {
+    async (_event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) => {
       const defaultOptions: Electron.OpenDialogOptions = {
         title: "Open Pipeline Script",
         filters: [{ name: "Shell Scripts", extensions: ["sh"] }],
@@ -238,7 +238,7 @@ function createWindow() {
 
   ipcMain.handle(
     "show-directory-dialog",
-    async (event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) => {
+    async (_event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) => {
       const defaultOptions: Electron.OpenDialogOptions = {
         properties: ["openDirectory"],
       };
@@ -261,7 +261,7 @@ function createWindow() {
   ipcMain.handle(
     "save-script-file",
     async (
-      event: IpcMainInvokeEvent,
+      _event: IpcMainInvokeEvent,
       { content, filePath }: { content: string; filePath: string }
     ) => {
       try {
@@ -276,7 +276,7 @@ function createWindow() {
 
   ipcMain.handle(
     "open-script-file",
-    async (event: IpcMainInvokeEvent, filePath: string) => {
+    async (_event: IpcMainInvokeEvent, filePath: string) => {
       try {
         const content = await fs.promises.readFile(filePath, "utf8");
         return { success: true, content };
