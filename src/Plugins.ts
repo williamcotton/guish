@@ -21,6 +21,7 @@ import { prependcssPlugin } from "./plugins/prependcssPlugin";
 import { cdPlugin } from "./plugins/cdPlugin";
 import { jqPlugin } from "./plugins/jqPlugin";
 import { curlPlugin } from "./plugins/curlPlugin";
+import { nodePlugin } from "./plugins/nodePlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -65,3 +66,4 @@ Plugins.register(prependcssPlugin);
 Plugins.register(cdPlugin);
 Plugins.register(jqPlugin);
 Plugins.register(curlPlugin);
+Plugins.register(nodePlugin);
