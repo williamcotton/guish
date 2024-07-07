@@ -19,6 +19,7 @@ import { teePlugin } from "./plugins/teePlugin";
 import { xargsPlugin } from "./plugins/xargsPlugin";
 import { prependcssPlugin } from "./plugins/prependcssPlugin";
 import { cdPlugin } from "./plugins/cdPlugin";
+import { jqPlugin } from "./plugins/jqPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -61,3 +62,4 @@ Plugins.register(teePlugin);
 Plugins.register(xargsPlugin);
 Plugins.register(prependcssPlugin);
 Plugins.register(cdPlugin);
+Plugins.register(jqPlugin);
