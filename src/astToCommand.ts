@@ -103,7 +103,7 @@ export function astToCommand(ast: ScriptNode): string {
           node.do
         )}; done`;
       case "Word": {
-        const quoteChar = node.quoteChar || node.text.includes("'") ? '"' : "'";
+        const quoteChar = node.text.includes("'") ? '"' : "'";
         if (
           node.text.includes("\n") ||
           node.text.includes(" ") ||

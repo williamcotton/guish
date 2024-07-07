@@ -108,7 +108,6 @@ export const jqPlugin: Plugin = {
               {
                 type: "Word",
                 text: `${jqModule.filter}`,
-                quoteChar: "'",
               } as WordNode,
             ]
           : []),
