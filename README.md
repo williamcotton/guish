@@ -167,7 +167,7 @@ For example, if you want to source your custom functions before each command, yo
 ```json
 {
   "shell": "zsh",
-  "preloadScript": "source ~/dotfiles/.functions"
+  "preloadScript": "source ~/.zshrc"
 }
 ```
 
@@ -176,7 +176,7 @@ For example, if you want to source your custom functions before each command, yo
 To start the application in development mode:
 
 ```
-npm run electron:serve
+npm start
 ```
 
 This will launch the Electron app with hot-reloading enabled.
@@ -186,7 +186,7 @@ This will launch the Electron app with hot-reloading enabled.
 To build the application for production:
 
 ```
-npm run electron:build
+npm run make
 ```
 
 This will create distributable packages for your platform in the `dist` directory.

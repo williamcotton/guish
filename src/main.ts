@@ -8,7 +8,6 @@ import {
   IpcMainInvokeEvent,
 } from "electron";
 import path from "path";
-import { fileURLToPath } from "url";
 // @ts-ignore
 import parse from "bash-parser";
 import { spawn } from "child_process";
