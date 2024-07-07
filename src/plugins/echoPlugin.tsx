@@ -1,4 +1,5 @@
 import React from "react";
+import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
 import { ModuleType, WordNode, RedirectNode, CommandNode } from "../types";
 
@@ -14,12 +15,7 @@ interface EchoComponentProps extends EchoModuleType {
 const EchoComponent: React.FC<EchoComponentProps> = ({ text, setText }) => (
   <>
     <h2 className="text-lg font-semibold mb-2">echo</h2>
-    <textarea
-      value={text}
-      onChange={(e) => setText(e.target.value)}
-      className="w-full h-32 p-2 border rounded"
-      placeholder="Enter text to echo..."
-    />
+    <CodeEditor value={text} onChange={setText} language="jq" />
   </>
 );
 
