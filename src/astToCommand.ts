@@ -46,7 +46,7 @@ export function astToCommand(ast: ScriptNode): string {
           : "";
       case "LogicalExpression":
         return `${handleNode(node.left)} ${node.op} ${handleNode(node.right)}`;
-      case "Command":
+      case "Command": {
         const commandNode = node as CommandNode;
         const parts: string[] = [];
         if (commandNode.prefix) {
@@ -59,20 +59,22 @@ export function astToCommand(ast: ScriptNode): string {
           parts.push(...commandNode.suffix.map(handleNode));
         }
         return parts.join(" ");
+      }
       case "Function":
         return `${node.name.text}() { ${handleNode(node.body)}; }`;
-      case "CompoundList":
+      case "CompoundList": {
         const compoundListNode = node as CompoundListNode;
         return compoundListNode.commands
           ? compoundListNode.commands.map(handleNode).join("; ")
           : "";
+      }
       case "Subshell":
         return `(${handleNode(node.list)})`;
       case "For":
         return `for ${node.name.text} in ${node.wordlist
           .map(handleWord)
           .join(" ")}; do ${handleNode(node.do)}; done`;
-      case "Case":
+      case "Case": {
         const caseNode = node as CaseNode;
         const cases = caseNode.cases
           .map((caseItem: CaseItemNode) => {
@@ -82,7 +84,8 @@ export function astToCommand(ast: ScriptNode): string {
           })
           .join("\n");
         return `case ${handleWord(caseNode.clause)} in\n${cases}\nesac`;
-      case "If":
+      }
+      case "If": {
         let ifString = `if ${handleNode(node.clause)}; then ${handleNode(
           node.then
         )}`;
@@ -90,6 +93,7 @@ export function astToCommand(ast: ScriptNode): string {
           ifString += `; else ${handleNode(node.else)}`;
         }
         return `${ifString}; fi`;
+      }
       case "While":
         return `while ${handleNode(node.clause)}; do ${handleNode(
           node.do
@@ -98,8 +102,8 @@ export function astToCommand(ast: ScriptNode): string {
         return `until ${handleNode(node.clause)}; do ${handleNode(
           node.do
         )}; done`;
-      case "Word":
-        const quoteChar = node.text.includes("'") ? '"' : "'";
+      case "Word": {
+        const quoteChar = node.quoteChar || node.text.includes("'") ? '"' : "'";
         if (
           node.text.includes("\n") ||
           node.text.includes(" ") ||
@@ -110,6 +114,7 @@ export function astToCommand(ast: ScriptNode): string {
           return `${quoteChar}${node.text}${quoteChar}`;
         }
         return node.text;
+      }
       case "AssignmentWord":
         return (node as WordNode).text;
       case "Redirect":
