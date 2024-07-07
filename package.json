@@ -1,55 +1,55 @@
 {
   "name": "guish",
+  "productName": "guish",
   "version": "1.0.0",
-  "main": "dist/electron.js",
-  "type": "module",
-  "homepage": "./",
-  "scripts": {
-    "start": "vite",
-    "clean": "rimraf dist",
-    "electron:compile": "npm run clean && tsc -p tsconfig.electron.json && npm run copy-assets",
-    "electron:serve": "npm run electron:compile && npm run electron:start",
-    "electron:start": "concurrently -k \"npm:start\" \"wait-on tcp:3000 && electron-forge start\"",
-    "copy-assets": "cp -R assets dist/"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "description": "",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
+  },
   "dependencies": {
-    "@electron-forge/cli": "^7.4.0",
     "@monaco-editor/react": "^4.6.0",
     "bash-parser": "^0.5.0",
     "electron-is-dev": "^3.0.1",
+    "electron-squirrel-startup": "^1.0.1",
     "lucide-react": "^0.399.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwindcss": "^3.4.4",
     "typescript": "^5.5.3"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
+    "@electron-forge/plugin-vite": "^7.4.0",
+    "@electron/fuses": "^1.8.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1", 
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
-    "electron": "^31.1.0",
-    "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3",
+    "electron": "31.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
     "postcss": "^8.4.39",
-    "rimraf": "^5.0.7",
-    "vite": "^5.3.3",
-    "wait-on": "^7.2.0"
+    "tailwindcss": "^3.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "~4.5.4",
+    "vite": "^5.3.3"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+  "keywords": [],
+  "author": {
+    "name": "William Cotton",
+    "email": "williamcotton@gmail.com"
+  },
+  "license": "MIT"
 }
