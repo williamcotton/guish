@@ -22,6 +22,7 @@ import { cdPlugin } from "./plugins/cdPlugin";
 import { jqPlugin } from "./plugins/jqPlugin";
 import { curlPlugin } from "./plugins/curlPlugin";
 import { nodePlugin } from "./plugins/nodePlugin";
+import { pythonPlugin } from "./plugins/pythonPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -67,3 +68,4 @@ Plugins.register(cdPlugin);
 Plugins.register(jqPlugin);
 Plugins.register(curlPlugin);
 Plugins.register(nodePlugin);
+Plugins.register(pythonPlugin);
