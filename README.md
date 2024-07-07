@@ -27,7 +27,7 @@ pg | tsvtocsv | ggplot | pngtohtml
 
 And then fill in the blanks in the GUI with a fully fledged code editor like Monaco.
 
-![Screenshot 2024-07-02 at 10 19 02 PM](https://github.com/williamcotton/guish/assets/13163/a5214e93-154b-4c5f-b727-e1d9c0e67c2a)
+![Screenshot 2024-07-02 at 10 19 02 PM](https://github.com/williamcotton/guish/assets/13163/a5214e93-154b-4c5f-b727-e1d9c0e67c2a)
 
 Commands are executed as-is in a shell process. The application is merely a tool used to construct commands and pipelines.
 
@@ -71,6 +71,10 @@ guish currently supports the following commands and plugins:
 - xargs
 - prependcss
 - cd
+- jq (JSON processing)
+- curl (HTTP requests)
+- node (JavaScript execution)
+- python (Python script execution)
 - Generic command support for unsupported commands
 
 ### pg and ggplot
