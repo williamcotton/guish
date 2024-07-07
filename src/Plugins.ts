@@ -20,6 +20,7 @@ import { xargsPlugin } from "./plugins/xargsPlugin";
 import { prependcssPlugin } from "./plugins/prependcssPlugin";
 import { cdPlugin } from "./plugins/cdPlugin";
 import { jqPlugin } from "./plugins/jqPlugin";
+import { curlPlugin } from "./plugins/curlPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -63,3 +64,4 @@ Plugins.register(xargsPlugin);
 Plugins.register(prependcssPlugin);
 Plugins.register(cdPlugin);
 Plugins.register(jqPlugin);
+Plugins.register(curlPlugin);
