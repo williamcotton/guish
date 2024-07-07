@@ -9,7 +9,6 @@ import {
 } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
-import isDev from "electron-is-dev";
 // @ts-ignore
 import parse from "bash-parser";
 import { spawn } from "child_process";
@@ -55,7 +54,7 @@ const createWindow = () => {
   // Set dock icon for macOS
   if (process.platform === "darwin") {
     try {
-      const iconPath = path.join(__dirname, "..", "assets", "appIcon.png");
+      const iconPath = path.join(__dirname, "..", "..", "assets", "appIcon.png");
       if (fs.existsSync(iconPath)) {
         app.dock.setIcon(iconPath);
       } else {
