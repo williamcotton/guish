@@ -23,6 +23,7 @@ import { jqPlugin } from "./plugins/jqPlugin";
 import { curlPlugin } from "./plugins/curlPlugin";
 import { nodePlugin } from "./plugins/nodePlugin";
 import { pythonPlugin } from "./plugins/pythonPlugin";
+import { rubyPlugin } from "./plugins/rubyPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -69,3 +70,4 @@ Plugins.register(jqPlugin);
 Plugins.register(curlPlugin);
 Plugins.register(nodePlugin);
 Plugins.register(pythonPlugin);
+Plugins.register(rubyPlugin);
