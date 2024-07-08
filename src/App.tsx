@@ -92,7 +92,7 @@ const App: React.FC = () => {
                 onChange={handleInputChange}
                 className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600 font-mono text-sm"
                 placeholder="Enter command..."
-                rows={Math.min(store.inputCommand.split("\n").length, 10)}
+                rows={Math.min(store.inputCommand.split("\n").length, 3)}
               />
               <button
                 onClick={() => store.executeCommand()}
