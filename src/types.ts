@@ -1,12 +1,12 @@
 export interface ModuleType {
   type: string;
-  [key: string]: any;
+  [key: string]: any; // eslint-disable-line
 }
 
 export interface ASTType {
   type: string;
   commands?: ASTType[];
-  [key: string]: any;
+  [key: string]: any; // eslint-disable-line
 }
 
 export interface ScriptNode extends ASTType {
@@ -172,7 +172,7 @@ export interface ArithmeticExpansionNode extends ASTType {
   type: "ArithmeticExpansion";
   expression: string;
   resolved: boolean;
-  arithmeticAST: Object;
+  arithmeticAST: object;
   loc: {
     start: number;
     end: number;
@@ -183,7 +183,7 @@ export interface CommandExpansionNode extends ASTType {
   type: "CommandExpansion";
   command: string;
   resolved: boolean;
-  commandAST: Object;
+  commandAST: object;
   loc: {
     start: number;
     end: number;
@@ -232,7 +232,7 @@ export interface ElectronAPI {
     options: SaveDialogOptions
   ) => Promise<SaveDialogReturnValue>;
   ipcRenderer: {
-    receive: (channel: string, func: (...args: any[]) => void) => void;
+    receive: (channel: string, func: (...args: unknown[]) => void) => void;
     removeAllListeners: (channel: string) => void;
   };
 }
