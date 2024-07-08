@@ -20,6 +20,7 @@ export const useFileOperations = (store: UseStoreType) => {
         );
         if (saveResult.success) {
           store.setCurrentFilePath(filePath);
+          store.setFileContent(store.compiledCommand);
         } else {
           console.error("Failed to save script file:", saveResult.error);
           // Here you might want to show an error message to the user
@@ -33,7 +34,7 @@ export const useFileOperations = (store: UseStoreType) => {
   );
 
   const handleNewPipeline = useCallback((): void => {
-    store.setInputCommand("");
+    store.setFileContent("");
     store.setOutput("");
     store.setCurrentFilePath(null);
   }, [store]);
@@ -45,7 +46,7 @@ export const useFileOperations = (store: UseStoreType) => {
         const filePath = result.filePaths[0];
         const fileContent = await window.electron.openScriptFile(filePath);
         if (fileContent.success && fileContent.content !== undefined) {
-          store.setInputCommand(fileContent.content);
+          store.setFileContent(fileContent.content);
           store.setCurrentFilePath(filePath);
           store.setOutput(""); // Clear text output
         } else {

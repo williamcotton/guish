@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-import { Terminal, X } from "lucide-react";
+import { Terminal, X, CircleDot } from "lucide-react";
 
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
@@ -78,9 +78,12 @@ const App: React.FC = () => {
         <header className="flex justify-between items-center bg-gray-800 text-white p-4">
           <h1 className="text-2xl font-bold pl-2">guish</h1>
           {store.currentFilePath && (
-            <p className="text-sm text-gray-300 truncate max-w-[50%] pr-2">
-              {store.currentFilePath}
-            </p>
+            <div className="flex items-center text-sm text-gray-300 truncate max-w-[50%] pr-2">
+              {store.hasUnsavedChanges && (
+                <CircleDot size={12} className="text-yellow-400" />
+              )}
+              <p className="mr-2 ml-2">{store.currentFilePath}</p>
+            </div>
           )}
         </header>
 
