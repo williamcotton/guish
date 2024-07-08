@@ -12,6 +12,7 @@ import path from "path";
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: path.join(__dirname, "assets", "Icon.icns"),
   },
   rebuildConfig: {},
   makers: [
