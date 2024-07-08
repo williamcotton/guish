@@ -61,7 +61,7 @@ const App: React.FC = () => {
             {...Object.fromEntries(
               Object.keys(module).map((key) => [
                 `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
-                (value: any) => store.updateModule(index, { [key]: value }),
+                (value: unknown) => store.updateModule(index, { [key]: value }),
               ])
             )}
           />
