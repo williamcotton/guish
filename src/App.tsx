@@ -75,8 +75,13 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-gray-100">
       {/* Main content column */}
       <div className="flex flex-col w-3/4">
-        <header className="bg-gray-800 text-white p-4">
+        <header className="flex justify-between items-center bg-gray-800 text-white p-4">
           <h1 className="text-2xl font-bold pl-2">guish</h1>
+          {store.currentFilePath && (
+            <p className="text-sm text-gray-300 truncate max-w-[50%] pr-2">
+              {store.currentFilePath}
+            </p>
+          )}
         </header>
 
         <div className="flex-1 flex flex-col overflow-hidden p-4">
