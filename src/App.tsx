@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-import { Terminal, X, CircleDot } from "lucide-react";
+import { Terminal, X, CircleDot, Loader } from "lucide-react";
 
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
@@ -20,7 +20,7 @@ const App: React.FC = () => {
     const handleGlobalKeyPress = (e: KeyboardEvent) => {
       if (e.key === "Enter" && e.altKey) {
         e.preventDefault();
-        store.executeCommand();
+        handleExecuteCommand();
       }
     };
 
@@ -29,6 +29,12 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener("keydown", handleGlobalKeyPress);
     };
+  }, [store]);
+
+  const handleExecuteCommand = useCallback(() => {
+    store.setOutput(""); // Clear text output
+    store.setLoading(true); // Set loading to true
+    store.executeCommand();
   }, [store]);
 
   const renderModule = useCallback(
@@ -100,7 +106,7 @@ const App: React.FC = () => {
                 rows={Math.min(store.inputCommand.split("\n").length, 3)}
               />
               <button
-                onClick={() => store.executeCommand()}
+                onClick={handleExecuteCommand}
                 className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
                 Execute
@@ -116,7 +122,13 @@ const App: React.FC = () => {
       {/* HTML output column */}
       <div className="w-1/4 bg-white p-4 overflow-auto">
         <h2 className="text-xl font-bold mb-4">HTML Output</h2>
-        <div dangerouslySetInnerHTML={{ __html: store.output }} />
+        {store.loading ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader className="animate-spin text-blue-500" size={48} />
+          </div>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: store.output }} />
+        )}
       </div>
     </div>
   );

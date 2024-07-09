@@ -35,6 +35,8 @@ export interface UseStoreType {
   setCurrentFilePath: (path: string | null) => void;
   hasUnsavedChanges: boolean;
   setFileContent: (content: string) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 // App-level store
@@ -49,6 +51,7 @@ export const useStore = (): UseStoreType => {
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
   const [lastSavedContent, setLastSavedContent] = 
     useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const parseCommand = useCallback((cmd: string): void => {
     window.electron.parseCommand(cmd);
@@ -167,6 +170,7 @@ export const useStore = (): UseStoreType => {
       error?: string;
       output?: string;
     }) => {
+      setLoading(false);
       setOutput(result.error ? `Error: ${result.error}` : result.output || "");
     };
 
@@ -242,5 +246,7 @@ export const useStore = (): UseStoreType => {
     setCurrentFilePath,
     hasUnsavedChanges,
     setFileContent,
+    loading,
+    setLoading,
   };
 };
