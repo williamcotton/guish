@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { genericPlugin } from "./plugins/genericPlugin";
 import { astToCommand } from "./astToCommand";
-import { defaultCommand } from "./App";
 import { Plugins } from "./Plugins";
 import {
   ModuleType,
@@ -40,16 +39,16 @@ export interface UseStoreType {
 
 // App-level store
 export const useStore = (): UseStoreType => {
-  const [inputCommand, setInputCommand] = useState<string>(defaultCommand);
+  const [inputCommand, setInputCommand] = useState<string>("");
   const [modules, setModules] = useState<EnhancedModuleType[]>([]);
   const [compiledCommand, setCompiledCommand] =
-    useState<string>(defaultCommand);
+    useState<string>("");
   const [output, setOutput] = useState<string>("");
   const [ast, setAst] = useState<ScriptNode | null>(null);
   const [updateSource, setUpdateSource] = useState<string | null>(null);
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
   const [lastSavedContent, setLastSavedContent] = 
-    useState<string>(defaultCommand);
+    useState<string>("");
 
   const parseCommand = useCallback((cmd: string): void => {
     window.electron.parseCommand(cmd);

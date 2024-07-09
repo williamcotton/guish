@@ -8,9 +8,6 @@ import { useStore, UseStoreType } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
 import { ModuleType } from "./types";
 
-export const defaultCommand =
-  'echo "fad foo\\nbrick bro\\nbonk nonk" | grep -i "f" | awk \'{print $2}\' | sed "s/foo/bar/g"';
-
 const App: React.FC = () => {
   const store: UseStoreType = useStore();
   useFileOperations(store);
