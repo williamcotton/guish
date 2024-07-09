@@ -4,12 +4,12 @@ import { Terminal, X, CircleDot, Loader } from "lucide-react";
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
 
-import { useStore, UseStoreType } from "./useStore";
+import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
 import { ModuleType } from "./types";
 
 const App: React.FC = () => {
-  const store: UseStoreType = useStore();
+  const store = useStore();
   useFileOperations(store);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

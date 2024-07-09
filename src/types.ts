@@ -3,6 +3,10 @@ export interface ModuleType {
   [key: string]: any; // eslint-disable-line
 }
 
+export interface EnhancedModuleType extends ModuleType {
+  operator?: "and" | "pipe";
+}
+
 export interface ASTType {
   type: string;
   commands?: ASTType[];
