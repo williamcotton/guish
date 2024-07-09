@@ -106,7 +106,9 @@ export const useStore = (): UseStoreType => {
   const hasUnsavedChanges = inputCommand !== lastSavedContent;
 
   useEffect(() => {
-    parseCommand(inputCommand);
+    if (updateSource === "input") {
+      parseCommand(inputCommand);
+    }
   }, [inputCommand, parseCommand]);
 
   useEffect(() => {
