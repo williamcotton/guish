@@ -6,11 +6,15 @@ import { genericPlugin } from "./plugins/genericPlugin";
 
 import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
-import { ModuleType } from "./types";
+import { ModuleType, ElectronAPI } from "./types";
 
-const App: React.FC = () => {
-  const store = useStore();
-  useFileOperations(store);
+interface AppProps {
+  electronApi: ElectronAPI;
+}
+
+const App: React.FC<AppProps> = (props) => {
+  const store = useStore(props.electronApi);
+  useFileOperations(store, props.electronApi);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setInputCommand(e.target.value);

@@ -1,15 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-
-type ValidChannels =
-  | "execute-command"
-  | "parse-command"
-  | "fromMain"
-  | "parse-command-result"
-  | "execute-command-result"
-  | "new-pipeline"
-  | "open-pipeline"
-  | "save-pipeline"
-  | "save-pipeline-as";
+import { ElectronAPI, ValidChannels } from "./types";
 
 const validSendChannels: ValidChannels[] = ["execute-command", "parse-command"];
 const validReceiveChannels: ValidChannels[] = [
@@ -22,14 +12,14 @@ const validReceiveChannels: ValidChannels[] = [
   "save-pipeline-as",
 ];
 
-contextBridge.exposeInMainWorld("electron", {
+const electronApi: ElectronAPI = {
   ipcRenderer: {
-    send: (channel: ValidChannels, data: unknown) => {
+    send: (channel, data) => {
       if (validSendChannels.includes(channel)) {
         ipcRenderer.send(channel, data);
       }
     },
-    receive: (channel: ValidChannels, func: (...args: unknown[]) => void) => {
+    receive: (channel, func: (...args: unknown[]) => void) => {
       if (validReceiveChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(
@@ -39,24 +29,26 @@ contextBridge.exposeInMainWorld("electron", {
         );
       }
     },
-    removeAllListeners: (channel: ValidChannels) => {
+    removeAllListeners: (channel) => {
       if (validReceiveChannels.includes(channel)) {
         ipcRenderer.removeAllListeners(channel);
       }
     },
   },
-  executeCommand: (args: unknown) => ipcRenderer.send("execute-command", args),
-  parseCommand: (args: unknown) => ipcRenderer.send("parse-command", args),
-  showSaveDialog: (options: Electron.SaveDialogOptions) =>
+  executeCommand: (args) => ipcRenderer.send("execute-command", args),
+  parseCommand: (args) => ipcRenderer.send("parse-command", args),
+  showSaveDialog: (options) =>
     ipcRenderer.invoke("show-save-dialog", options),
-  showSaveScriptDialog: (options: Electron.SaveDialogOptions) =>
+  showSaveScriptDialog: (options) =>
     ipcRenderer.invoke("show-save-script-dialog", options),
-  showOpenScriptDialog: (options: Electron.OpenDialogOptions) =>
+  showOpenScriptDialog: (options) =>
     ipcRenderer.invoke("show-open-script-dialog", options),
-  showDirectoryDialog: (options: Electron.OpenDialogOptions) =>
+  showDirectoryDialog: (options) =>
     ipcRenderer.invoke("show-directory-dialog", options),
-  saveScriptFile: (content: string, filePath: string) =>
+  saveScriptFile: (content, filePath) =>
     ipcRenderer.invoke("save-script-file", { content, filePath }),
-  openScriptFile: (filePath: string) =>
+  openScriptFile: (filePath) =>
     ipcRenderer.invoke("open-script-file", filePath),
-});
+};
+
+contextBridge.exposeInMainWorld("electron", electronApi);

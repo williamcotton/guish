@@ -1,20 +1,21 @@
 import { useCallback, useEffect } from "react";
 
 import { UseStoreType } from "./useStore";
+import { ElectronAPI } from "./types";
 
-export const useFileOperations = (store: UseStoreType) => {
+export const useFileOperations = (store: UseStoreType, electronApi: ElectronAPI) => {
   const savePipeline = useCallback(
     async (filePath: string | null = null): Promise<void> => {
       try {
         if (!filePath) {
-          const result = await window.electron.showSaveScriptDialog();
+          const result = await electronApi.showSaveScriptDialog({});
           if (result.canceled || !result.filePath) {
             return;
           }
           filePath = result.filePath;
         }
 
-        const saveResult = await window.electron.saveScriptFile(
+        const saveResult = await electronApi.saveScriptFile(
           store.compiledCommand,
           filePath
         );
@@ -41,10 +42,10 @@ export const useFileOperations = (store: UseStoreType) => {
 
   const handleOpenPipeline = useCallback(async (): Promise<void> => {
     try {
-      const result = await window.electron.showOpenScriptDialog();
+      const result = await electronApi.showOpenScriptDialog({});
       if (!result.canceled && result.filePaths.length > 0) {
         const filePath = result.filePaths[0];
-        const fileContent = await window.electron.openScriptFile(filePath);
+        const fileContent = await electronApi.openScriptFile(filePath);
         if (fileContent.success && fileContent.content !== undefined) {
           store.setFileContent(fileContent.content);
           store.setCurrentFilePath(filePath);
@@ -70,20 +71,20 @@ export const useFileOperations = (store: UseStoreType) => {
 
   useEffect(() => {
     // Set up IPC listeners
-    window.electron.ipcRenderer.receive("new-pipeline", handleNewPipeline);
-    window.electron.ipcRenderer.receive("open-pipeline", handleOpenPipeline);
-    window.electron.ipcRenderer.receive("save-pipeline", handleSavePipeline);
-    window.electron.ipcRenderer.receive(
+    electronApi.ipcRenderer.receive("new-pipeline", handleNewPipeline);
+    electronApi.ipcRenderer.receive("open-pipeline", handleOpenPipeline);
+    electronApi.ipcRenderer.receive("save-pipeline", handleSavePipeline);
+    electronApi.ipcRenderer.receive(
       "save-pipeline-as",
       handleSavePipelineAs
     );
 
     // Cleanup function
     return () => {
-      window.electron.ipcRenderer.removeAllListeners("new-pipeline");
-      window.electron.ipcRenderer.removeAllListeners("open-pipeline");
-      window.electron.ipcRenderer.removeAllListeners("save-pipeline");
-      window.electron.ipcRenderer.removeAllListeners("save-pipeline-as");
+      electronApi.ipcRenderer.removeAllListeners("new-pipeline");
+      electronApi.ipcRenderer.removeAllListeners("open-pipeline");
+      electronApi.ipcRenderer.removeAllListeners("save-pipeline");
+      electronApi.ipcRenderer.removeAllListeners("save-pipeline-as");
     };
   }, [
     handleNewPipeline,

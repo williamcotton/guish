@@ -219,9 +219,24 @@ export interface SaveDialogReturnValue {
   filePath?: string;
 }
 
+export type ValidChannels =
+  | "execute-command"
+  | "parse-command"
+  | "fromMain"
+  | "parse-command-result"
+  | "execute-command-result"
+  | "new-pipeline"
+  | "open-pipeline"
+  | "save-pipeline"
+  | "save-pipeline-as";
+
 export interface ElectronAPI {
-  showSaveScriptDialog: () => Promise<SaveScriptDialogResult>;
-  showOpenScriptDialog: () => Promise<OpenScriptDialogResult>;
+  showSaveScriptDialog: (
+    options: Electron.SaveDialogOptions
+  ) => Promise<SaveScriptDialogResult>;
+  showOpenScriptDialog: (
+    options: Electron.SaveDialogOptions
+  ) => Promise<OpenScriptDialogResult>;
   showDirectoryDialog: (
     options: OpenDialogOptions
   ) => Promise<OpenDialogReturnValue>;
@@ -236,8 +251,12 @@ export interface ElectronAPI {
     options: SaveDialogOptions
   ) => Promise<SaveDialogReturnValue>;
   ipcRenderer: {
-    receive: (channel: string, func: (...args: unknown[]) => void) => void;
-    removeAllListeners: (channel: string) => void;
+    send: (channel: ValidChannels, data: unknown) => void;
+    receive: (
+      channel: ValidChannels,
+      func: (...args: unknown[]) => void
+    ) => void;
+    removeAllListeners: (channel: ValidChannels) => void;
   };
 }
 

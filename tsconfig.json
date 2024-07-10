@@ -12,5 +12,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "jsx": "react",
+    "types": ["jest", "node"]
   }
 }

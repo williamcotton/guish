@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAst } from "./useAst";
-import { ModuleType, EnhancedModuleType, ScriptNode } from "./types";
+import { ModuleType, EnhancedModuleType, ScriptNode, ElectronAPI } from "./types";
 
 export interface UseStoreType {
   inputCommand: string;
@@ -21,7 +21,7 @@ export interface UseStoreType {
 }
 
 // App-level store
-export const useStore = (): UseStoreType => {
+export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [inputCommand, setInputCommand] = useState<string>("");
   const [modules, setModules] = useState<EnhancedModuleType[]>([]);
   const [compiledCommand, setCompiledCommand] = useState<string>("");
@@ -38,17 +38,17 @@ export const useStore = (): UseStoreType => {
 
   useEffect(() => {
     if (updateSource === "input") {
-      window.electron.parseCommand(inputCommand);
+      electronApi.parseCommand(inputCommand);
     }
   }, [inputCommand, updateSource]);
 
   const executeCommand = useCallback(async (): Promise<void> => {
     console.log(compiledCommand);
-    window.electron.executeCommand(compiledCommand);
+    electronApi.executeCommand(compiledCommand);
   }, [compiledCommand]);
 
   useEffect(() => {
-    window.electron.ipcRenderer.receive(
+    electronApi.ipcRenderer.receive(
       "parse-command-result",
       (result: ScriptNode | { error: string }) => {
         if ("type" in result && result.type === "Script") {
@@ -58,14 +58,14 @@ export const useStore = (): UseStoreType => {
       }
     );
 
-    window.electron.ipcRenderer.receive("execute-command-result", (result: { error?: string; output?: string}) => {
+    electronApi.ipcRenderer.receive("execute-command-result", (result: { error?: string; output?: string}) => {
       setLoading(false);
       setOutput(result.error ? `Error: ${result.error}` : result.output || "");
     });
 
     return () => {
-      window.electron.ipcRenderer.removeAllListeners("parse-command-result");
-      window.electron.ipcRenderer.removeAllListeners("execute-command-result");
+      electronApi.ipcRenderer.removeAllListeners("parse-command-result");
+      electronApi.ipcRenderer.removeAllListeners("execute-command-result");
     };
   }, [astToModules]);
 

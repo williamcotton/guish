@@ -5,12 +5,14 @@ import "./index.css";
 
 const container = document.getElementById("root");
 
+const electronApi = window.electron;
+
 if (container) {
   const root = createRoot(container);
 
   root.render(
     <React.StrictMode>
-      <App />
+      <App electronApi={electronApi} />
     </React.StrictMode>
   );
 }
