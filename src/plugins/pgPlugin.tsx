@@ -23,10 +23,14 @@ const PgComponent: React.FC<PgComponentProps> = ({
   <>
     <h2 className="text-lg font-semibold mb-2">pg</h2>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label
+        htmlFor="database-input"
+        className="block text-sm font-medium text-gray-700"
+      >
         Database
       </label>
       <input
+        id="database-input"
         type="text"
         value={database}
         onChange={(e) => setDatabase(e.target.value)}
@@ -35,8 +39,17 @@ const PgComponent: React.FC<PgComponentProps> = ({
       />
     </div>
     <div className="h-full">
-      <label className="block text-sm font-medium text-gray-700">Query</label>
-      <CodeEditor value={query} onChange={setQuery} language="sql" />
+      <label
+        htmlFor="query-editor"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Query
+      </label>
+      <CodeEditor
+        value={query}
+        onChange={setQuery}
+        language="sql"
+      />
     </div>
   </>
 );

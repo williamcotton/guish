@@ -11,21 +11,33 @@ interface HeadComponentProps extends HeadModuleType {
   setLines: (lines: string) => void;
 }
 
-const HeadComponent: React.FC<HeadComponentProps> = ({ lines, setLines }) => (
-  <>
-    <h2 className="text-lg font-semibold mb-2">head</h2>
-    <div className="flex items-center">
-      <label className="mr-2">Number of lines:</label>
-      <input
-        type="number"
-        value={lines}
-        onChange={(e) => setLines(e.target.value)}
-        className="w-20 p-2 border rounded"
-        min="1"
-      />
-    </div>
-  </>
-);
+const HeadComponent: React.FC<HeadComponentProps> = ({ lines, setLines }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (parseInt(value) > 0 || value === "") {
+      setLines(value);
+    }
+  };
+
+  return (
+    <>
+      <h2 className="text-lg font-semibold mb-2">head</h2>
+      <div className="flex items-center">
+        <label htmlFor="head-lines" className="mr-2">
+          Number of lines:
+        </label>
+        <input
+          id="head-lines"
+          type="number"
+          value={lines}
+          onChange={handleChange}
+          className="w-20 p-2 border rounded"
+          min="1"
+        />
+      </div>
+    </>
+  );
+};
 
 export const headPlugin: Plugin = {
   name: "head",

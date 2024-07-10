@@ -2,7 +2,7 @@ import React from "react";
 import { Plugin } from "../Plugins";
 import { ModuleType, CommandNode, WordNode, RedirectNode } from "../types";
 
-interface CurlModuleType extends ModuleType {
+export interface CurlModuleType extends ModuleType {
   type: "curl";
   url: string;
   method: string;

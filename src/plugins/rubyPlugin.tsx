@@ -30,8 +30,6 @@ export const rubyPlugin: Plugin = {
       );
       if (eArgIndex !== -1 && eArgIndex + 1 < command.suffix.length) {
         code = (command.suffix[eArgIndex + 1].text || "")
-          .replace(/^'/, "")
-          .replace(/'$/, "");
       }
     }
     return {

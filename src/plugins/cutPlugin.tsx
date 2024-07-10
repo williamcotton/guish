@@ -2,7 +2,7 @@ import React from "react";
 import { Plugin } from "../Plugins";
 import { ModuleType, CommandNode, WordNode, RedirectNode } from "../types";
 
-interface CutModuleType extends ModuleType {
+export interface CutModuleType extends ModuleType {
   type: "cut";
   delimiter: string;
   fields: string;
@@ -22,10 +22,14 @@ const CutComponent: React.FC<CutComponentProps> = ({
   <>
     <h2 className="text-lg font-semibold mb-2">cut</h2>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label
+        htmlFor="cut-delimiter"
+        className="block text-sm font-medium text-gray-700"
+      >
         Delimiter
       </label>
       <input
+        id="cut-delimiter"
         type="text"
         value={delimiter}
         onChange={(e) => setDelimiter(e.target.value)}
@@ -34,8 +38,14 @@ const CutComponent: React.FC<CutComponentProps> = ({
       />
     </div>
     <div>
-      <label className="block text-sm font-medium text-gray-700">Fields</label>
+      <label
+        htmlFor="cut-fields"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Fields
+      </label>
       <input
+        id="cut-fields"
         type="text"
         value={fields}
         onChange={(e) => setFields(e.target.value)}

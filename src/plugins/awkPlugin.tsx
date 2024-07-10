@@ -23,10 +23,11 @@ const AwkComponent: React.FC<AwkComponentProps> = ({
   <>
     <h2 className="text-lg font-semibold mb-2">awk</h2>
     <div className="mb-2 flex items-center">
-      <label className="text-sm font-medium text-gray-700 mr-2">
+      <label htmlFor="field-separator" className="text-sm font-medium text-gray-700 mr-2">
         Field Separator:
       </label>
       <input
+        id="field-separator"
         type="text"
         value={fieldSeparator}
         onChange={(e) => setFieldSeparator(e.target.value)}

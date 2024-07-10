@@ -2,7 +2,7 @@ import React from "react";
 import { Plugin } from "../Plugins";
 import { ModuleType, CommandNode, WordNode, RedirectNode } from "../types";
 
-interface CatModuleType extends ModuleType {
+export interface CatModuleType extends ModuleType {
   type: "cat";
   files: string[];
 }
