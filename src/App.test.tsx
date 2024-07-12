@@ -4,6 +4,15 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import App from "./App";
 import { ElectronAPI } from "./types";
+import { Plugins } from "./Plugins";
+
+// Mock the Plugins
+jest.mock("./Plugins", () => ({
+  Plugins: {
+    get: jest.fn(),
+  },
+}));
+
 
 const mockExecuteCommand = jest.fn();
 const mockSetInputCommand = jest.fn();
@@ -13,7 +22,12 @@ jest.mock("./useStore", () => ({
   useStore: () => ({
     inputCommand: "",
     setInputCommand: mockSetInputCommand,
-    modules: [],
+    modules: [
+      {
+        type: "echo",
+        text: "Hello, World!",
+      },
+    ],
     compiledCommand: "",
     output: "",
     setOutput: jest.fn(),
@@ -101,4 +115,19 @@ describe("App", () => {
       expect(mockSetInputCommand).toHaveBeenCalledWith("new command");
     });
   });
+
+ it("renders modules correctly", () => {
+   const mockEchoPlugin = {
+     component: () => <div data-testid="echo-module">Echo Module</div>,
+     containerClasses: "custom-echo-class",
+   };
+   (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
+
+   const { getByTestId } = render(<App electronApi={mockElectronApi} />);
+
+   expect(getByTestId("echo-module")).toBeInTheDocument();
+   expect(getByTestId("echo-module").parentElement).toHaveClass(
+     "custom-echo-class"
+   );
+ });
 });

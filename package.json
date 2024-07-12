@@ -7,6 +7,7 @@
   "scripts": {
     "start": "electron-forge start",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make:win": "electron-forge make --platform win32",
@@ -68,6 +69,22 @@
     },
     "setupFilesAfterEnv": [
       "@testing-library/jest-dom"
-    ]
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/index.tsx",
+      "!src/types.ts",
+      "!src/main.ts",
+      "!src/preload.ts",
+      "!src/**/index.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
   }
 }

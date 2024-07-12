@@ -39,8 +39,14 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
   <>
     <h2 className="text-lg font-semibold mb-2">curl</h2>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700">URL</label>
+      <label
+        htmlFor="curl-url"
+        className="block text-sm font-medium text-gray-700"
+      >
+        URL
+      </label>
       <input
+        id="curl-url"
         type="text"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
@@ -49,8 +55,14 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
       />
     </div>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700">Method</label>
+      <label
+        htmlFor="curl-method"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Method
+      </label>
       <select
+        id="curl-method"
         value={method}
         onChange={(e) => setMethod(e.target.value)}
         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -63,18 +75,30 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
       </select>
     </div>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700">Headers</label>
+      <label
+        htmlFor="curl-headers"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Headers
+      </label>
       <textarea
-        value={headers.join('\n')}
-        onChange={(e) => setHeaders(e.target.value.split('\n'))}
+        id="curl-headers"
+        value={headers.join("\n")}
+        onChange={(e) => setHeaders(e.target.value.split("\n"))}
         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
         placeholder="Enter headers (one per line)"
         rows={3}
       />
     </div>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700">Data</label>
+      <label
+        htmlFor="curl-data"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Data
+      </label>
       <textarea
+        id="curl-data"
         value={data}
         onChange={(e) => setData(e.target.value)}
         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -83,13 +107,17 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
       />
     </div>
     <div className="mb-2">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Options</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Options
+      </label>
       <div className="flex flex-wrap">
         <label className="inline-flex items-center mr-4 mb-2">
           <input
             type="checkbox"
             checked={options.silent}
-            onChange={(e) => setOptions({ ...options, silent: e.target.checked })}
+            onChange={(e) =>
+              setOptions({ ...options, silent: e.target.checked })
+            }
             className="form-checkbox h-4 w-4 text-blue-600"
           />
           <span className="ml-2">Silent (-s)</span>
@@ -98,7 +126,9 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
           <input
             type="checkbox"
             checked={options.insecure}
-            onChange={(e) => setOptions({ ...options, insecure: e.target.checked })}
+            onChange={(e) =>
+              setOptions({ ...options, insecure: e.target.checked })
+            }
             className="form-checkbox h-4 w-4 text-blue-600"
           />
           <span className="ml-2">Insecure (-k)</span>
@@ -107,7 +137,9 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
           <input
             type="checkbox"
             checked={options.compressed}
-            onChange={(e) => setOptions({ ...options, compressed: e.target.checked })}
+            onChange={(e) =>
+              setOptions({ ...options, compressed: e.target.checked })
+            }
             className="form-checkbox h-4 w-4 text-blue-600"
           />
           <span className="ml-2">Compressed (--compressed)</span>
@@ -116,7 +148,9 @@ const CurlComponent: React.FC<CurlComponentProps> = ({
           <input
             type="checkbox"
             checked={options.location}
-            onChange={(e) => setOptions({ ...options, location: e.target.checked })}
+            onChange={(e) =>
+              setOptions({ ...options, location: e.target.checked })
+            }
             className="form-checkbox h-4 w-4 text-blue-600"
           />
           <span className="ml-2">Follow redirects (-L)</span>
@@ -167,7 +201,8 @@ export const curlPlugin: Plugin = {
               options.location = true;
               break;
           }
-        } else if (!url && !arg.text?.startsWith("-")) {
+        } else if (!arg.text?.startsWith("-")) {
+          // Update this part to always set the URL to the last non-flag argument
           url = arg.text || "";
         }
       });
@@ -189,7 +224,8 @@ export const curlPlugin: Plugin = {
 
     if (curlModule.options.silent) args.push({ type: "Word", text: "-s" });
     if (curlModule.options.insecure) args.push({ type: "Word", text: "-k" });
-    if (curlModule.options.compressed) args.push({ type: "Word", text: "--compressed" });
+    if (curlModule.options.compressed)
+      args.push({ type: "Word", text: "--compressed" });
     if (curlModule.options.location) args.push({ type: "Word", text: "-L" });
 
     if (curlModule.method !== "GET") {

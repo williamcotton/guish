@@ -60,48 +60,6 @@ export function astToCommand(ast: ScriptNode): string {
         }
         return parts.join(" ");
       }
-      case "Function":
-        return `${node.name.text}() { ${handleNode(node.body)}; }`;
-      case "CompoundList": {
-        const compoundListNode = node as CompoundListNode;
-        return compoundListNode.commands
-          ? compoundListNode.commands.map(handleNode).join("; ")
-          : "";
-      }
-      case "Subshell":
-        return `(${handleNode(node.list)})`;
-      case "For":
-        return `for ${node.name.text} in ${node.wordlist
-          .map(handleWord)
-          .join(" ")}; do ${handleNode(node.do)}; done`;
-      case "Case": {
-        const caseNode = node as CaseNode;
-        const cases = caseNode.cases
-          .map((caseItem: CaseItemNode) => {
-            return `${caseItem.pattern.map(handleWord).join("|")}) ${handleNode(
-              caseItem.body
-            )};;`;
-          })
-          .join("\n");
-        return `case ${handleWord(caseNode.clause)} in\n${cases}\nesac`;
-      }
-      case "If": {
-        let ifString = `if ${handleNode(node.clause)}; then ${handleNode(
-          node.then
-        )}`;
-        if (node.else) {
-          ifString += `; else ${handleNode(node.else)}`;
-        }
-        return `${ifString}; fi`;
-      }
-      case "While":
-        return `while ${handleNode(node.clause)}; do ${handleNode(
-          node.do
-        )}; done`;
-      case "Until":
-        return `until ${handleNode(node.clause)}; do ${handleNode(
-          node.do
-        )}; done`;
       case "Word": {
         const quoteChar = node.text.includes("'") ? '"' : "'";
         if (
@@ -115,10 +73,6 @@ export function astToCommand(ast: ScriptNode): string {
         }
         return node.text;
       }
-      case "AssignmentWord":
-        return (node as WordNode).text;
-      case "Redirect":
-        return handleRedirect(node as RedirectNode);
       default:
         console.warn(`Unhandled node type: ${node.type}`);
         return "";
