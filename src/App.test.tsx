@@ -13,9 +13,10 @@ jest.mock("./Plugins", () => ({
   },
 }));
 
-
 const mockExecuteCommand = jest.fn();
 const mockSetInputCommand = jest.fn();
+const mockUpdateModule = jest.fn();
+const mockRemoveModule = jest.fn();
 
 // Mock the useStore hook
 jest.mock("./useStore", () => ({
@@ -31,8 +32,8 @@ jest.mock("./useStore", () => ({
     compiledCommand: "",
     output: "",
     setOutput: jest.fn(),
-    updateModule: jest.fn(),
-    removeModule: jest.fn(),
+    updateModule: mockUpdateModule,
+    removeModule: mockRemoveModule,
     executeCommand: mockExecuteCommand,
     currentFilePath: null,
     setCurrentFilePath: jest.fn(),
@@ -108,7 +109,9 @@ describe("App", () => {
   });
 
   it("handles input command change", async () => {
-    const { getByPlaceholderText } = render(<App electronApi={mockElectronApi} />);
+    const { getByPlaceholderText } = render(
+      <App electronApi={mockElectronApi} />
+    );
     const textarea = getByPlaceholderText("Enter command...");
     fireEvent.change(textarea, { target: { value: "new command" } });
     await waitFor(() => {
@@ -116,18 +119,47 @@ describe("App", () => {
     });
   });
 
- it("renders modules correctly", () => {
-   const mockEchoPlugin = {
-     component: () => <div data-testid="echo-module">Echo Module</div>,
-     containerClasses: "custom-echo-class",
-   };
-   (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
+  it("renders modules correctly", () => {
+    const mockEchoPlugin = {
+      component: () => <div data-testid="echo-module">Echo Module</div>,
+      containerClasses: "custom-echo-class",
+    };
+    (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
 
-   const { getByTestId } = render(<App electronApi={mockElectronApi} />);
+    const { getByTestId } = render(<App electronApi={mockElectronApi} />);
 
-   expect(getByTestId("echo-module")).toBeInTheDocument();
-   expect(getByTestId("echo-module").parentElement).toHaveClass(
-     "custom-echo-class"
-   );
- });
+    expect(getByTestId("echo-module")).toBeInTheDocument();
+    expect(getByTestId("echo-module").parentElement).toHaveClass(
+      "custom-echo-class"
+    );
+  });
+
+  it("calls updateModule when a module is updated", () => {
+    const mockEchoPlugin = {
+      component: ({ setText }: { setText: (text: string) => void}) => (
+        <button onClick={() => setText("Updated text")}>Update Echo</button>
+      ),
+    };
+    (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
+
+    const { getByText } = render(<App electronApi={mockElectronApi} />);
+    const updateButton = getByText("Update Echo");
+    fireEvent.click(updateButton);
+
+    expect(mockUpdateModule).toHaveBeenCalledWith(0, { text: "Updated text" });
+  });
+
+  it("calls removeModule when a module is removed", () => {
+    const mockEchoPlugin = {
+      component: () => <div data-testid="echo-module">Echo Module</div>,
+      containerClasses: "custom-echo-class",
+    };
+    (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
+
+    const { getByLabelText } = render(<App electronApi={mockElectronApi} />);
+    const closeButton = getByLabelText("Close module");
+    fireEvent.click(closeButton);
+
+    expect(mockRemoveModule).toHaveBeenCalledWith(0);
+  });
 });

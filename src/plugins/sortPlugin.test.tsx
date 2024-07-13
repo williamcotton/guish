@@ -69,6 +69,45 @@ describe("sortPlugin", () => {
         options: "",
       });
     });
+
+    it("should parse a sort command with additional options", () => {
+      const command: CommandNode = {
+        type: "Command",
+        name: { text: "sort", type: "Word" },
+        suffix: [
+          { text: "-k2", type: "Word" },
+          { text: "file.txt", type: "Word" },
+        ],
+      };
+
+      const result = sortPlugin.parse(command);
+
+      expect(result).toEqual({
+        type: "sort",
+        flags: "k2",
+        options: "file.txt",
+      });
+    });
+
+    it("should parse a sort command with flags and additional options", () => {
+      const command: CommandNode = {
+        type: "Command",
+        name: { text: "sort", type: "Word" },
+        suffix: [
+          { text: "-rn", type: "Word" },
+          { text: "-k2", type: "Word" },
+          { text: "file.txt", type: "Word" },
+        ],
+      };
+
+      const result = sortPlugin.parse(command);
+
+      expect(result).toEqual({
+        type: "sort",
+        flags: "rnk2",
+        options: "file.txt",
+      });
+    });
   });
 
   describe("compile", () => {
@@ -135,6 +174,44 @@ describe("sortPlugin", () => {
         suffix: [{ type: "Word", text: "-rn" }],
       });
     });
+
+    it("should compile a sort command with additional options", () => {
+      const module = {
+        type: "sort",
+        flags: "k2",
+        options: "file.txt",
+      };
+
+      const result = sortPlugin.compile(module);
+
+      expect(result).toEqual({
+        type: "Command",
+        name: { text: "sort", type: "Word" },
+        suffix: [
+          { type: "Word", text: "-k2" },
+          { type: "Word", text: "file.txt" },
+        ],
+      });
+    });
+
+    it("should compile a sort command with flags and additional options", () => {
+      const module = {
+        type: "sort",
+        flags: "rnk2",
+        options: "file.txt",
+      };
+
+      const result = sortPlugin.compile(module);
+
+      expect(result).toEqual({
+        type: "Command",
+        name: { text: "sort", type: "Word" },
+        suffix: [
+          { type: "Word", text: "-rnk2" },
+          { type: "Word", text: "file.txt" },
+        ],
+      });
+    });
   });
 
   describe("component", () => {
@@ -142,7 +219,7 @@ describe("sortPlugin", () => {
       const mockSetFlags = jest.fn();
       const mockSetOptions = jest.fn();
 
-      const { getByLabelText } = render(
+      const { getByLabelText, getByPlaceholderText } = render(
         React.createElement(sortPlugin.component, {
           flags: "r",
           options: "",
@@ -154,30 +231,35 @@ describe("sortPlugin", () => {
       const reverseCheckbox = getByLabelText(
         "-r (Reverse)"
       ) as HTMLInputElement;
-      expect(reverseCheckbox).toBeChecked();
-
       const numericCheckbox = getByLabelText(
         "-n (Numeric sort)"
       ) as HTMLInputElement;
+      const optionsInput = getByPlaceholderText(
+        "Additional options..."
+      ) as HTMLInputElement;
+
+      expect(reverseCheckbox).toBeChecked();
       expect(numericCheckbox).not.toBeChecked();
+      expect(optionsInput).toHaveValue("");
+
+      fireEvent.click(reverseCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("");
 
       fireEvent.click(numericCheckbox);
       expect(mockSetFlags).toHaveBeenCalledWith("rn");
 
-      fireEvent.click(reverseCheckbox);
-      expect(mockSetFlags).toHaveBeenCalledWith("");
+      fireEvent.change(optionsInput, { target: { value: "-k2" } });
+      expect(mockSetOptions).toHaveBeenCalledWith("-k2");
     });
 
-    it("should handle multiple flag toggles correctly", () => {
+    it("should handle initial state with both flags", () => {
       const mockSetFlags = jest.fn();
-      const mockSetOptions = jest.fn();
-
       const { getByLabelText } = render(
         React.createElement(sortPlugin.component, {
-          flags: "",
+          flags: "rn",
           options: "",
           setFlags: mockSetFlags,
-          setOptions: mockSetOptions,
+          setOptions: jest.fn(),
         })
       );
 
@@ -188,13 +270,13 @@ describe("sortPlugin", () => {
         "-n (Numeric sort)"
       ) as HTMLInputElement;
 
-      fireEvent.click(reverseCheckbox);
-      expect(mockSetFlags).toHaveBeenCalledWith("r");
+      expect(reverseCheckbox).toBeChecked();
+      expect(numericCheckbox).toBeChecked();
 
-      fireEvent.click(numericCheckbox);
+      fireEvent.click(reverseCheckbox);
       expect(mockSetFlags).toHaveBeenCalledWith("n");
 
-      fireEvent.click(reverseCheckbox);
+      fireEvent.click(numericCheckbox);
       expect(mockSetFlags).toHaveBeenCalledWith("r");
     });
   });
