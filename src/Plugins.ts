@@ -34,6 +34,7 @@ export interface Plugin {
   component: React.FC<any>; // eslint-disable-line
   compile: (module: ModuleType) => CommandNode;
   containerClasses?: string;
+  quoteChar?: string;
 }
 
 export class Plugins {

@@ -41,42 +41,58 @@ const App: React.FC<AppProps> = (props) => {
     store.executeCommand();
   }, [store]);
 
-  const renderModule = useCallback(
-    (module: ModuleType, index: number) => {
-      const plugin = Plugins.get(module.type) || genericPlugin;
-      if (!plugin) return null;
+const renderModule = useCallback(
+  (module: ModuleType, index: number) => {
+    const plugin = Plugins.get(module.type) || genericPlugin;
+    if (!plugin) return null;
 
-      const Component = plugin.component;
-      return (
-        <div
-          key={`${module.type}-${index}`}
-          className={
-            plugin.containerClasses ||
-            "flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"
-          }
-          style={{ resize: "vertical" }}
+    const Component = plugin.component;
+    return (
+      <div
+        key={`${module.type}-${index}`}
+        className={
+          plugin.containerClasses ||
+          "flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"
+        }
+        style={{ resize: "vertical" }}
+      >
+        <button
+          onClick={() => store.removeModule(index)}
+          className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Close module"
         >
-          <button
-            onClick={() => store.removeModule(index)}
-            className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Close module"
-          >
-            <X size={16} />
-          </button>
-          <Component
-            {...module}
-            {...Object.fromEntries(
-              Object.keys(module).map((key) => [
-                `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
-                (value: unknown) => store.updateModule(index, { [key]: value }),
-              ])
-            )}
-          />
-        </div>
-      );
-    },
-    [store]
-  );
+          <X size={16} />
+        </button>
+        {module.quoteChar && (
+          <div className="absolute top-2 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
+            <select
+              value={module.quoteChar}
+              onChange={(e) =>
+                store.updateModule(index, {
+                  quoteChar: e.target.value as "'" | '"',
+                })
+              }
+              className="text-sm border rounded"
+            >
+              <option value="'">Single quotes</option>
+              <option value='"'>Double quotes</option>
+            </select>
+          </div>
+        )}
+        <Component
+          {...module}
+          {...Object.fromEntries(
+            Object.keys(module).map((key) => [
+              `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
+              (value: unknown) => store.updateModule(index, { [key]: value }),
+            ])
+          )}
+        />
+      </div>
+    );
+  },
+  [store]
+);
 
   return (
     <div className="flex h-screen bg-gray-100">

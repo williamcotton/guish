@@ -32,6 +32,7 @@ export const echoPlugin: Plugin = {
           .replace(/"$/, "")
           .replace(/\\n/g, "\n")
       : "",
+    quoteChar: '"',
   }),
   component: EchoComponent,
   compile: (module: ModuleType): CommandNode => {
@@ -39,7 +40,7 @@ export const echoPlugin: Plugin = {
     return {
       type: "Command",
       name: { text: "echo", type: "Word" },
-      suffix: echoModule.text ? [{ type: "Word", text: echoModule.text }] : [],
+      suffix: echoModule.text ? [{ type: "Word", text: echoModule.text, quoteChar: echoModule.quoteChar }] : [],
     };
   },
 };

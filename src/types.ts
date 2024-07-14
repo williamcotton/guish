@@ -5,6 +5,7 @@ export interface ModuleType {
 
 export interface EnhancedModuleType extends ModuleType {
   operator?: "and" | "pipe";
+  quoteChar?: "'" | '"';
 }
 
 export interface ASTType {
