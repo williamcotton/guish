@@ -29,13 +29,28 @@ export const useAst = () => {
             index < command.commands.length - 1 ? "pipe" : undefined
           );
         });
-      } else if (
-        command.type === "Command" &&
-        command.name &&
-        command.name.text
-      ) {
-        const plugin = Plugins.get(command.name.text) || genericPlugin;
-        newModules.push({ ...plugin.parse(command), operator });
+      } else if (command.type === "Command") {
+        if (
+          command.prefix &&
+          command.prefix.some((word) => word.type === "AssignmentWord")
+        ) {
+          const assignmentPlugin = Plugins.get("assignment");
+          command.prefix.forEach((prefixItem) => {
+            if (prefixItem.type === "AssignmentWord") {
+              const singleAssignmentCommand: CommandNode = {
+                type: "Command",
+                prefix: [prefixItem],
+              };
+              newModules.push({
+                ...assignmentPlugin.parse(singleAssignmentCommand),
+                operator,
+              });
+            }
+          });
+        } else if (command.name && command.name.text) {
+          const plugin = Plugins.get(command.name.text) || genericPlugin;
+          newModules.push({ ...plugin.parse(command), operator });
+        }
       }
     };
 

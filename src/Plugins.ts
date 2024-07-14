@@ -24,6 +24,7 @@ import { curlPlugin } from "./plugins/curlPlugin";
 import { nodePlugin } from "./plugins/nodePlugin";
 import { pythonPlugin } from "./plugins/pythonPlugin";
 import { rubyPlugin } from "./plugins/rubyPlugin";
+import { assignmentPlugin } from "./plugins/assignmentPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -71,3 +72,4 @@ Plugins.register(curlPlugin);
 Plugins.register(nodePlugin);
 Plugins.register(pythonPlugin);
 Plugins.register(rubyPlugin);
+Plugins.register(assignmentPlugin);
