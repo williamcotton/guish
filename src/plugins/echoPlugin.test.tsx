@@ -26,6 +26,7 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "Hello, World!",
+        quoteChar: '"',
       });
     });
 
@@ -44,6 +45,7 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "Hello, World!",
+        quoteChar: '"',
       });
     });
 
@@ -59,6 +61,7 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "Hello, World!",
+        quoteChar: '"',
       });
     });
 
@@ -74,6 +77,7 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "",
+        quoteChar: '"',
       });
     });
   });
@@ -98,6 +102,7 @@ describe("echoPlugin", () => {
       const module = {
         type: "echo",
         text: "",
+        quoteChar: '"',
       };
 
       const result = echoPlugin.compile(module);
