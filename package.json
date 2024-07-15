@@ -1,7 +1,7 @@
 {
   "name": "guish",
   "productName": "guish",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "A dynamic data pipeline UI for constructing and executing complex command-line pipelines.",
   "main": ".vite/build/main.js",
   "scripts": {
