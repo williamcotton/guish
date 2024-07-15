@@ -1,3 +1,5 @@
+[![Run Tests](https://github.com/williamcotton/guish/actions/workflows/test.yml/badge.svg)](https://github.com/williamcotton/guish/actions/workflows/test.yml)
+
 # guish
 
 guish (goo-ish) is a dynamic data pipeline UI that allows users to visually construct and execute complex command-line pipelines. It provides an intuitive interface for chaining together various Unix commands and custom plugins, making it easier to build and understand data processing workflows.
