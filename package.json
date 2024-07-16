@@ -6,8 +6,7 @@
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
-    "test": "npm run test:coverage && npm run wdio",
-    "test:coverage": "jest --coverage",
+    "test": "npm run wdio",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "make:win": "electron-forge make --platform win32",
