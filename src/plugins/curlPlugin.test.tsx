@@ -213,7 +213,82 @@ describe("curlPlugin", () => {
       expect(mockSetUrl).toHaveBeenCalledWith("https://new-api.example.com");
     });
 
-    it("should render and update method correctly", () => {
+    it("should handle all option checkboxes correctly", () => {
+      const mockSetOptions = jest.fn();
+      const { getByLabelText } = render(
+        React.createElement(curlPlugin.component, {
+          url: "https://api.example.com",
+          method: "GET",
+          headers: [],
+          data: "",
+          options: {
+            silent: false,
+            insecure: false,
+            compressed: false,
+            location: false,
+          },
+          setUrl: jest.fn(),
+          setMethod: jest.fn(),
+          setHeaders: jest.fn(),
+          setData: jest.fn(),
+          setOptions: mockSetOptions,
+        })
+      );
+
+      const silentCheckbox = getByLabelText("Silent (-s)") as HTMLInputElement;
+      const insecureCheckbox = getByLabelText(
+        "Insecure (-k)"
+      ) as HTMLInputElement;
+      const compressedCheckbox = getByLabelText(
+        "Compressed (--compressed)"
+      ) as HTMLInputElement;
+      const locationCheckbox = getByLabelText(
+        "Follow redirects (-L)"
+      ) as HTMLInputElement;
+
+      expect(silentCheckbox.checked).toBe(false);
+      expect(insecureCheckbox.checked).toBe(false);
+      expect(compressedCheckbox.checked).toBe(false);
+      expect(locationCheckbox.checked).toBe(false);
+
+      fireEvent.click(silentCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ silent: true })
+      );
+
+      fireEvent.click(insecureCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ insecure: true })
+      );
+
+      fireEvent.click(compressedCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ compressed: true })
+      );
+
+      fireEvent.click(locationCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ location: true })
+      );
+
+      // Test unchecking
+      fireEvent.click(insecureCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ insecure: false })
+      );
+
+      fireEvent.click(compressedCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ compressed: false })
+      );
+
+      fireEvent.click(locationCheckbox);
+      expect(mockSetOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ location: false })
+      );
+    });
+
+    it("should handle method changes correctly", () => {
       const mockSetMethod = jest.fn();
       const { getByLabelText } = render(
         React.createElement(curlPlugin.component, {
@@ -240,15 +315,21 @@ describe("curlPlugin", () => {
 
       fireEvent.change(methodSelect, { target: { value: "POST" } });
       expect(mockSetMethod).toHaveBeenCalledWith("POST");
+
+      fireEvent.change(methodSelect, { target: { value: "PUT" } });
+      expect(mockSetMethod).toHaveBeenCalledWith("PUT");
+
+      fireEvent.change(methodSelect, { target: { value: "DELETE" } });
+      expect(mockSetMethod).toHaveBeenCalledWith("DELETE");
     });
 
-    it("should render and update options correctly", () => {
-      const mockSetOptions = jest.fn();
+    it("should handle headers input correctly", () => {
+      const mockSetHeaders = jest.fn();
       const { getByLabelText } = render(
         React.createElement(curlPlugin.component, {
           url: "https://api.example.com",
           method: "GET",
-          headers: [],
+          headers: ["Content-Type: application/json"],
           data: "",
           options: {
             silent: false,
@@ -258,17 +339,55 @@ describe("curlPlugin", () => {
           },
           setUrl: jest.fn(),
           setMethod: jest.fn(),
-          setHeaders: jest.fn(),
+          setHeaders: mockSetHeaders,
           setData: jest.fn(),
-          setOptions: mockSetOptions,
+          setOptions: jest.fn(),
         })
       );
 
-      const silentCheckbox = getByLabelText("Silent (-s)") as HTMLInputElement;
-      expect(silentCheckbox.checked).toBe(false);
+      const headersTextarea = getByLabelText("Headers") as HTMLTextAreaElement;
+      expect(headersTextarea.value).toBe("Content-Type: application/json");
 
-      fireEvent.click(silentCheckbox);
-      expect(mockSetOptions).toHaveBeenCalledWith(expect.objectContaining({ silent: true }));
+      fireEvent.change(headersTextarea, {
+        target: {
+          value: "Content-Type: application/json\nAuthorization: Bearer token",
+        },
+      });
+      expect(mockSetHeaders).toHaveBeenCalledWith([
+        "Content-Type: application/json",
+        "Authorization: Bearer token",
+      ]);
+    });
+
+    it("should handle data input correctly", () => {
+      const mockSetData = jest.fn();
+      const { getByLabelText } = render(
+        React.createElement(curlPlugin.component, {
+          url: "https://api.example.com",
+          method: "POST",
+          headers: [],
+          data: '{"key": "value"}',
+          options: {
+            silent: false,
+            insecure: false,
+            compressed: false,
+            location: false,
+          },
+          setUrl: jest.fn(),
+          setMethod: jest.fn(),
+          setHeaders: jest.fn(),
+          setData: mockSetData,
+          setOptions: jest.fn(),
+        })
+      );
+
+      const dataTextarea = getByLabelText("Data") as HTMLTextAreaElement;
+      expect(dataTextarea.value).toBe('{"key": "value"}');
+
+      fireEvent.change(dataTextarea, {
+        target: { value: '{"newKey": "newValue"}' },
+      });
+      expect(mockSetData).toHaveBeenCalledWith('{"newKey": "newValue"}');
     });
   });
 });

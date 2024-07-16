@@ -113,34 +113,137 @@ describe("grepPlugin", () => {
   });
 
   describe("component", () => {
-    it("should render and update correctly", () => {
+    it("should render and update pattern correctly", () => {
       const mockSetPattern = jest.fn();
-      const mockSetFlags = jest.fn();
-
-      const { getByPlaceholderText, getByLabelText } = render(
+      const { getByPlaceholderText } = render(
         React.createElement(grepPlugin.component, {
           pattern: "test",
-          flags: "i",
+          flags: "",
           setPattern: mockSetPattern,
-          setFlags: mockSetFlags,
+          setFlags: jest.fn(),
         })
       );
 
       const patternInput = getByPlaceholderText("Enter grep pattern...");
       expect(patternInput).toHaveValue("test");
 
-      // Use getByLabelText to find checkboxes
-      const caseInsensitiveCheckbox = getByLabelText("-i (Case insensitive)");
-      expect(caseInsensitiveCheckbox).toBeChecked();
-
-      const invertMatchCheckbox = getByLabelText("-v (Invert match)");
-      expect(invertMatchCheckbox).not.toBeChecked();
-
       fireEvent.change(patternInput, { target: { value: "new pattern" } });
       expect(mockSetPattern).toHaveBeenCalledWith("new pattern");
+    });
+
+    it("should handle flag checkboxes correctly", () => {
+      const mockSetFlags = jest.fn();
+      const { getByLabelText } = render(
+        React.createElement(grepPlugin.component, {
+          pattern: "test",
+          flags: "",
+          setPattern: jest.fn(),
+          setFlags: mockSetFlags,
+        })
+      );
+
+      const caseInsensitiveCheckbox = getByLabelText(
+        "-i (Case insensitive)"
+      ) as HTMLInputElement;
+      const invertMatchCheckbox = getByLabelText(
+        "-v (Invert match)"
+      ) as HTMLInputElement;
+
+      expect(caseInsensitiveCheckbox.checked).toBe(false);
+      expect(invertMatchCheckbox.checked).toBe(false);
+
+      // Test checking case insensitive flag
+      fireEvent.click(caseInsensitiveCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("i");
+
+      // Test checking invert match flag
+      fireEvent.click(invertMatchCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("v");
+
+      // Reset mock calls
+      mockSetFlags.mockClear();
+
+      // Test unchecking case insensitive flag
+      fireEvent.click(caseInsensitiveCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("i");
+
+      // Reset mock calls
+      mockSetFlags.mockClear();
+
+      // Test unchecking invert match flag
+      fireEvent.click(invertMatchCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("v");
+    });
+
+    it("should handle initial flags correctly", () => {
+      const { getByLabelText } = render(
+        React.createElement(grepPlugin.component, {
+          pattern: "test",
+          flags: "iv",
+          setPattern: jest.fn(),
+          setFlags: jest.fn(),
+        })
+      );
+
+      const caseInsensitiveCheckbox = getByLabelText(
+        "-i (Case insensitive)"
+      ) as HTMLInputElement;
+      const invertMatchCheckbox = getByLabelText(
+        "-v (Invert match)"
+      ) as HTMLInputElement;
+
+      expect(caseInsensitiveCheckbox.checked).toBe(true);
+      expect(invertMatchCheckbox.checked).toBe(true);
+    });
+
+    it("should handle multiple flag changes", () => {
+      const mockSetFlags = jest.fn();
+      const { getByLabelText } = render(
+        React.createElement(grepPlugin.component, {
+          pattern: "test",
+          flags: "",
+          setPattern: jest.fn(),
+          setFlags: mockSetFlags,
+        })
+      );
+
+      const caseInsensitiveCheckbox = getByLabelText(
+        "-i (Case insensitive)"
+      ) as HTMLInputElement;
+      const invertMatchCheckbox = getByLabelText(
+        "-v (Invert match)"
+      ) as HTMLInputElement;
+
+      // Check both flags
+      fireEvent.click(caseInsensitiveCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("i");
 
       fireEvent.click(invertMatchCheckbox);
-      expect(mockSetFlags).toHaveBeenCalledWith("iv");
+      expect(mockSetFlags).toHaveBeenCalledWith("v");
+
+      // Reset mock calls
+      mockSetFlags.mockClear();
+
+      // Uncheck case insensitive
+      fireEvent.click(caseInsensitiveCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("i");
+
+      // Reset mock calls
+      mockSetFlags.mockClear();
+
+      // Check case insensitive again
+      fireEvent.click(caseInsensitiveCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("i");
+
+      // Reset mock calls
+      mockSetFlags.mockClear();
+
+      // Uncheck both flags
+      fireEvent.click(caseInsensitiveCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("i");
+
+      fireEvent.click(invertMatchCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith("v");
     });
   });
 });

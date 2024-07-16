@@ -61,6 +61,29 @@ describe("jqPlugin", () => {
         },
       });
     });
+
+    it("should parse a jq command with slurp flag", () => {
+      const command: CommandNode = {
+        type: "Command",
+        name: { text: "jq", type: "Word" },
+        suffix: [
+          { text: "-s", type: "Word" },
+          { text: "'.[]'", type: "Word" },
+        ],
+      };
+
+      const result = jqPlugin.parse(command);
+
+      expect(result).toEqual({
+        type: "jq",
+        filter: ".[]",
+        flags: {
+          compact: false,
+          raw: false,
+          slurp: true,
+        },
+      });
+    });
   });
 
   describe("compile", () => {
@@ -143,6 +166,52 @@ describe("jqPlugin", () => {
 
       fireEvent.click(compactCheckbox);
       expect(mockSetFlags).toHaveBeenCalledWith(expect.objectContaining({ compact: true }));
+    });
+
+    it("should handle all flag changes correctly", () => {
+      const mockSetFlags = jest.fn();
+      const { getByLabelText } = render(
+        React.createElement(jqPlugin.component, {
+          filter: ".[] | {id: .id, name: .name}",
+          flags: {
+            compact: false,
+            raw: false,
+            slurp: false,
+          },
+          setFilter: jest.fn(),
+          setFlags: mockSetFlags,
+        })
+      );
+
+      const compactCheckbox = getByLabelText("Compact (-c)");
+      const rawCheckbox = getByLabelText("Raw output (-r)");
+      const slurpCheckbox = getByLabelText("Slurp (-s)");
+
+      fireEvent.click(compactCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith(
+        expect.objectContaining({ compact: true })
+      );
+
+      fireEvent.click(rawCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith(
+        expect.objectContaining({ raw: true })
+      );
+
+      fireEvent.click(slurpCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith(
+        expect.objectContaining({ slurp: true })
+      );
+
+      // Test unchecking
+      fireEvent.click(rawCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith(
+        expect.objectContaining({ raw: false })
+      );
+
+      fireEvent.click(slurpCheckbox);
+      expect(mockSetFlags).toHaveBeenCalledWith(
+        expect.objectContaining({ slurp: false })
+      );
     });
   });
 });
