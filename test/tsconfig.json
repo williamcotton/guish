@@ -12,6 +12,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "jsx": "react",
-    "types": ["jest", "node", "@testing-library/jest-dom", "@wdio/mocha-framework"]
+    "types": ["jest", "node"]
   }
 }

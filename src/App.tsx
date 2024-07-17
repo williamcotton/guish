@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from "react";
+import "@testing-library/jest-dom";
 import { Terminal, X, CircleDot, Loader } from "lucide-react";
 
 import { Plugins } from "./Plugins";

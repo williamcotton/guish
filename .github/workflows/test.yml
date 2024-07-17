@@ -2,12 +2,12 @@ name: Run Tests
 
 on:
   push:
-    branches: [ main, e2e ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  e2e:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,4 +22,4 @@ jobs:
       run: npm ci
       
     - name: Run tests
-      run: npm run wdio
+      run: npm test

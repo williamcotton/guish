@@ -1,5 +1,4 @@
 import { browser, $, $$ } from "@wdio/globals";
-import "@testing-library/jest-dom";
 
 describe("Electron Testing", () => {
   it("should create echo and sed modules, update sed module, and verify changes", async () => {
