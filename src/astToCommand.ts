@@ -44,8 +44,10 @@ export function astToCommand(ast: ScriptNode): string {
         return (node as PipelineNode).commands
           ? (node as PipelineNode).commands.map(handleNode).join(" | ")
           : "";
-      case "LogicalExpression":
-        return `${handleNode(node.left)} ${node.op} ${handleNode(node.right)}`;
+      case "LogicalExpression": {
+        const op = node.op === ";" ? `${node.op} ` : ` ${node.op} `;
+        return `${handleNode(node.left)}${op}${handleNode(node.right)}`;
+      }
       case "Command": {
         const commandNode = node as CommandNode;
         const parts: string[] = [];
