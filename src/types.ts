@@ -4,7 +4,7 @@ export interface ModuleType {
 }
 
 export interface EnhancedModuleType extends ModuleType {
-  operator?: "and" | "pipe";
+  operator?: "and" | "pipe" | "end";
   quoteChar?: "'" | '"';
 }
 
