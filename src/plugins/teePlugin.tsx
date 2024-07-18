@@ -53,12 +53,12 @@ const TeeComponent: React.FC<TeeComponentProps> = ({
           -a (Append to file)
         </label>
       </div>
-      <div className="flex items-center">
+      <div className="flex flex-col">
         <input
           type="text"
           value={file}
           onChange={(e) => setFile(e.target.value)}
-          className="flex-grow p-2 border rounded mr-2"
+          className="p-2 border rounded mb-2"
           placeholder="Enter filename or select file"
         />
         <button
