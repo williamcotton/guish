@@ -106,7 +106,7 @@ export function astToCommand(ast: ScriptNode): string {
         )}; done`;
       case "Word": {
         let quoteChar;
-        if (node.quoteChar) {
+        if ("quoteChar" in node) {
           quoteChar = node.quoteChar;
         } else {
           quoteChar = node.text.includes("'") ? '"' : "'";

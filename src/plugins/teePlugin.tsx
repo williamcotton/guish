@@ -2,22 +2,27 @@ import React from "react";
 import { Plugin } from "../Plugins";
 import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
+interface TeeRedirect {
+  type: "file" | "command";
+  target: string;
+}
+
 interface TeeModuleType extends ModuleType {
   type: "tee";
   flags: string;
-  file: string;
+  redirect: TeeRedirect;
 }
 
 interface TeeComponentProps extends TeeModuleType {
   setFlags: (flags: string) => void;
-  setFile: (file: string) => void;
+  setRedirect: (redirect: TeeRedirect) => void;
 }
 
 const TeeComponent: React.FC<TeeComponentProps> = ({
   flags,
-  file,
+  redirect,
   setFlags,
-  setFile,
+  setRedirect,
 }) => {
   const handleFileSelect = async () => {
     try {
@@ -27,7 +32,7 @@ const TeeComponent: React.FC<TeeComponentProps> = ({
         filters: [{ name: "All Files", extensions: ["*"] }],
       });
       if (!result.canceled && result.filePath) {
-        setFile(result.filePath);
+        setRedirect({ ...redirect, target: result.filePath });
       }
     } catch (error) {
       console.error("Error in file dialog:", error);
@@ -43,30 +48,54 @@ const TeeComponent: React.FC<TeeComponentProps> = ({
             type="checkbox"
             checked={flags.includes("a")}
             onChange={(e) => {
-              if (e.target.checked) {
-                setFlags(flags + "a");
-              } else {
-                setFlags(flags.replace("a", ""));
-              }
+              setFlags(e.target.checked ? "a" : "");
             }}
           />{" "}
           -a (Append to file)
         </label>
       </div>
-      <div className="flex flex-col">
+      <div className="flex items-center mb-2">
+        <label htmlFor="tee-redirect-type" className="mr-2">
+          Redirect type:
+        </label>
+        <select
+          id="tee-redirect-type"
+          value={redirect.type}
+          onChange={(e) => {
+            setRedirect({
+              ...redirect,
+              type: e.target.value as "file" | "command",
+            });
+          }}
+          className="mr-2 p-2 border rounded"
+        >
+          <option value="file">File</option>
+          <option value="command">Command</option>
+        </select>
         <input
           type="text"
-          value={file}
-          onChange={(e) => setFile(e.target.value)}
-          className="p-2 border rounded mb-2"
-          placeholder="Enter filename or select file"
+          value={redirect.target}
+          onChange={(e) => {
+            setRedirect({
+              ...redirect,
+              target: e.target.value,
+            });
+          }}
+          className="flex-grow p-2 border rounded mr-2"
+          placeholder={
+            redirect.type === "file"
+              ? "Enter filename or select file"
+              : "Enter command"
+          }
         />
-        <button
-          onClick={handleFileSelect}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Select File
-        </button>
+        {redirect.type === "file" && (
+          <button
+            onClick={handleFileSelect}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Select File
+          </button>
+        )}
       </div>
     </>
   );
@@ -82,31 +111,51 @@ export const teePlugin: Plugin = {
           .map((arg: WordNode | RedirectNode) => arg.text?.slice(1) || "")
           .join("")
       : "";
-    const file = command.suffix
+
+    const redirectArg = command.suffix
       ? command.suffix.find(
           (arg: WordNode | RedirectNode) => !arg.text?.startsWith("-")
-        )?.text || ""
-      : "";
+        )
+      : undefined;
+
+    const redirect: TeeRedirect = redirectArg
+      ? redirectArg.text?.startsWith(">(")
+        ? { type: "command", target: redirectArg.text.slice(2, -1) }
+        : { type: "file", target: redirectArg.text || "" }
+      : { type: "file", target: "" };
+
     return {
       type: "tee",
       flags,
-      file,
+      redirect,
     };
   },
   component: TeeComponent,
   compile: (module: ModuleType): CommandNode => {
     const teeModule = module as TeeModuleType;
+    const suffix: Array<WordNode | RedirectNode> = [];
+
+    if (teeModule.flags) {
+      suffix.push({ type: "Word", text: `-${teeModule.flags}` } as WordNode);
+    }
+
+    if (teeModule.redirect.type === "file") {
+      suffix.push({
+        type: "Word",
+        text: teeModule.redirect.target,
+      } as WordNode);
+    } else {
+      suffix.push({
+        type: "Word",
+        text: `>(${teeModule.redirect.target})`,
+        quoteChar: ''
+      } as WordNode);
+    }
+
     return {
       type: "Command",
       name: { text: "tee", type: "Word" },
-      suffix: [
-        ...(teeModule.flags
-          ? [{ type: "Word", text: `-${teeModule.flags}` } as WordNode]
-          : []),
-        ...(teeModule.file
-          ? [{ type: "Word", text: teeModule.file } as WordNode]
-          : []),
-      ],
+      suffix: suffix,
     };
   },
 };

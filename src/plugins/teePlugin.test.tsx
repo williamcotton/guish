@@ -12,7 +12,7 @@ window.electron = {
 
 describe("teePlugin", () => {
   describe("parse", () => {
-    it("should parse a simple tee command", () => {
+    it("should parse a simple tee command with file", () => {
       const command: CommandNode = {
         type: "Command",
         name: { text: "tee", type: "Word" },
@@ -24,7 +24,7 @@ describe("teePlugin", () => {
       expect(result).toEqual({
         type: "tee",
         flags: "",
-        file: "output.txt",
+        redirect: { type: "file", target: "output.txt" },
       });
     });
 
@@ -43,17 +43,33 @@ describe("teePlugin", () => {
       expect(result).toEqual({
         type: "tee",
         flags: "a",
-        file: "output.txt",
+        redirect: { type: "file", target: "output.txt" },
+      });
+    });
+
+    it("should parse a tee command with command redirection", () => {
+      const command: CommandNode = {
+        type: "Command",
+        name: { text: "tee", type: "Word" },
+        suffix: [{ text: ">(sort)", type: "Word" }],
+      };
+
+      const result = teePlugin.parse(command);
+
+      expect(result).toEqual({
+        type: "tee",
+        flags: "",
+        redirect: { type: "command", target: "sort" },
       });
     });
   });
 
   describe("compile", () => {
-    it("should compile a simple tee command", () => {
+    it("should compile a simple tee command with file", () => {
       const module = {
         type: "tee",
         flags: "",
-        file: "output.txt",
+        redirect: { type: "file", target: "output.txt" },
       };
 
       const result = teePlugin.compile(module);
@@ -69,7 +85,7 @@ describe("teePlugin", () => {
       const module = {
         type: "tee",
         flags: "a",
-        file: "output.txt",
+        redirect: { type: "file", target: "output.txt" },
       };
 
       const result = teePlugin.compile(module);
@@ -83,19 +99,35 @@ describe("teePlugin", () => {
         ],
       });
     });
+
+    it("should compile a tee command with command redirection", () => {
+      const module = {
+        type: "tee",
+        flags: "",
+        redirect: { type: "command", target: "sort" },
+      };
+
+      const result = teePlugin.compile(module);
+
+      expect(result).toEqual({
+        type: "Command",
+        name: { text: "tee", type: "Word" },
+        suffix: [{ type: "Word", text: ">(sort)", quoteChar: "" }],
+      });
+    });
   });
 
   describe("component", () => {
-    it("should render and update correctly", async () => {
+    it("should render and update correctly for file redirection", async () => {
       const mockSetFlags = jest.fn();
-      const mockSetFile = jest.fn();
+      const mockSetRedirect = jest.fn();
 
       const { getByLabelText, getByPlaceholderText, getByText } = render(
         React.createElement(teePlugin.component, {
           flags: "",
-          file: "output.txt",
+          redirect: { type: "file", target: "output.txt" },
           setFlags: mockSetFlags,
-          setFile: mockSetFile,
+          setRedirect: mockSetRedirect,
         })
       );
 
@@ -104,16 +136,19 @@ describe("teePlugin", () => {
       ) as HTMLInputElement;
       expect(appendCheckbox).not.toBeChecked();
 
-      const fileInput = getByPlaceholderText(
+      const targetInput = getByPlaceholderText(
         "Enter filename or select file"
       ) as HTMLInputElement;
-      expect(fileInput).toHaveValue("output.txt");
+      expect(targetInput).toHaveValue("output.txt");
 
       fireEvent.click(appendCheckbox);
       expect(mockSetFlags).toHaveBeenCalledWith("a");
 
-      fireEvent.change(fileInput, { target: { value: "new_output.txt" } });
-      expect(mockSetFile).toHaveBeenCalledWith("new_output.txt");
+      fireEvent.change(targetInput, { target: { value: "new_output.txt" } });
+      expect(mockSetRedirect).toHaveBeenCalledWith({
+        type: "file",
+        target: "new_output.txt",
+      });
 
       // Test file selection button
       mockShowSaveDialog.mockResolvedValue({
@@ -124,8 +159,48 @@ describe("teePlugin", () => {
 
       // Wait for the async operation to complete
       await waitFor(() => {
-        expect(mockSetFile).toHaveBeenCalledWith("/path/to/selected_file.txt");
+        expect(mockSetRedirect).toHaveBeenCalledWith({
+          type: "file",
+          target: "/path/to/selected_file.txt",
+        });
       });
+    });
+
+    it("should render and update correctly for command redirection", () => {
+      const mockSetFlags = jest.fn();
+      const mockSetRedirect = jest.fn();
+
+      const { getByLabelText, getByPlaceholderText, queryByText } = render(
+        React.createElement(teePlugin.component, {
+          flags: "",
+          redirect: { type: "command", target: "sort" },
+          setFlags: mockSetFlags,
+          setRedirect: mockSetRedirect,
+        })
+      );
+
+      const typeSelect = getByLabelText("Redirect type:") as HTMLSelectElement;
+      expect(typeSelect.value).toBe("command");
+
+      const targetInput = getByPlaceholderText(
+        "Enter command"
+      ) as HTMLInputElement;
+      expect(targetInput).toHaveValue("sort");
+
+      fireEvent.change(typeSelect, { target: { value: "file" } });
+      expect(mockSetRedirect).toHaveBeenCalledWith({
+        type: "file",
+        target: "sort",
+      });
+
+      fireEvent.change(targetInput, { target: { value: "grep pattern" } });
+      expect(mockSetRedirect).toHaveBeenCalledWith({
+        type: "command",
+        target: "grep pattern",
+      });
+
+      // Ensure "Select File" button is not present for command redirection
+      expect(queryByText("Select File")).not.toBeInTheDocument();
     });
   });
 });
