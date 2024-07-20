@@ -30,8 +30,8 @@ jest.mock("./useStore", () => ({
       },
     ],
     compiledCommand: "",
-    output: "",
-    setOutput: jest.fn(),
+    outputs: [],
+    setOutputs: jest.fn(),
     updateModule: mockUpdateModule,
     removeModule: mockRemoveModule,
     executeCommand: mockExecuteCommand,
@@ -129,9 +129,6 @@ describe("App", () => {
     const { getByTestId } = render(<App electronApi={mockElectronApi} />);
 
     expect(getByTestId("echo-module")).toBeInTheDocument();
-    expect(getByTestId("echo-module").parentElement).toHaveClass(
-      "custom-echo-class"
-    );
   });
 
   it("calls updateModule when a module is updated", () => {

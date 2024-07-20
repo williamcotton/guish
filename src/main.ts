@@ -13,6 +13,9 @@ import parse from "bash-parser";
 import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
+import { astToCommand } from "./astToCommand";
+import { PipelineNode, CommandNode, ScriptNode } from "./types";
+
 
 interface Config {
   shell: string;
@@ -157,32 +160,79 @@ const createWindow = () => {
     }
   });
 
-  ipcMain.on("execute-command", (event: IpcMainEvent, args: string) => {
-    const command = config.preloadScript
-      ? `${config.preloadScript} && ${args}`
-      : args;
-    const shellProcess = spawn(config.shell, ["-c", command], {
-      stdio: ["pipe", "pipe", "pipe"],
-    });
+  ipcMain.on("execute-command", async (event: IpcMainEvent, args: string) => {
+    try {
+      const ast = parse(args);
+      const results: string[] = [];
 
-    let stdout = "";
-    let stderr = "";
+      const executeCommand = (command: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const fullCommand = config.preloadScript
+            ? `${config.preloadScript} && ${command}`
+            : command;
 
-    shellProcess.stdout.on("data", (data: Buffer) => {
-      stdout += data.toString();
-    });
+          const shellProcess = spawn(config.shell, ["-c", fullCommand], {
+            stdio: ["pipe", "pipe", "pipe"],
+          });
 
-    shellProcess.stderr.on("data", (data: Buffer) => {
-      stderr += data.toString();
-    });
+          let stdout = "";
+          let stderr = "";
 
-    shellProcess.on("close", (code: number | null) => {
-      if (code !== 0) {
-        event.reply("execute-command-result", { error: stderr });
-      } else {
-        event.reply("execute-command-result", { output: stdout || stderr });
+          shellProcess.stdout.on("data", (data: Buffer) => {
+            stdout += data.toString();
+          });
+
+          shellProcess.stderr.on("data", (data: Buffer) => {
+            stderr += data.toString();
+          });
+
+          shellProcess.on("close", (code: number | null) => {
+            if (code !== 0) {
+              reject(stderr);
+            } else {
+              resolve(stdout || stderr);
+            }
+          });
+        });
+      };
+
+      const executeCumulativePipeline = async (pipeline: PipelineNode) => {
+        for (let i = 0; i < pipeline.commands.length; i++) {
+          const partialPipeline: PipelineNode = {
+            type: "Pipeline",
+            commands: pipeline.commands.slice(0, i + 1),
+          };
+          const scriptNode: ScriptNode = {
+            type: "Script",
+            commands: [partialPipeline],
+          };
+          const commandString = astToCommand(scriptNode);
+          const result = await executeCommand(commandString);
+          results.push(result);
+        }
+      };
+
+      if (ast.type === "Script") {
+        for (const command of ast.commands) {
+          if (command.type === "Pipeline") {
+            await executeCumulativePipeline(command);
+          } else {
+            const commandString = astToCommand({
+              type: "Script",
+              commands: [command],
+            });
+            const result = await executeCommand(commandString);
+            results.push(result);
+          }
+        }
       }
-    });
+
+      event.reply("execute-command-result", { output: results });
+    } catch (error) {
+      event.reply("execute-command-result", {
+        error: (error as Error).message,
+      });
+    }
   });
 
   ipcMain.handle(

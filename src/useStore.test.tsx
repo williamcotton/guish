@@ -55,7 +55,7 @@ const TestComponent: React.FC = () => {
       <div data-testid="loading">
         {store.loading ? "Loading" : "Not Loading"}
       </div>
-      <div data-testid="output">{store.output}</div>
+      <div data-testid="output">{store.outputs}</div>
       <div data-testid="modules">{JSON.stringify(store.modules)}</div>
     </div>
   );

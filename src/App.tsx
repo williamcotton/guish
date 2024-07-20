@@ -17,6 +17,7 @@ const App: React.FC<AppProps> = (props) => {
   useFileOperations(store, props.electronApi);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    store.setOutputs([]);
     store.setInputCommand(e.target.value);
   };
 
@@ -36,69 +37,78 @@ const App: React.FC<AppProps> = (props) => {
   }, [store]);
 
   const handleExecuteCommand = useCallback(() => {
-    store.setOutput(""); // Clear text output
+    console.log("Executing");
+    store.setOutputs([]); // Clear text output
     store.setLoading(true); // Set loading to true
     store.executeCommand();
   }, [store]);
 
-const renderModule = useCallback(
-  (module: ModuleType, index: number) => {
-    const plugin = Plugins.get(module.type) || genericPlugin;
-    if (!plugin) return null;
+  const renderModule = useCallback(
+    (module: ModuleType, index: number) => {
+      const plugin = Plugins.get(module.type) || genericPlugin;
+      if (!plugin) return null;
+      const output = store.outputs[index];
+      const Component = plugin.component;
 
-    const Component = plugin.component;
-    return (
-      <div
-        key={`${module.type}-${index}`}
-        className={
-          plugin.containerClasses ||
-          "flex-1 min-w-[200px] bg-white p-4 rounded shadow mx-2 overflow-auto relative group"
-        }
-        style={{ resize: "vertical" }}
-      >
-        <button
-          onClick={() => store.removeModule(index)}
-          className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Close module"
+      return (
+        <div
+          key={`${module.type}-${index}`}
+          className={`
+            mt-2 flex flex-col w-full min-w-[200px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
+            ${plugin.containerClasses || ""}
+          `}
         >
-          <X size={16} />
-        </button>
-        {module.quoteChar && (
-          <div className="absolute top-2 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
-            <select
-              value={module.quoteChar}
-              onChange={(e) =>
-                store.updateModule(index, {
-                  quoteChar: e.target.value as "'" | '"',
-                })
-              }
-              className="text-sm border rounded"
+          <div className="absolute top-2 right-2 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {module.quoteChar && (
+              <select
+                value={module.quoteChar}
+                onChange={(e) =>
+                  store.updateModule(index, {
+                    quoteChar: e.target.value as "'" | '"',
+                  })
+                }
+                className="text-sm border rounded"
+              >
+                <option value="'">Single quotes</option>
+                <option value='"'>Double quotes</option>
+              </select>
+            )}
+            <button
+              onClick={() => store.removeModule(index)}
+              className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none"
+              aria-label="Close module"
             >
-              <option value="'">Single quotes</option>
-              <option value='"'>Double quotes</option>
-            </select>
+              <X size={16} />
+            </button>
           </div>
-        )}
-        <Component
-          {...module}
-          {...Object.fromEntries(
-            Object.keys(module).map((key) => [
-              `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
-              (value: unknown) => store.updateModule(index, { [key]: value }),
-            ])
-          )}
-        />
-      </div>
-    );
-  },
-  [store]
-);
+
+          <div className="flex-grow overflow-auto p-4">
+            <Component
+              {...module}
+              {...Object.fromEntries(
+                Object.keys(module).map((key) => [
+                  `set${key.charAt(0).toUpperCase() + key.slice(1)}`,
+                  (value: unknown) =>
+                    store.updateModule(index, { [key]: value }),
+                ])
+              )}
+            />
+          </div>
+
+          <div className="h-20 min-h-[130px] max-h-[130px] bg-black text-green-400 p-2 rounded-b overflow-auto">
+            <pre>{output}</pre>
+          </div>
+        </div>
+      );
+    },
+    [store]
+  );
 
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Main content column */}
       <div className="flex flex-col w-3/4">
-        <header className="flex justify-between items-center bg-gray-800 text-white p-4">
+        <header className="flex justify-between items-center bg-gray-800 text-white pt-2 pb-2">
           <h1 className="text-2xl font-bold pl-2">guish</h1>
           {store.currentFilePath && (
             <div className="flex items-center text-sm text-gray-300 truncate max-w-[50%] pr-2">
@@ -110,8 +120,8 @@ const renderModule = useCallback(
           )}
         </header>
 
-        <div className="flex-1 flex flex-col overflow-hidden p-4">
-          <div className="flex-1 flex overflow-auto">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex overflow-auto p-2">
             {store.modules.map(renderModule)}
           </div>
 
@@ -121,7 +131,7 @@ const renderModule = useCallback(
               <textarea
                 value={store.inputCommand}
                 onChange={handleInputChange}
-                className="flex-1 p-2 bg-gray-700 text-white rounded border border-gray-600 font-mono text-sm"
+                className="flex-1 pl-2 pr-2 bg-gray-700 text-white rounded border border-gray-600 font-mono text-sm"
                 placeholder="Enter command..."
                 rows={Math.min(store.inputCommand.split("\n").length, 3)}
               />
@@ -131,9 +141,6 @@ const renderModule = useCallback(
               >
                 Execute
               </button>
-            </div>
-            <div className="bg-black text-green-400 p-2 rounded h-32 overflow-auto">
-              <pre>{store.output}</pre>
             </div>
           </div>
         </div>
@@ -147,7 +154,11 @@ const renderModule = useCallback(
             <Loader className="animate-spin text-blue-500" size={48} />
           </div>
         ) : (
-          <div dangerouslySetInnerHTML={{ __html: store.output }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html: store.outputs && store.outputs[store.outputs.length - 1],
+            }}
+          />
         )}
       </div>
     </div>

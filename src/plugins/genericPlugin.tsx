@@ -38,7 +38,8 @@ export const genericPlugin: Plugin = {
       ? command.suffix.map((arg: WordNode | RedirectNode) => arg.text).join(" ")
       : "",
   }),
-  containerClasses: "bg-white p-2 rounded shadow mx-2 relative pr-8 group",
+  containerClasses:
+    "max-w-[100px]",
   component: GenericCommandComponent,
   compile: (module: ModuleType): CommandNode => {
     const genericModule = module as GenericCommandModule;

@@ -41,8 +41,8 @@ const mockStore: jest.Mocked<UseStoreType> = {
   setInputCommand: jest.fn(),
   modules: [],
   compiledCommand: "",
-  output: "",
-  setOutput: jest.fn(),
+  outputs: [],
+  setOutputs: jest.fn(),
   updateModule: jest.fn(),
   removeModule: jest.fn(),
   executeCommand: jest.fn(),
@@ -75,7 +75,7 @@ describe("useFileOperations", () => {
     });
 
     expect(mockStore.setFileContent).toHaveBeenCalledWith("");
-    expect(mockStore.setOutput).toHaveBeenCalledWith("");
+    expect(mockStore.setOutputs).toHaveBeenCalledWith([]);
     expect(mockStore.setCurrentFilePath).toHaveBeenCalledWith(null);
   });
 
@@ -107,7 +107,7 @@ describe("useFileOperations", () => {
     expect(mockStore.setCurrentFilePath).toHaveBeenCalledWith(
       "/path/to/file.sh"
     );
-    expect(mockStore.setOutput).toHaveBeenCalledWith("");
+    expect(mockStore.setOutputs).toHaveBeenCalledWith([]);
   });
 
   it("should handle save pipeline", async () => {

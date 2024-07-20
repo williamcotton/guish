@@ -7,8 +7,8 @@ export interface UseStoreType {
   setInputCommand: (cmd: string) => void;
   modules: EnhancedModuleType[];
   compiledCommand: string;
-  output: string;
-  setOutput: (output: string) => void;
+  outputs: string[];
+  setOutputs: (outputs: string[]) => void;
   updateModule: (index: number, updates: Partial<ModuleType>) => void;
   removeModule: (index: number) => void;
   executeCommand: () => Promise<void>;
@@ -25,7 +25,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [inputCommand, setInputCommand] = useState<string>("");
   const [modules, setModules] = useState<EnhancedModuleType[]>([]);
   const [compiledCommand, setCompiledCommand] = useState<string>("");
-  const [output, setOutput] = useState<string>("");
+  const [outputs, setOutputs] = useState<string[]>([]);
   const [updateSource, setUpdateSource] = useState<string | null>(null);
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
   const [lastSavedContent, setLastSavedContent] = useState<string>("");
@@ -58,10 +58,19 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
       }
     );
 
-    electronApi.ipcRenderer.receive("execute-command-result", (result: { error?: string; output?: string}) => {
-      setLoading(false);
-      setOutput(result.error ? `Error: ${result.error}` : result.output || "");
-    });
+    electronApi.ipcRenderer.receive(
+      "execute-command-result",
+      (result: { error?: string; output?: string[] }) => {
+        setLoading(false);
+        if (result.error) {
+          setOutputs([`Error: ${result.error}`]);
+        } else if (result.output && result.output.length > 0) {
+          setOutputs(result.output);
+        } else {
+          setOutputs([]);
+        }
+      }
+    );
 
     return () => {
       electronApi.ipcRenderer.removeAllListeners("parse-command-result");
@@ -115,8 +124,8 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     setInputCommand: setCommand,
     modules,
     compiledCommand,
-    output,
-    setOutput,
+    outputs,
+    setOutputs,
     updateModule,
     removeModule,
     executeCommand,

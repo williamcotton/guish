@@ -36,7 +36,7 @@ export const useFileOperations = (store: UseStoreType, electronApi: ElectronAPI)
 
   const handleNewPipeline = useCallback((): void => {
     store.setFileContent("");
-    store.setOutput("");
+    store.setOutputs([]);
     store.setCurrentFilePath(null);
   }, [store]);
 
@@ -49,7 +49,7 @@ export const useFileOperations = (store: UseStoreType, electronApi: ElectronAPI)
         if (fileContent.success && fileContent.content !== undefined) {
           store.setFileContent(fileContent.content);
           store.setCurrentFilePath(filePath);
-          store.setOutput(""); // Clear text output
+          store.setOutputs([]); // Clear text output
         } else {
           console.error("Failed to open script file:", fileContent.error);
           // Here you might want to show an error message to the user
