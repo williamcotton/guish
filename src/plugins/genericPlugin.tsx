@@ -39,7 +39,7 @@ export const genericPlugin: Plugin = {
       : "",
   }),
   containerClasses:
-    "max-w-[100px]",
+    "max-w-[80px]",
   component: GenericCommandComponent,
   compile: (module: ModuleType): CommandNode => {
     const genericModule = module as GenericCommandModule;

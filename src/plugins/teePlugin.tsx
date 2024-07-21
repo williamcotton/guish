@@ -54,48 +54,52 @@ const TeeComponent: React.FC<TeeComponentProps> = ({
           -a (Append to file)
         </label>
       </div>
-      <div className="flex items-center mb-2">
-        <label htmlFor="tee-redirect-type" className="mr-2">
-          Redirect type:
-        </label>
-        <select
-          id="tee-redirect-type"
-          value={redirect.type}
-          onChange={(e) => {
-            setRedirect({
-              ...redirect,
-              type: e.target.value as "file" | "command",
-            });
-          }}
-          className="mr-2 p-2 border rounded"
-        >
-          <option value="file">File</option>
-          <option value="command">Command</option>
-        </select>
-        <input
-          type="text"
-          value={redirect.target}
-          onChange={(e) => {
-            setRedirect({
-              ...redirect,
-              target: e.target.value,
-            });
-          }}
-          className="flex-grow p-2 border rounded mr-2"
-          placeholder={
-            redirect.type === "file"
-              ? "Enter filename or select file"
-              : "Enter command"
-          }
-        />
-        {redirect.type === "file" && (
-          <button
-            onClick={handleFileSelect}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+      <div className="mb-2">
+        <div className="flex items-center mb-2">
+          <label htmlFor="tee-redirect-type" className="mr-2">
+            Redirect type:
+          </label>
+          <select
+            id="tee-redirect-type"
+            value={redirect.type}
+            onChange={(e) => {
+              setRedirect({
+                ...redirect,
+                type: e.target.value as "file" | "command",
+              });
+            }}
+            className="mr-2 p-2 border rounded"
           >
-            Select File
-          </button>
-        )}
+            <option value="file">File</option>
+            <option value="command">Command</option>
+          </select>
+        </div>
+        <div className="flex">
+          <input
+            type="text"
+            value={redirect.target}
+            onChange={(e) => {
+              setRedirect({
+                ...redirect,
+                target: e.target.value,
+              });
+            }}
+            className="flex-grow p-2 border rounded mr-2"
+            placeholder={
+              redirect.type === "file"
+                ? "Enter filename or select file"
+                : "Enter command"
+            }
+          />
+          {redirect.type === "file" && (
+            <button
+              onClick={handleFileSelect}
+              className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Select File
+            </button>
+          )}
+        </div>
       </div>
     </>
   );
