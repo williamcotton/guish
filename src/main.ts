@@ -160,10 +160,9 @@ const createWindow = () => {
     }
   });
 
-  ipcMain.on("execute-command", async (event: IpcMainEvent, args: string) => {
+  ipcMain.on("execute-ast", async (event: IpcMainEvent, ast: ScriptNode) => {
     try {
-      const ast = parse(args);
-      const results: string[] = [];
+      let results: string[] = [];
 
       const executeCommand = (command: string): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -197,6 +196,7 @@ const createWindow = () => {
       };
 
       const executeCumulativePipeline = async (pipeline: PipelineNode) => {
+        results = new Array(pipeline.commands.length).fill("");
         for (let i = 0; i < pipeline.commands.length; i++) {
           const partialPipeline: PipelineNode = {
             type: "Pipeline",
@@ -208,7 +208,8 @@ const createWindow = () => {
           };
           const commandString = astToCommand(scriptNode);
           const result = await executeCommand(commandString);
-          results.push(result);
+          results[i] = result;
+          event.reply("execute-command-result", { output: results });
         }
       };
 
@@ -216,6 +217,9 @@ const createWindow = () => {
         for (const command of ast.commands) {
           if (command.type === "Pipeline") {
             await executeCumulativePipeline(command);
+          } else if (command.type === "LogicalExpression") {
+            console.log("LogicalExpression", command.left);
+            await executeCumulativePipeline(command.right as PipelineNode);
           } else {
             const commandString = astToCommand({
               type: "Script",

@@ -37,10 +37,9 @@ const App: React.FC<AppProps> = (props) => {
   }, [store]);
 
   const handleExecuteCommand = useCallback(() => {
-    console.log("Executing");
     store.setOutputs([]); // Clear text output
     store.setLoading(true); // Set loading to true
-    store.executeCommand();
+    store.executeAst();
   }, [store]);
 
   const renderModule = useCallback(

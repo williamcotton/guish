@@ -128,6 +128,7 @@ export const useAst = () => {
 
   return {
     astToModules,
+    modulesToAst,
     compileCommand,
   };
 };

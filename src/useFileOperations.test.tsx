@@ -18,6 +18,7 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   showOpenScriptDialog: jest.fn(),
   saveScriptFile: jest.fn(),
   openScriptFile: jest.fn(),
+  executeAst: jest.fn(),
   ipcRenderer: {
     send: jest.fn(),
     receive: jest.fn(
@@ -29,7 +30,6 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
     removeAllListeners: jest.fn(),
     callbacks: {} as Record<ValidChannels, (...args: unknown[]) => void>,
   } as MockIpcRenderer,
-  executeCommand: jest.fn(),
   parseCommand: jest.fn(),
   showSaveDialog: jest.fn(),
   showDirectoryDialog: jest.fn(),
@@ -45,7 +45,7 @@ const mockStore: jest.Mocked<UseStoreType> = {
   setOutputs: jest.fn(),
   updateModule: jest.fn(),
   removeModule: jest.fn(),
-  executeCommand: jest.fn(),
+  executeAst: jest.fn(),
   currentFilePath: null,
   setCurrentFilePath: jest.fn(),
   hasUnsavedChanges: false,

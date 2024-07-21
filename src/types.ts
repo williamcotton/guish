@@ -221,7 +221,7 @@ export interface SaveDialogReturnValue {
 }
 
 export type ValidChannels =
-  | "execute-command"
+  | "execute-ast"
   | "parse-command"
   | "fromMain"
   | "parse-command-result"
@@ -246,7 +246,7 @@ export interface ElectronAPI {
     filePath: string
   ) => Promise<SaveScriptFileResult>;
   openScriptFile: (filePath: string) => Promise<OpenScriptFileResult>;
-  executeCommand: (command: string) => void;
+  executeAst: (ast: ScriptNode) => void;
   parseCommand: (command: string) => void;
   showSaveDialog: (
     options: SaveDialogOptions

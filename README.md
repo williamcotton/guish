@@ -10,7 +10,7 @@ This is an exploratory project in nature, seeing how text input and GUI input ca
 
 I do a lot of data science and hop between the command line, Jupyter notebooks, R Studio, and VS Code, but there's something unsatisfactory about all of them. Embedding a SQL query in another language like R puts the SQL in a secondary position. The command line keeps every language on the same level but is a rather poor interface for writing code. This application attempts to bridge the gap.
 
-Updates to the prompt are parsed into an AST and used to update the GUI. Updates in the GUI are used to build an AST to update the prompt.
+Updates to the prompt are parsed into an AST and used to update the GUI. Updates in the GUI are used to build an AST to update the prompt. The output of each command in the pipeline is displayed in the terminal-like display below the input area. For HTML output, the rendered results are displayed in the right-hand panel.
 
 Instead of writing something like this into the line editor,
 
@@ -27,7 +27,7 @@ One can write,
 pg | tsvtocsv | ggplot | pngtohtml
 ```
 
-And then fill in the blanks in the GUI with a fully fledged code editor like Monaco.
+And then fill in the blanks in the GUI with a fully fledged code editor like Monaco all while seeing the output of each step in the pipeline.
 
 ![Screenshot 2024-07-02 at 10 19 02 PM](https://github.com/williamcotton/guish/assets/13163/a5214e93-154b-4c5f-b727-e1d9c0e67c2a)
 
@@ -36,6 +36,7 @@ Commands are executed as-is in a shell process. The application is merely a tool
 ## Features
 
 - Visual representation of command-line pipelines
+- Visible output after each command in the pipeline
 - Real-time parsing of commands
 - Support for custom plugins and command modules
 - Bidirectional updates from CLI or GUI command modules
@@ -46,7 +47,6 @@ Commands are executed as-is in a shell process. The application is merely a tool
 - Configurable shell and preload script via `.guish` configuration file
 - File operations (New, Open, Save, Save As) for pipeline scripts
 - Directory selection for the `cd` command
-- Support for logical operators (&&) between commands
 
 ## Demo
 
@@ -77,6 +77,8 @@ guish currently supports the following commands and plugins:
 - curl (HTTP requests)
 - node (JavaScript execution)
 - python (Python script execution)
+- ruby (Ruby script execution)
+- paste
 - Generic command support for unsupported commands
 
 ### pg and ggplot

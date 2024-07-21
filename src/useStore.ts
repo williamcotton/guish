@@ -11,7 +11,7 @@ export interface UseStoreType {
   setOutputs: (outputs: string[]) => void;
   updateModule: (index: number, updates: Partial<ModuleType>) => void;
   removeModule: (index: number) => void;
-  executeCommand: () => Promise<void>;
+  executeAst: () => Promise<void>;
   currentFilePath: string | null;
   setCurrentFilePath: (path: string | null) => void;
   hasUnsavedChanges: boolean;
@@ -30,9 +30,11 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
   const [lastSavedContent, setLastSavedContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [ast, setAst] = useState<ScriptNode | null>(null);
 
   const {
     astToModules,
+    modulesToAst,
     compileCommand,
   } = useAst();
 
@@ -42,10 +44,9 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     }
   }, [inputCommand, updateSource]);
 
-  const executeCommand = useCallback(async (): Promise<void> => {
-    console.log(compiledCommand);
-    electronApi.executeCommand(compiledCommand);
-  }, [compiledCommand]);
+  const executeAst = useCallback(async (): Promise<void> => {
+    electronApi.executeAst(ast);
+  }, [ast]);
 
   useEffect(() => {
     electronApi.ipcRenderer.receive(
@@ -54,6 +55,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
         if ("type" in result && result.type === "Script") {
           setUpdateSource("input");
           setModules(astToModules(result));
+          setAst(result);
         }
       }
     );
@@ -81,6 +83,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   useEffect(() => {
     if (updateSource === "modules") {
       const cmd = compileCommand(modules);
+      setAst(modulesToAst(modules));
       setInputCommand(cmd);
       setCompiledCommand(cmd);
     }
@@ -128,7 +131,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     setOutputs,
     updateModule,
     removeModule,
-    executeCommand,
+    executeAst,
     currentFilePath,
     setCurrentFilePath,
     hasUnsavedChanges,

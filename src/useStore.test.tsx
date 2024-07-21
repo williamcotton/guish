@@ -16,7 +16,7 @@ jest.mock("./useAst", () => ({
 // Create a mock ElectronAPI
 const mockElectronApi: jest.Mocked<ElectronAPI> = {
   parseCommand: jest.fn(),
-  executeCommand: jest.fn(),
+  executeAst: jest.fn(),
   ipcRenderer: {
     send: jest.fn(),
     receive: jest.fn(),
@@ -40,7 +40,7 @@ const TestComponent: React.FC = () => {
         value={store.inputCommand}
         onChange={(e) => store.setInputCommand(e.target.value)}
       />
-      <button data-testid="execute" onClick={() => store.executeCommand()}>
+      <button data-testid="execute" onClick={() => store.executeAst()}>
         Execute
       </button>
       <button
@@ -90,7 +90,7 @@ describe("useStore", () => {
 
     const executeButton = screen.getByTestId("execute");
     fireEvent.click(executeButton);
-    expect(mockElectronApi.executeCommand).toHaveBeenCalledWith("echo 123");
+    expect(mockElectronApi.executeAst).toHaveBeenCalledWith(null);
   });
 
   it("should set loading state when executing command", async () => {
@@ -116,6 +116,6 @@ describe("useStore", () => {
     // Check that loading state is reset after command execution
     await screen.findByText("Not Loading");
 
-    expect(mockElectronApi.executeCommand).toHaveBeenCalledWith("echo 123");
+    expect(mockElectronApi.executeAst).toHaveBeenCalledWith(null);
   });
 });

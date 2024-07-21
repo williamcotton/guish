@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { ElectronAPI, ValidChannels } from "./types";
 
-const validSendChannels: ValidChannels[] = ["execute-command", "parse-command"];
+const validSendChannels: ValidChannels[] = ["parse-command", "execute-ast"];
 const validReceiveChannels: ValidChannels[] = [
   "fromMain",
   "parse-command-result",
@@ -35,7 +35,7 @@ const electronApi: ElectronAPI = {
       }
     },
   },
-  executeCommand: (args) => ipcRenderer.send("execute-command", args),
+  executeAst: (args) => ipcRenderer.send("execute-ast", args),
   parseCommand: (args) => ipcRenderer.send("parse-command", args),
   showSaveDialog: (options) =>
     ipcRenderer.invoke("show-save-dialog", options),

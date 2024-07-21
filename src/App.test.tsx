@@ -13,7 +13,7 @@ jest.mock("./Plugins", () => ({
   },
 }));
 
-const mockExecuteCommand = jest.fn();
+const mockExecuteAst = jest.fn();
 const mockSetInputCommand = jest.fn();
 const mockUpdateModule = jest.fn();
 const mockRemoveModule = jest.fn();
@@ -34,7 +34,7 @@ jest.mock("./useStore", () => ({
     setOutputs: jest.fn(),
     updateModule: mockUpdateModule,
     removeModule: mockRemoveModule,
-    executeCommand: mockExecuteCommand,
+    executeAst: mockExecuteAst,
     currentFilePath: null,
     setCurrentFilePath: jest.fn(),
     hasUnsavedChanges: false,
@@ -57,13 +57,13 @@ jest.mock("./useFileOperations", () => ({
 // Create a mock ElectronAPI
 const mockElectronApi: jest.Mocked<ElectronAPI> = {
   parseCommand: jest.fn(),
-  executeCommand: jest.fn(),
   ipcRenderer: {
     send: jest.fn(),
     receive: jest.fn(),
     removeAllListeners: jest.fn(),
   },
   showSaveDialog: jest.fn(),
+  executeAst: mockExecuteAst,
   showSaveScriptDialog: jest.fn(),
   showOpenScriptDialog: jest.fn(),
   showDirectoryDialog: jest.fn(),
@@ -104,7 +104,7 @@ describe("App", () => {
     const executeButton = getByText("Execute");
     fireEvent.click(executeButton);
     await waitFor(() => {
-      expect(mockExecuteCommand).toHaveBeenCalled();
+      expect(mockExecuteAst).toHaveBeenCalled();
     });
   });
 
