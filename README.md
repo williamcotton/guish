@@ -12,7 +12,7 @@ I do a lot of data science and hop between the command line, Jupyter notebooks, 
 
 Updates to the prompt are parsed into an AST and used to update the GUI. Updates in the GUI are used to build an AST to update the prompt. The output of each command in the pipeline is displayed in the terminal-like display below the input area. For HTML output, the rendered results are displayed in the right-hand panel.
 
-Instead of writing something like this into the line editor,
+Instead of having to write something like this into the line editor, sometimes preferable for a first approach
 
 ```sh
 pg -d test_database -c 'SELECT * from test_table;' | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) +
@@ -29,7 +29,7 @@ pg | tsvtocsv | ggplot | pngtohtml
 
 And then fill in the blanks in the GUI with a fully fledged code editor like Monaco all while seeing the output of each step in the pipeline.
 
-![Screenshot 2024-07-02 at 10 19 02 PM](https://github.com/williamcotton/guish/assets/13163/a5214e93-154b-4c5f-b727-e1d9c0e67c2a)
+<img width="1440" alt="Screenshot 2024-07-21 at 6 03 24 AM" src="https://github.com/user-attachments/assets/3a6af857-1e16-4a82-ab26-4a536b763e40">
 
 Commands are executed as-is in a shell process. The application is merely a tool used to construct commands and pipelines.
 
@@ -50,7 +50,8 @@ Commands are executed as-is in a shell process. The application is merely a tool
 
 ## Demo
 
-![guish-demo-lowres](https://github.com/williamcotton/guish/assets/13163/d9716a47-299c-4bd8-91a0-75615d97369d)
+![guish-latest-demo-lowres](https://github.com/user-attachments/assets/b000d05f-39f6-46fb-ab1f-4ba033855175)
+
 
 ## Supported Commands
 
@@ -211,7 +212,7 @@ This will create distributable packages for your platform in the `dist` director
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request or at the very least open a detail Issue.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -227,3 +228,4 @@ This project is licensed under the ISC License.
 
 - This project uses various open-source libraries and tools. We're grateful to the developers and contributors of these projects.
 - Special thanks to the Electron, React, and Tailwind CSS communities for their excellent frameworks and documentation.
+- Extra thanks to Claude Projects with the Artifacts plugin for giving me the time and energy to work on such experiements.
