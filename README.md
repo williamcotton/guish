@@ -228,4 +228,4 @@ This project is licensed under the ISC License.
 
 - This project uses various open-source libraries and tools. We're grateful to the developers and contributors of these projects.
 - Special thanks to the Electron, React, and Tailwind CSS communities for their excellent frameworks and documentation.
-- Extra thanks to Claude Projects with the Artifacts plugin for giving me the time and energy to work on such experiements.
+- Extra thanks to Claude Projects with the Artifacts plugin for giving me the time and energy to work on such experiments.
