@@ -13,8 +13,7 @@
     "make:linux": "electron-forge make --platform linux",
     "make:mac": "electron-forge make --platform darwin",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx .",
-    "wdio": "wdio run ./wdio.conf.ts"
+    "lint": "eslint --ext .ts,.tsx ."
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
