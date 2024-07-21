@@ -53,7 +53,7 @@ const App: React.FC<AppProps> = (props) => {
         <div
           key={`${module.type}-${index}`}
           className={`
-            mt-2 flex flex-col w-full min-w-[200px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
+            mt-2 flex flex-col w-full min-w-[160px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
             ${plugin.containerClasses || ""}
           `}
         >
