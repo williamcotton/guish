@@ -197,7 +197,7 @@ const createWindow = () => {
 
       const executeCumulativePipeline = async (pipeline: PipelineNode) => {
         results = new Array(pipeline.commands.length).fill("");
-        for (let i = 0; i < pipeline.commands.length; i++) {
+        const pipelinePromisesExecuteAndReply = results.map(async (_, i) => {
           const partialPipeline: PipelineNode = {
             type: "Pipeline",
             commands: pipeline.commands.slice(0, i + 1),
@@ -210,7 +210,8 @@ const createWindow = () => {
           const result = await executeCommand(commandString);
           results[i] = result;
           event.reply("execute-command-result", { output: results });
-        }
+        });
+        await Promise.all(pipelinePromisesExecuteAndReply);
       };
 
       if (ast.type === "Script") {
