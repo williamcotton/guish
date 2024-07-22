@@ -116,7 +116,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         setViewMode("raw");
       }
     } catch (error) {
-      console.error("Error parsing output:", error);
+      // console.error("Error parsing output:", error);
       setParsedData(null);
       setIsTable(false);
       setIsSingleColumn(false);
