@@ -133,27 +133,27 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         return <JsonView data={parsedData} />;
       case "table":
         return (
-          <table className="mt-10 min-w-full divide-y divide-gray-900">
-            <thead className="bg-gray-500">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
                 {Object.keys(parsedData[0] || {}).map((header, index) => (
                   <th
                     key={index}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-50 uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
                     {header}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-600">
+            <tbody className="bg-white divide-y divide-gray-200">
               {parsedData.map((row: unknown[], rowIndex: number) => (
                 <tr key={rowIndex}>
                   {Object.values(row).map(
                     (cell: ReactNode, cellIndex: number) => (
                       <td
                         key={cellIndex}
-                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-50 bg-gray-500"
+                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                       >
                         {cell}
                       </td>
@@ -179,7 +179,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
 
   return (
     <div className="h-full flex flex-col group relative">
-      <div className="absolute top-1 right-0 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-2 right-2 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => setViewMode("raw")}
           className={`px-2 py-1 text-xs rounded ${
