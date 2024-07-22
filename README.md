@@ -40,13 +40,18 @@ Commands are executed as-is in a shell process. The application is merely a tool
 - Real-time parsing of commands
 - Support for custom plugins and command modules
 - Bidirectional updates from CLI or GUI command modules
+- Multiple output display formats:
+  - Raw text output
+  - JSON viewer for structured data
+  - Table view for CSV/TSV data
 - HTML rendering of command output
 - Electron-based desktop application for cross-platform support
-- Code editor integration for complex commands (e.g., SQL, AWK, R)
+- Code editor integration for complex commands (e.g., SQL, AWK, R, Python)
 - Keyboard shortcut (Alt+Enter) for quick command execution
 - Configurable shell and preload script via `.guish` configuration file
 - File operations (New, Open, Save, Save As) for pipeline scripts
 - Directory selection for the `cd` command
+- Copy-to-clipboard functionality for pipeline outputs
 
 ## Demo
 

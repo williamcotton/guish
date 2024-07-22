@@ -24,7 +24,6 @@ import { curlPlugin } from "./plugins/curlPlugin";
 import { nodePlugin } from "./plugins/nodePlugin";
 import { pythonPlugin } from "./plugins/pythonPlugin";
 import { rubyPlugin } from "./plugins/rubyPlugin";
-import { assignmentPlugin } from "./plugins/assignmentPlugin";
 import { pastePlugin } from "./plugins/pastePlugin";
 
 // Define the Plugin interface
@@ -74,5 +73,4 @@ Plugins.register(curlPlugin);
 Plugins.register(nodePlugin);
 Plugins.register(pythonPlugin);
 Plugins.register(rubyPlugin);
-Plugins.register(assignmentPlugin);
 Plugins.register(pastePlugin);

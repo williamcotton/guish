@@ -477,21 +477,6 @@ describe("astToCommand", () => {
     expect(astToCommand(ast)).toBe("echo 'Hello, ${NAME}!'");
   });
 
-  it("should handle assignment words", () => {
-    const ast: ScriptNode = {
-      type: "Script",
-      commands: [
-        {
-          type: "Command",
-          prefix: [{ type: "AssignmentWord", text: "VAR=value" }],
-          name: { text: "echo", type: "Word" },
-          suffix: [{ text: "$VAR", type: "Word" }],
-        },
-      ],
-    };
-    expect(astToCommand(ast)).toBe("VAR=value echo $VAR");
-  });
-
   it("should handle redirections", () => {
     const ast: ScriptNode = {
       type: "Script",

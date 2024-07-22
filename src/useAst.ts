@@ -18,13 +18,7 @@ export const useAst = () => {
       command: CommandNode | LogicalExpressionNode | PipelineNode,
       operator?: "and" | "pipe" | "end"
     ) => {
-      if (command.type === "LogicalExpression") {
-        processCommand(
-          command.left as CommandNode,
-          command.op === "&&" ? "and" : "end"
-        );
-        processCommand(command.right as CommandNode);
-      } else if (command.type === "Pipeline") {
+      if (command.type === "Pipeline") {
         command.commands.forEach((cmd, index) => {
           processCommand(
             cmd as CommandNode,
@@ -32,24 +26,7 @@ export const useAst = () => {
           );
         });
       } else if (command.type === "Command") {
-        if (
-          command.prefix &&
-          command.prefix.some((word) => word.type === "AssignmentWord")
-        ) {
-          const assignmentPlugin = Plugins.get("assignment");
-          command.prefix.forEach((prefixItem) => {
-            if (prefixItem.type === "AssignmentWord") {
-              const singleAssignmentCommand: CommandNode = {
-                type: "Command",
-                prefix: [prefixItem],
-              };
-              newModules.push({
-                ...assignmentPlugin.parse(singleAssignmentCommand),
-                operator,
-              });
-            }
-          });
-        } else if (command.name && command.name.text) {
+        if (command.name && command.name.text) {
           const plugin = Plugins.get(command.name.text) || genericPlugin;
           newModules.push({ ...plugin.parse(command), operator });
         }

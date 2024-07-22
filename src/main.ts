@@ -218,9 +218,6 @@ const createWindow = () => {
         for (const command of ast.commands) {
           if (command.type === "Pipeline") {
             await executeCumulativePipeline(command);
-          } else if (command.type === "LogicalExpression") {
-            console.log("LogicalExpression", command.left);
-            await executeCumulativePipeline(command.right as PipelineNode);
           } else {
             const commandString = astToCommand({
               type: "Script",
