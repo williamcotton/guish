@@ -7,6 +7,7 @@ import { genericPlugin } from "./plugins/genericPlugin";
 import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
 import { ModuleType, ElectronAPI } from "./types";
+import OutputView from './outputView';
 
 interface AppProps {
   electronApi: ElectronAPI;
@@ -94,8 +95,8 @@ const App: React.FC<AppProps> = (props) => {
             />
           </div>
 
-          <div className="h-20 min-h-[130px] max-h-[130px] bg-black text-green-400 p-2 rounded-b overflow-auto">
-            <pre>{output}</pre>
+          <div className="h-40 min-h-[160px] bg-black text-green-400 p-2 rounded-b overflow-auto">
+            <OutputView output={output} />
           </div>
         </div>
       );
