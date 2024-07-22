@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import { Buffer } from "buffer";
-import { JsonView } from "react-json-view-lite";
+import { JsonView, darkStyles } from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
 
 interface OutputViewProps {
@@ -130,30 +130,30 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
 
     switch (viewMode) {
       case "json":
-        return <JsonView data={parsedData} />;
+        return <JsonView data={parsedData} style={darkStyles}/>;
       case "table":
         return (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-500">
+            <thead className="bg-gray-500">
               <tr>
                 {Object.keys(parsedData[0] || {}).map((header, index) => (
                   <th
                     key={index}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="bg-gray-700 px-6 py-3 text-left text-xs font-medium text-gray-100 uppercase tracking-wider"
                   >
                     {header}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-500 divide-y divide-gray-500">
               {parsedData.map((row: unknown[], rowIndex: number) => (
                 <tr key={rowIndex}>
                   {Object.values(row).map(
                     (cell: ReactNode, cellIndex: number) => (
                       <td
                         key={cellIndex}
-                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                        className="bg-gray-500 *:px-6 py-4 whitespace-nowrap text-sm text-gray-100"
                       >
                         {cell}
                       </td>
