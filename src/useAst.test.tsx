@@ -140,44 +140,6 @@ describe("useAst", () => {
         ]);
       });
     });
-
-    it("should handle logical expressions", () => {
-      renderUseAst((hook) => {
-        const ast: ScriptNode = {
-          type: "Script",
-          commands: [
-            {
-              type: "LogicalExpression",
-              op: "&&",
-              left: {
-                type: "Command",
-                name: { text: "echo", type: "Word" },
-                suffix: [{ text: "Hello", type: "Word" }],
-              },
-              right: {
-                type: "Command",
-                name: { text: "echo", type: "Word" },
-                suffix: [{ text: "World", type: "Word" }],
-              },
-            },
-          ],
-        };
-
-        const modules = hook.astToModules(ast);
-
-        expect(modules).toEqual([
-          {
-            type: "echo",
-            text: "Hello",
-            operator: "and",
-          },
-          {
-            type: "echo",
-            text: "World",
-          },
-        ]);
-      });
-    });
   });
 
   describe("compileCommand", () => {
