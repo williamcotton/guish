@@ -25,6 +25,7 @@ import { nodePlugin } from "./plugins/nodePlugin";
 import { pythonPlugin } from "./plugins/pythonPlugin";
 import { rubyPlugin } from "./plugins/rubyPlugin";
 import { pastePlugin } from "./plugins/pastePlugin";
+import { fsharpPlugin } from "./plugins/fsharpPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -74,3 +75,4 @@ Plugins.register(nodePlugin);
 Plugins.register(pythonPlugin);
 Plugins.register(rubyPlugin);
 Plugins.register(pastePlugin);
+Plugins.register(fsharpPlugin);
