@@ -183,7 +183,9 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         <button
           onClick={() => setViewMode("raw")}
           className={`px-2 py-1 text-xs rounded ${
-            viewMode === "raw" ? "bg-blue-500 text-white" : "bg-gray-200"
+            viewMode === "raw"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 border border-solid border-gray-400"
           }`}
         >
           Raw
@@ -192,7 +194,9 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
           <button
             onClick={() => setViewMode("json")}
             className={`px-2 py-1 text-xs rounded ${
-              viewMode === "json" ? "bg-blue-500 text-white" : "bg-gray-200"
+              viewMode === "json"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200  border border-solid border-gray-400"
             }`}
           >
             JSON
@@ -202,7 +206,9 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
           <button
             onClick={() => setViewMode("table")}
             className={`px-2 py-1 text-xs rounded ${
-              viewMode === "table" ? "bg-blue-500 text-white" : "bg-gray-200"
+              viewMode === "table"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200  border border-solid border-gray-400"
             }`}
           >
             Table
