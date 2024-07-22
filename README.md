@@ -29,7 +29,8 @@ pg | tsvtocsv | ggplot | pngtohtml
 
 And then fill in the blanks in the GUI with a fully fledged code editor like Monaco all while seeing the output of each step in the pipeline.
 
-<img width="1440" alt="Screenshot 2024-07-21 at 6 03 24 AM" src="https://github.com/user-attachments/assets/3a6af857-1e16-4a82-ab26-4a536b763e40">
+![Screenshot 2024-07-22 at 12 16 24 PM](https://github.com/user-attachments/assets/72f085d1-43ec-45d5-9bf9-7a98f3b5f7b8)
+
 
 Commands are executed as-is in a shell process. The application is merely a tool used to construct commands and pipelines.
 
@@ -53,9 +54,19 @@ Commands are executed as-is in a shell process. The application is merely a tool
 - Directory selection for the `cd` command
 - Copy-to-clipboard functionality for pipeline outputs
 
-## Demo
+## Live Demo
 
 ![guish-latest-demo-lowres](https://github.com/user-attachments/assets/b000d05f-39f6-46fb-ab1f-4ba033855175)
+
+## Screenshots
+
+### curl and jq
+
+![Screenshot 2024-07-22 at 12 15 44 PM](https://github.com/user-attachments/assets/ab7f2e03-202a-49b8-96f3-4e19423a9d86)
+
+### postgres and html table
+
+![Screenshot 2024-07-22 at 12 16 02 PM](https://github.com/user-attachments/assets/202de3a4-33ba-423b-9470-ba50967e2e1c)
 
 
 ## Supported Commands
