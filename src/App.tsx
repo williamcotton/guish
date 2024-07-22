@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from "react";
-import { Terminal, X, CircleDot, Loader } from "lucide-react";
+import React, { useEffect, useCallback, useState } from "react";
+import { Terminal, X, CircleDot, Loader, Copy, Check } from "lucide-react";
 
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
@@ -16,6 +16,7 @@ interface AppProps {
 const App: React.FC<AppProps> = (props) => {
   const store = useStore(props.electronApi);
   useFileOperations(store, props.electronApi);
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -43,6 +44,16 @@ const App: React.FC<AppProps> = (props) => {
     store.executeAst();
   }, [store]);
 
+  const handleCopyOutput = () => {
+    const output = store.outputs && store.outputs[store.outputs.length - 1];
+    if (output) {
+      navigator.clipboard.writeText(output).then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      });
+    }
+  };
+
   const renderModule = useCallback(
     (module: ModuleType, index: number) => {
       const plugin = Plugins.get(module.type) || genericPlugin;
@@ -54,7 +65,7 @@ const App: React.FC<AppProps> = (props) => {
         <div
           key={`${module.type}-${index}`}
           className={`
-            mt-2 flex flex-col w-full min-w-[160px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
+            mt-2 flex flex-col w-full min-w-[180px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
             ${plugin.containerClasses || ""}
           `}
         >
@@ -95,7 +106,7 @@ const App: React.FC<AppProps> = (props) => {
             />
           </div>
 
-          <div className="h-40 min-h-[160px] bg-black text-green-400 p-2 rounded-b overflow-auto">
+          <div className="h-40 min-h-[200px] bg-black text-green-400 p-2 rounded-b overflow-auto">
             <OutputView output={output} />
           </div>
         </div>
@@ -148,7 +159,26 @@ const App: React.FC<AppProps> = (props) => {
 
       {/* HTML output column */}
       <div className="w-1/4 bg-white p-4 overflow-auto">
-        <h2 className="text-xl font-bold mb-4">HTML Output</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">HTML Output</h2>
+          <button
+            onClick={handleCopyOutput}
+            className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            disabled={!store.outputs || store.outputs.length === 0}
+          >
+            {isCopied ? (
+              <>
+                <Check size={16} className="mr-1" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy size={16} className="mr-1" />
+                Copy
+              </>
+            )}
+          </button>
+        </div>
         {store.loading ? (
           <div className="flex justify-center items-center h-full">
             <Loader className="animate-spin text-blue-500" size={48} />
