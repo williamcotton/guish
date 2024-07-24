@@ -18,6 +18,8 @@ export interface UseStoreType {
   setFileContent: (content: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  minimizedModules: boolean[];
+  setMinimizedModules: React.Dispatch<React.SetStateAction<boolean[]>>;
 }
 
 // App-level store
@@ -31,6 +33,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [lastSavedContent, setLastSavedContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [ast, setAst] = useState<ScriptNode | null>(null);
+  const [minimizedModules, setMinimizedModules] = useState<boolean[]>([]);
 
   const {
     astToModules,
@@ -138,5 +141,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     setFileContent,
     loading,
     setLoading,
+    minimizedModules,
+    setMinimizedModules,
   };
 };

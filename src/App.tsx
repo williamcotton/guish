@@ -17,7 +17,6 @@ const App: React.FC<AppProps> = (props) => {
   const store = useStore(props.electronApi);
   useFileOperations(store, props.electronApi);
   const [isCopied, setIsCopied] = useState(false);
-  const [minimizedModules, setMinimizedModules] = useState<boolean[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -56,7 +55,7 @@ const App: React.FC<AppProps> = (props) => {
   };
 
   const toggleMinimize = (index: number) => {
-    setMinimizedModules((prev) => {
+    store.setMinimizedModules((prev: boolean[]) => {
       const newState = [...prev];
       newState[index] = !newState[index];
       return newState;
@@ -69,7 +68,7 @@ const App: React.FC<AppProps> = (props) => {
       if (!plugin) return null;
       const output = store.outputs[index];
       const Component = plugin.component;
-      const isMinimized = minimizedModules[index];
+      const isMinimized = store.minimizedModules[index];
 
       return (
         <div
@@ -131,7 +130,7 @@ const App: React.FC<AppProps> = (props) => {
                 />
               </div>
 
-              <div className="h-40 min-h-[200px] bg-black text-green-400 p-2 rounded-b overflow-auto">
+              <div className="h-40 min-h-[200px] bg-black p-2 rounded-b overflow-auto">
                 <OutputView output={output} />
               </div>
             </>

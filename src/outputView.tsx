@@ -173,9 +173,13 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
           />
         );
       default:
-        return <pre>{output}</pre>;
+        return <pre className=" text-green-400">{output}</pre>;
     }
   };
+
+  const activeButtonClassName = "bg-blue-500 text-white";
+  const inactiveButtonClassName =
+    "bg-gray-200 border border-solid border-gray-400  text-gray-1000";
 
   return (
     <div className="h-full flex flex-col group relative">
@@ -183,9 +187,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         <button
           onClick={() => setViewMode("raw")}
           className={`px-2 py-1 text-xs rounded ${
-            viewMode === "raw"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 border border-solid border-gray-400"
+            viewMode === "raw" ? activeButtonClassName : inactiveButtonClassName
           }`}
         >
           Raw
@@ -195,8 +197,8 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
             onClick={() => setViewMode("json")}
             className={`px-2 py-1 text-xs rounded ${
               viewMode === "json"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200  border border-solid border-gray-400"
+                ? activeButtonClassName
+                : inactiveButtonClassName
             }`}
           >
             JSON
@@ -207,8 +209,8 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
             onClick={() => setViewMode("table")}
             className={`px-2 py-1 text-xs rounded ${
               viewMode === "table"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200  border border-solid border-gray-400"
+                ? activeButtonClassName
+                : inactiveButtonClassName
             }`}
           >
             Table
