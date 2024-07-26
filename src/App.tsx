@@ -1,6 +1,8 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Terminal, X, CircleDot, Loader, Copy, Check, ChevronRight, ChevronLeft } from "lucide-react";
 
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
 
@@ -8,6 +10,7 @@ import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
 import { ModuleType, ElectronAPI } from "./types";
 import OutputView from './outputView';
+import { exemplars } from "./exemplars";
 
 interface AppProps {
   electronApi: ElectronAPI;
@@ -17,6 +20,9 @@ const App: React.FC<AppProps> = (props) => {
   const store = useStore(props.electronApi);
   useFileOperations(store, props.electronApi);
   const [isCopied, setIsCopied] = useState(false);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatCompletionMessageParam[]>(exemplars);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -141,6 +147,52 @@ const App: React.FC<AppProps> = (props) => {
     [store]
   );
 
+  const handleSendMessage = useCallback(async () => {
+    if (!inputMessage.trim()) return;
+
+    setIsLoading(true);
+
+    const newMessage: ChatCompletionMessageParam = {
+      role: "user",
+      content: inputMessage,
+    };
+    const contextMessage: ChatCompletionMessageParam = {
+      role: "system",
+      content: `Current bash command: ${store.inputCommand}`,
+    };
+    const updatedChatHistory = [...chatHistory, contextMessage, newMessage];
+
+    try {
+      const response = await props.electronApi.chatCompletionsCreate(
+        updatedChatHistory
+      );
+
+      if (response.choices && response.choices.length > 0) {
+        const assistantResponse = response.choices[0].message.content;
+        try {
+          const parsedResponse = JSON.parse(assistantResponse);
+          if (parsedResponse.bash_command && parsedResponse.text_response) {
+            store.setInputCommand(parsedResponse.bash_command);
+            setChatHistory([
+              ...updatedChatHistory,
+              { role: "assistant", content: assistantResponse },
+            ]);
+            console.log("Assistant's response:", parsedResponse.text_response);
+          } else {
+            throw new Error("Invalid response format");
+          }
+        } catch (parseError) {
+          console.error("Error parsing assistant's response:", parseError);
+        }
+      }
+    } catch (error) {
+      console.error("Error in chat completion:", error);
+    } finally {
+      setIsLoading(false);
+      setInputMessage("");
+    }
+  }, [inputMessage, props.electronApi, chatHistory, store]);
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Main content column */}
@@ -156,6 +208,22 @@ const App: React.FC<AppProps> = (props) => {
             </div>
           )}
         </header>
+        <div className="flex m-4">
+          <input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            className="flex-grow p-2 border rounded-l"
+            placeholder="Type your message here..."
+          />
+          <button
+            onClick={handleSendMessage}
+            className="p-2 ml-2 bg-blue-500 text-white rounded"
+            disabled={isLoading}
+          >
+            {isLoading ? "Sending..." : "Send"}
+          </button>
+        </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 flex overflow-auto p-2">

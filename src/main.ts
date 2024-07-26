@@ -10,12 +10,18 @@ import {
 import path from "path";
 // @ts-ignore
 import parse from "bash-parser";
+import OpenAI from "openai";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
+import dotenv from "dotenv";
 import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import { astToCommand } from "./astToCommand";
 import { PipelineNode, CommandNode, ScriptNode } from "./types";
 
+dotenv.config();
+
+const openai = new OpenAI();
 
 interface Config {
   shell: string;
@@ -335,6 +341,25 @@ const createWindow = () => {
       } catch (error) {
         console.error("Error opening script file:", error);
         return { success: false, error: (error as Error).message };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    "chat-completions-create",
+    async (
+      _event: IpcMainInvokeEvent,
+      messages: ChatCompletionCreateParamsBase["messages"]
+    ) => {
+      try {
+        const completion = await openai.chat.completions.create({
+          messages,
+          model: "gpt-4o-mini",
+        });
+        return completion;
+      } catch (error) {
+        console.error("Error creating chat completions:", error);
+        return { error: (error as Error).message };
       }
     }
   );

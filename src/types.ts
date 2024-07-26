@@ -1,3 +1,8 @@
+import {
+  ChatCompletionCreateParamsBase,
+  ChatCompletion,
+} from "openai/resources/chat/completions";
+
 export interface ModuleType {
   type: string;
   [key: string]: any; // eslint-disable-line
@@ -259,6 +264,7 @@ export interface ElectronAPI {
     ) => void;
     removeAllListeners: (channel: ValidChannels) => void;
   };
+  chatCompletionsCreate: (messages: ChatCompletionCreateParamsBase['messages']) => Promise<ChatCompletion>;
 }
 
 export interface SaveScriptDialogResult {
@@ -294,7 +300,6 @@ export interface OpenDialogOptions {
   >;
   message?: string;
 }
-
 
 export interface SaveScriptFileResult {
   success: boolean;
