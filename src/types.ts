@@ -1,3 +1,5 @@
+import OpenAI from "openai";
+
 export interface ModuleType {
   type: string;
   [key: string]: any; // eslint-disable-line
@@ -248,6 +250,7 @@ export interface ElectronAPI {
   openScriptFile: (filePath: string) => Promise<OpenScriptFileResult>;
   executeAst: (ast: ScriptNode) => void;
   parseCommand: (command: string) => void;
+  getOpenAiApiKey: () => string | null;
   showSaveDialog: (
     options: SaveDialogOptions
   ) => Promise<SaveDialogReturnValue>;
@@ -294,7 +297,6 @@ export interface OpenDialogOptions {
   >;
   message?: string;
 }
-
 
 export interface SaveScriptFileResult {
   success: boolean;

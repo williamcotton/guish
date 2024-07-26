@@ -1,6 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { ElectronAPI, ValidChannels } from "./types";
 
+let openaiApiKey: string | null = null;
+
+ipcRenderer.on("init-openai", (event, apiKey) => {
+  openaiApiKey = apiKey;
+});
+
 const validSendChannels: ValidChannels[] = ["parse-command", "execute-ast"];
 const validReceiveChannels: ValidChannels[] = [
   "fromMain",
@@ -37,8 +43,7 @@ const electronApi: ElectronAPI = {
   },
   executeAst: (args) => ipcRenderer.send("execute-ast", args),
   parseCommand: (args) => ipcRenderer.send("parse-command", args),
-  showSaveDialog: (options) =>
-    ipcRenderer.invoke("show-save-dialog", options),
+  showSaveDialog: (options) => ipcRenderer.invoke("show-save-dialog", options),
   showSaveScriptDialog: (options) =>
     ipcRenderer.invoke("show-save-script-dialog", options),
   showOpenScriptDialog: (options) =>
@@ -49,6 +54,7 @@ const electronApi: ElectronAPI = {
     ipcRenderer.invoke("save-script-file", { content, filePath }),
   openScriptFile: (filePath) =>
     ipcRenderer.invoke("open-script-file", filePath),
+  getOpenAiApiKey: () => openaiApiKey,
 };
 
 contextBridge.exposeInMainWorld("electron", electronApi);

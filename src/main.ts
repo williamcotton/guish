@@ -15,6 +15,9 @@ import fs from "fs";
 import os from "os";
 import { astToCommand } from "./astToCommand";
 import { PipelineNode, CommandNode, ScriptNode } from "./types";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 
 interface Config {
@@ -51,6 +54,10 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
+  });
+
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.webContents.send("init-openai", process.env.OPENAI_API_KEY);
   });
 
   // Set dock icon for macOS

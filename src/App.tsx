@@ -1,22 +1,40 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { Terminal, X, CircleDot, Loader, Copy, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Terminal,
+  X,
+  CircleDot,
+  Loader,
+  Copy,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
+import OpenAI from "openai";
 
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
-
 import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
 import { ModuleType, ElectronAPI } from "./types";
-import OutputView from './outputView';
+import OutputView from "./outputView";
+import ChatbotInterface from "./ChatbotInterface";
 
 interface AppProps {
   electronApi: ElectronAPI;
 }
 
-const App: React.FC<AppProps> = (props) => {
-  const store = useStore(props.electronApi);
-  useFileOperations(store, props.electronApi);
+const App: React.FC<AppProps> = ({ electronApi }) => {
+  const store = useStore(electronApi);
+  useFileOperations(store, electronApi);
   const [isCopied, setIsCopied] = useState(false);
+  const [openai, setOpenai] = useState<OpenAI | null>(null);
+
+  useEffect(() => {
+    const apiKey = electronApi.getOpenAiApiKey();
+    if (apiKey) {
+      setOpenai(new OpenAI({ apiKey, dangerouslyAllowBrowser: true }));
+    }
+  }, [electronApi]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -39,8 +57,8 @@ const App: React.FC<AppProps> = (props) => {
   }, [store]);
 
   const handleExecuteCommand = useCallback(() => {
-    store.setOutputs([]); // Clear text output
-    store.setLoading(true); // Set loading to true
+    store.setOutputs([]);
+    store.setLoading(true);
     store.executeAst();
   }, [store]);
 
@@ -62,6 +80,11 @@ const App: React.FC<AppProps> = (props) => {
     });
   };
 
+  const handleBashCommandGenerated = (command: string) => {
+    store.setInputCommand(command);
+    electronApi.parseCommand(command);
+  };
+
   const renderModule = useCallback(
     (module: ModuleType, index: number) => {
       const plugin = Plugins.get(module.type) || genericPlugin;
@@ -79,7 +102,9 @@ const App: React.FC<AppProps> = (props) => {
             ${isMinimized && "max-w-[120px]"}
           `}
         >
-          {isMinimized && <p className="m-4">{module.command || plugin.name}</p>}
+          {isMinimized && (
+            <p className="m-4">{module.command || plugin.name}</p>
+          )}
           <div className="absolute top-2 right-2 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {module.quoteChar && (
               <select
@@ -143,7 +168,6 @@ const App: React.FC<AppProps> = (props) => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Main content column */}
       <div className="flex flex-col w-3/4">
         <header className="flex justify-between items-center bg-gray-800 text-white pt-2 pb-2">
           <h1 className="text-2xl font-bold pl-2">guish</h1>
@@ -156,6 +180,13 @@ const App: React.FC<AppProps> = (props) => {
             </div>
           )}
         </header>
+
+        {openai && (
+          <ChatbotInterface
+            openAi={openai}
+            onBashCommandGenerated={handleBashCommandGenerated}
+          />
+        )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 flex overflow-auto p-2">
@@ -183,7 +214,6 @@ const App: React.FC<AppProps> = (props) => {
         </div>
       </div>
 
-      {/* HTML output column */}
       <div className="w-1/4 bg-white p-4 overflow-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">HTML Output</h2>
