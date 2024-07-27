@@ -199,6 +199,13 @@ const App: React.FC<AppProps> = (props) => {
     }
   }, [props.electronApi, store]);
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Main content column */}
@@ -219,15 +226,16 @@ const App: React.FC<AppProps> = (props) => {
             type="text"
             value={store.inputMessage}
             onChange={(e) => store.setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
             className="flex-grow p-2 border rounded-l"
-            placeholder="Type your message here..."
+            placeholder="Type your message here and press Enter to send..."
           />
           <button
             onClick={handleSendMessage}
             className="p-2 ml-2 bg-blue-500 text-white rounded"
             disabled={store.isLoading}
           >
-            {store.isLoading ? "Sending..." : "Send"}
+            {store.isLoading ? "Updating..." : "Update"}
           </button>
         </div>
 
