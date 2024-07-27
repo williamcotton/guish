@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 
 import { UseStoreType } from "./useStore";
 import { ElectronAPI } from "./types";
+import { exemplars } from "./exemplars";
 
 export const useFileOperations = (store: UseStoreType, electronApi: ElectronAPI) => {
   const savePipeline = useCallback(
@@ -39,6 +40,7 @@ export const useFileOperations = (store: UseStoreType, electronApi: ElectronAPI)
     store.setOutputs([]);
     store.setMinimizedModules([]);
     store.setCurrentFilePath(null);
+    store.setChatHistory(exemplars);
   }, [store]);
 
   const handleOpenPipeline = useCallback(async (): Promise<void> => {
@@ -52,6 +54,7 @@ export const useFileOperations = (store: UseStoreType, electronApi: ElectronAPI)
           store.setCurrentFilePath(filePath);
           store.setOutputs([]); // Clear text output
           store.setMinimizedModules([]);
+          store.setChatHistory(exemplars);
         } else {
           console.error("Failed to open script file:", fileContent.error);
           // Here you might want to show an error message to the user

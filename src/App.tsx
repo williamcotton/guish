@@ -1,5 +1,14 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { Terminal, X, CircleDot, Loader, Copy, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import React, { useEffect, useCallback } from "react";
+import {
+  Terminal,
+  X,
+  CircleDot,
+  Loader,
+  Copy,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
@@ -9,8 +18,7 @@ import { genericPlugin } from "./plugins/genericPlugin";
 import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
 import { ModuleType, ElectronAPI } from "./types";
-import OutputView from './outputView';
-import { exemplars } from "./exemplars";
+import OutputView from "./outputView";
 
 interface AppProps {
   electronApi: ElectronAPI;
@@ -19,10 +27,6 @@ interface AppProps {
 const App: React.FC<AppProps> = (props) => {
   const store = useStore(props.electronApi);
   useFileOperations(store, props.electronApi);
-  const [isCopied, setIsCopied] = useState(false);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [chatHistory, setChatHistory] = useState<ChatCompletionMessageParam[]>(exemplars);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -45,8 +49,8 @@ const App: React.FC<AppProps> = (props) => {
   }, [store]);
 
   const handleExecuteCommand = useCallback(() => {
-    store.setOutputs([]); // Clear text output
-    store.setLoading(true); // Set loading to true
+    store.setOutputs([]);
+    store.setLoading(true);
     store.executeAst();
   }, [store]);
 
@@ -54,8 +58,8 @@ const App: React.FC<AppProps> = (props) => {
     const output = store.outputs && store.outputs[store.outputs.length - 1];
     if (output) {
       navigator.clipboard.writeText(output).then(() => {
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
+        store.setIsCopied(true);
+        setTimeout(() => store.setIsCopied(false), 2000);
       });
     }
   };
@@ -85,7 +89,9 @@ const App: React.FC<AppProps> = (props) => {
             ${isMinimized && "max-w-[120px]"}
           `}
         >
-          {isMinimized && <p className="m-4">{module.command || plugin.name}</p>}
+          {isMinimized && (
+            <p className="m-4">{module.command || plugin.name}</p>
+          )}
           <div className="absolute top-2 right-2 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {module.quoteChar && (
               <select
@@ -148,19 +154,19 @@ const App: React.FC<AppProps> = (props) => {
   );
 
   const handleSendMessage = useCallback(async () => {
-    if (!inputMessage.trim()) return;
+    if (!store.inputMessage.trim()) return;
 
-    setIsLoading(true);
+    store.setIsLoading(true);
 
     const newMessage: ChatCompletionMessageParam = {
       role: "user",
-      content: inputMessage,
+      content: store.inputMessage,
     };
     const contextMessage: ChatCompletionMessageParam = {
       role: "system",
       content: `Current bash command: ${store.inputCommand}`,
     };
-    const updatedChatHistory = [...chatHistory, contextMessage, newMessage];
+    const updatedChatHistory = [...store.chatHistory, contextMessage, newMessage];
 
     try {
       const response = await props.electronApi.chatCompletionsCreate(
@@ -173,7 +179,7 @@ const App: React.FC<AppProps> = (props) => {
           const parsedResponse = JSON.parse(assistantResponse);
           if (parsedResponse.bash_command && parsedResponse.text_response) {
             store.setInputCommand(parsedResponse.bash_command);
-            setChatHistory([
+            store.setChatHistory([
               ...updatedChatHistory,
               { role: "assistant", content: assistantResponse },
             ]);
@@ -188,10 +194,10 @@ const App: React.FC<AppProps> = (props) => {
     } catch (error) {
       console.error("Error in chat completion:", error);
     } finally {
-      setIsLoading(false);
-      setInputMessage("");
+      store.setIsLoading(false);
+      store.setInputMessage("");
     }
-  }, [inputMessage, props.electronApi, chatHistory, store]);
+  }, [props.electronApi, store]);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -211,17 +217,17 @@ const App: React.FC<AppProps> = (props) => {
         <div className="flex m-4">
           <input
             type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            value={store.inputMessage}
+            onChange={(e) => store.setInputMessage(e.target.value)}
             className="flex-grow p-2 border rounded-l"
             placeholder="Type your message here..."
           />
           <button
             onClick={handleSendMessage}
             className="p-2 ml-2 bg-blue-500 text-white rounded"
-            disabled={isLoading}
+            disabled={store.isLoading}
           >
-            {isLoading ? "Sending..." : "Send"}
+            {store.isLoading ? "Sending..." : "Send"}
           </button>
         </div>
 
@@ -260,7 +266,7 @@ const App: React.FC<AppProps> = (props) => {
             className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             disabled={!store.outputs || store.outputs.length === 0}
           >
-            {isCopied ? (
+            {store.isCopied ? (
               <>
                 <Check size={16} className="mr-1" />
                 Copied!

@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAst } from "./useAst";
-import { ModuleType, EnhancedModuleType, ScriptNode, ElectronAPI } from "./types";
+import {
+  ModuleType,
+  EnhancedModuleType,
+  ScriptNode,
+  ElectronAPI,
+} from "./types";
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { exemplars } from "./exemplars";
 
 export interface UseStoreType {
   inputCommand: string;
@@ -20,9 +27,16 @@ export interface UseStoreType {
   setLoading: (loading: boolean) => void;
   minimizedModules: boolean[];
   setMinimizedModules: React.Dispatch<React.SetStateAction<boolean[]>>;
+  isCopied: boolean;
+  setIsCopied: (isCopied: boolean) => void;
+  inputMessage: string;
+  setInputMessage: (message: string) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
+  chatHistory: ChatCompletionMessageParam[];
+  setChatHistory: (history: ChatCompletionMessageParam[]) => void;
 }
 
-// App-level store
 export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [inputCommand, setInputCommand] = useState<string>("");
   const [modules, setModules] = useState<EnhancedModuleType[]>([]);
@@ -34,12 +48,12 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [loading, setLoading] = useState<boolean>(false);
   const [ast, setAst] = useState<ScriptNode | null>(null);
   const [minimizedModules, setMinimizedModules] = useState<boolean[]>([]);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [inputMessage, setInputMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [chatHistory, setChatHistory] = useState<ChatCompletionMessageParam[]>(exemplars);
 
-  const {
-    astToModules,
-    modulesToAst,
-    compileCommand,
-  } = useAst();
+  const { astToModules, modulesToAst, compileCommand } = useAst();
 
   useEffect(() => {
     if (updateSource === "input") {
@@ -143,5 +157,13 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     setLoading,
     minimizedModules,
     setMinimizedModules,
+    isCopied,
+    setIsCopied,
+    inputMessage,
+    setInputMessage,
+    isLoading,
+    setIsLoading,
+    chatHistory,
+    setChatHistory,
   };
 };
