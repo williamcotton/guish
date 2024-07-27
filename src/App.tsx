@@ -166,7 +166,13 @@ const App: React.FC<AppProps> = (props) => {
       role: "system",
       content: `Current bash command: ${store.inputCommand}`,
     };
-    const updatedChatHistory = [...store.chatHistory, contextMessage, newMessage];
+    const outputMessages: ChatCompletionMessageParam[] = store.outputs.map(
+      (output, i) => ({
+        role: "system",
+        content: `Module ${i + 1} output: ${output.slice(0, 100)}...`,
+      })
+    );
+    const updatedChatHistory = [...store.chatHistory, contextMessage, ...outputMessages, newMessage];
 
     try {
       const response = await props.electronApi.chatCompletionsCreate(
