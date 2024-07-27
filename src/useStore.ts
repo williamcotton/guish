@@ -39,7 +39,7 @@ export interface UseStoreType {
 
 export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [inputCommand, setInputCommand] = useState<string>("");
-  const [modules, setModules] = useState<EnhancedModuleType[]>([]);
+  const [modules, setModulesState] = useState<EnhancedModuleType[]>([]);
   const [compiledCommand, setCompiledCommand] = useState<string>("");
   const [outputs, setOutputs] = useState<string[]>([]);
   const [updateSource, setUpdateSource] = useState<string | null>(null);
@@ -106,10 +106,15 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     }
   }, [modules, compileCommand, updateSource]);
 
+  const setModules = useCallback((newModules: EnhancedModuleType[]) => {
+    setModulesState(newModules);
+    setMinimizedModules(new Array(newModules.length).fill(false));
+  }, []);
+
   const updateModule = useCallback(
     (index: number, updates: Partial<EnhancedModuleType>): void => {
       setUpdateSource("modules");
-      setModules((prevModules) =>
+      setModulesState((prevModules) =>
         prevModules.map((module, i) =>
           i === index ? { ...module, ...updates } : module
         )
@@ -120,7 +125,11 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
 
   const removeModule = useCallback((index: number): void => {
     setUpdateSource("modules");
-    setModules((prevModules) => prevModules.filter((_, i) => i !== index));
+    setModulesState((prevModules) => {
+      const newModules = prevModules.filter((_, i) => i !== index);
+      setMinimizedModules((prev) => prev.filter((_, i) => i !== index));
+      return newModules;
+    });
   }, []);
 
   const setCommand = useCallback((cmd: string): void => {

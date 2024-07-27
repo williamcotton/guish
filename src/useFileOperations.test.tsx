@@ -33,6 +33,7 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   parseCommand: jest.fn(),
   showSaveDialog: jest.fn(),
   showDirectoryDialog: jest.fn(),
+  chatCompletionsCreate: jest.fn(),
 };
 
 // Mock the UseStoreType
@@ -52,6 +53,16 @@ const mockStore: jest.Mocked<UseStoreType> = {
   setFileContent: jest.fn(),
   loading: false,
   setLoading: jest.fn(),
+  minimizedModules: [],
+  setMinimizedModules: jest.fn(),
+  isCopied: false,
+  setIsCopied: jest.fn(),
+  inputMessage: "",
+  setInputMessage: jest.fn(),
+  isLoading: false,
+  setIsLoading: jest.fn(),
+  chatHistory: [],
+  setChatHistory: jest.fn(),
 };
 
 // Helper component to test the hook

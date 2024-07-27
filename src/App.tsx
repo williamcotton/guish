@@ -78,7 +78,7 @@ const App: React.FC<AppProps> = (props) => {
       if (!plugin) return null;
       const output = store.outputs[index];
       const Component = plugin.component;
-      const isMinimized = store.minimizedModules[index];
+      const isMinimized = store.minimizedModules[index] || false;
 
       return (
         <div

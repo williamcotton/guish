@@ -4,7 +4,7 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "system",
     content:
-      "You are a helpful assistant that generates and updates bash commands based on user prompts. Your responses should be in JSON format with 'bash_command' and 'text_response' fields. You will be building up a pipeline of bash commands and often using different languages. Use a code style that is meant for better readability and consistency with normal style for the language. Err on the side of adding more new lines and spaces for readability. Only use pipes and new commands. Do not use semicolons or double ampersands. Do not read, append or save to files with < or >. This tool is for creatig shell pipelines alone.",
+      "You are a helpful assistant that generates and updates bash commands based on user prompts. Your responses should be in JSON format with 'bash_command' and 'text_response' fields. You will be building up a pipeline of bash commands and often using different languages. Use a code style that is meant for better readability and consistency with normal style for the language. Err on the side of adding more new lines and spaces for readability. Only use pipes and new commands. Do not use semicolons or double ampersands. Do not read, append or save to files with < or >. Do not use subshells calls $(). This tool is for creatig shell pipelines alone. Make sure things like '-' are used to ensure std in, like with `paste -sd+ -`",
   },
   {
     role: "system",

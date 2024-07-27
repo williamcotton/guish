@@ -275,7 +275,7 @@ const createWindow = () => {
     async (_event: IpcMainInvokeEvent, options: Electron.OpenDialogOptions) => {
       const defaultOptions: Electron.OpenDialogOptions = {
         title: "Open Pipeline Script",
-        filters: [{ name: "Shell Scripts", extensions: ["sh"] }],
+        filters: [{ name: "Shell Scripts", extensions: ["*"] }],
         properties: ["openFile"],
       };
       const mergedOptions = { ...defaultOptions, ...options };
