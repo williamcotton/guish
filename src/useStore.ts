@@ -79,12 +79,22 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
 
     electronApi.ipcRenderer.receive(
       "execute-command-result",
-      (result: { error?: string; output?: string[] }) => {
+      (result: {
+        error?: string;
+        output?: Array<{ stdout: string; stderr: string }>;
+      }) => {
         setLoading(false);
         if (result.error) {
           setOutputs([`Error: ${result.error}`]);
         } else if (result.output && result.output.length > 0) {
-          setOutputs(result.output);
+          setOutputs(
+            result.output.map((item) => {
+              if (item.stderr) {
+                return `Error: ${item.stderr}\n${item.stdout}`;
+              }
+              return item.stdout;
+            })
+          );
         } else {
           setOutputs([]);
         }

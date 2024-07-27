@@ -168,9 +168,11 @@ const createWindow = () => {
 
   ipcMain.on("execute-ast", async (event: IpcMainEvent, ast: ScriptNode) => {
     try {
-      let results: string[] = [];
+      let results: Array<{ stdout: string; stderr: string }> = [];
 
-      const executeCommand = (command: string): Promise<string> => {
+      const executeCommand = (
+        command: string
+      ): Promise<{ stdout: string; stderr: string }> => {
         return new Promise((resolve, reject) => {
           const fullCommand = config.preloadScript
             ? `${config.preloadScript} && ${command}`
@@ -191,18 +193,17 @@ const createWindow = () => {
             stderr += data.toString();
           });
 
-          shellProcess.on("close", (code: number | null) => {
-            if (code !== 0) {
-              reject(stderr);
-            } else {
-              resolve(stdout || stderr);
-            }
+          shellProcess.on("close", () => {
+            resolve({ stdout, stderr });
           });
         });
       };
 
       const executeCumulativePipeline = async (pipeline: PipelineNode) => {
-        results = new Array(pipeline.commands.length).fill("");
+        results = new Array(pipeline.commands.length).fill({
+          stdout: "",
+          stderr: "",
+        });
         const pipelinePromisesExecuteAndReply = results.map(async (_, i) => {
           const partialPipeline: PipelineNode = {
             type: "Pipeline",
