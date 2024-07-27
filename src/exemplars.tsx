@@ -4,7 +4,7 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "system",
     content:
-      "You are a helpful assistant that generates and updates bash commands based on user prompts. Your responses should be in JSON format with 'bash_command' and 'text_response' fields. You will be building up a pipeline of bash commands and often using different languages. Use a code style in each language that is meant for better readability and consistency with normal style.. Err on the side of adding more new lines and spaces for readability. Only use pipes and new commands. Do not use semicolons or double ampersands. Do not read, append or save to files with < or >. Do not use subshells calls $(). This tool is for creating shell pipelines alone. Make sure things like '-' are used to ensure std in, like with `paste -sd+ -`",
+      "You are a helpful assistant that generates and updates bash commands based on user prompts. Your responses should be in JSON format with 'bash_command' and 'text_response' fields. You will be building up a pipeline of bash commands and often using different languages. Use a code style in each language that is meant for better readability and consistency with normal style. Err on the side of adding more new lines and spaces for readability. Only use pipes and new commands. Do not use semicolons or double ampersands. Do not read, append or save to files with < or >. Do not use subshells calls $(). This tool is for creating shell pipelines alone. Make sure things like '-' are used to ensure std in, like with `paste -sd+ -`",
   },
   {
     role: "system",
@@ -35,65 +35,91 @@ export const exemplars: ChatCompletionMessageParam[] = [
     content: "Current bash command: ls -l",
   },
   {
+    role: "system",
+    content:
+      "Module 1 output: total 32\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Documents\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Downloads\n-rw-r--r-- 1 user group 1234 Jul 22 09:50 file1.txt\n-rw-r--r-- 1 user group 5678 Jul 22 09:55 file2.txt...",
+  },
+  {
     role: "user",
     content: "Now, I want to filter these results to show only .txt files.",
   },
   {
     role: "assistant",
     content: JSON.stringify({
-      bash_command: "ls -l | grep '.txt'",
+      bash_command: "ls -l | grep '[.txt'",
       text_response:
-        "This command lists files and then filters for .txt files:",
+        "This command lists files and then attempts to filter for .txt files, but there's an error in the grep pattern:",
     }),
   },
   {
     role: "system",
-    content: "Current bash command: ls -l | grep '.txt'",
+    content: "Current bash command: ls -l | grep '[.txt'",
+  },
+  {
+    role: "system",
+    content:
+      "Module 1 output: total 32\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Documents\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Downloads\n-rw-r--r-- 1 user group 1234 Jul 22 09:50 file1.txt\n-rw-r--r-- 1 user group 5678 Jul 22 09:55 file2.txt...",
+  },
+  {
+    role: "system",
+    content: "Module 2 output: grep: Unmatched [ or [^",
   },
   {
     role: "user",
-    content: "Can you modify this to also count the number of .txt files?",
+    content:
+      "I see there's an error. Can you fix the grep command to correctly filter for .txt files?",
   },
   {
     role: "assistant",
     content: JSON.stringify({
-      bash_command: "ls -l | grep '.txt' | wc -l",
+      bash_command: "ls -l | grep '\\.txt'",
+      text_response:
+        "I apologize for the error. Here's the corrected command to filter for .txt files:",
+    }),
+  },
+  {
+    role: "system",
+    content: "Current bash command: ls -l | grep '\\.txt'",
+  },
+  {
+    role: "system",
+    content:
+      "Module 1 output: total 32\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Documents\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Downloads\n-rw-r--r-- 1 user group 1234 Jul 22 09:50 file1.txt\n-rw-r--r-- 1 user group 5678 Jul 22 09:55 file2.txt...",
+  },
+  {
+    role: "system",
+    content:
+      "Module 2 output: -rw-r--r-- 1 user group 1234 Jul 22 09:50 file1.txt\n-rw-r--r-- 1 user group 5678 Jul 22 09:55 file2.txt",
+  },
+  {
+    role: "user",
+    content:
+      "Great, now can you modify this to count the number of .txt files?",
+  },
+  {
+    role: "assistant",
+    content: JSON.stringify({
+      bash_command: "ls -l | grep '\\.txt' | wc -l",
       text_response:
         "This command lists files, filters for .txt files, and then counts them:",
     }),
   },
   {
     role: "system",
-    content: "Current bash command: ls -l | grep '.txt' | wc -l",
-  },
-  {
-    role: "user",
-    content:
-      "Great! Now, let's start a new pipeline. How can I find all Python files in my home directory and its subdirectories?",
-  },
-  {
-    role: "assistant",
-    content: JSON.stringify({
-      bash_command: "find ~ -type f -name '*.py'",
-      text_response:
-        "This command will find all Python files in your home directory and its subdirectories:",
-    }),
+    content: "Current bash command: ls -l | grep '\\.txt' | wc -l",
   },
   {
     role: "system",
-    content: "Current bash command: find ~ -type f -name '*.py'",
-  },
-  {
-    role: "user",
     content:
-      "Can you modify this to also show the line count for each Python file?",
+      "Module 1 output: total 32\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Documents\ndrwxr-xr-x 2 user group 4096 Jul 22 10:00 Downloads\n-rw-r--r-- 1 user group 1234 Jul 22 09:50 file1.txt\n-rw-r--r-- 1 user group 5678 Jul 22 09:55 file2.txt...",
   },
   {
-    role: "assistant",
-    content: JSON.stringify({
-      bash_command: "find ~ -type f -name '*.py' -exec wc -l {} +",
-      text_response:
-        "This command finds all Python files and shows the line count for each:",
-    }),
+    role: "system",
+    content:
+      "Module 2 output: -rw-r--r-- 1 user group 1234 Jul 22 09:50 file1.txt\n-rw-r--r-- 1 user group 5678 Jul 22 09:55 file2.txt",
+  },
+  {
+    role: "system",
+    content: "Module 3 output: 2",
   },
 ];
