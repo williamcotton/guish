@@ -1,0 +1,1 @@
+curl 'https://jsonplaceholder.typicode.com/users' | jq -r '.[].name | "<p>" + . + "</p>"'
