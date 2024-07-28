@@ -8,11 +8,11 @@ export const exemplars: ChatCompletionMessageParam[] = [
   },
   {
     role: "system",
-    content: `Non-standard command using custom functions that should be used: pg -d %%SOME_NAME%% -c 'SELECT *\nFROM %%SOME_NAME%%' | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) +\n    geom_col()' | pngcopyhtml`,
+    content: `Non-standard command using custom functions that should be used: pg -d %%SOME_NAME%% -c 'SELECT *\nFROM %%SOME_NAME%%': | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) +\n    geom_col()' | pngcopyhtml; OR: pg -d %%SOME_NAME%% -c 'SELECT *\nFROM %%SOME_NAME%%' | tsvtohtml | prependcss -c 'tr {\n  border: 1px solid red\n}'`,
   },
   {
     role: "system",
-    content: `Non-standard command using custom functions that should be used: pg -d %%SOME_NAME%% -c 'SELECT *\nFROM %%SOME_NAME%%' | tsvtohtml | prependcss -c 'tr {\n  border: 1px solid red\n}'`,
+    content: `Non-standard commands should not always be used in the order of examples they are only there to show the format of non standard commands.'`,
   },
   {
     role: "system",
