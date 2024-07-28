@@ -17,7 +17,7 @@ import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import { astToCommand } from "./astToCommand";
-import { PipelineNode, CommandNode, ScriptNode } from "./types";
+import { PipelineNode, ScriptNode } from "./types";
 
 dotenv.config();
 
@@ -355,6 +355,7 @@ const createWindow = () => {
       try {
         const completion = await openai.chat.completions.create({
           messages,
+          response_format: { type: "json_object" },
           model: "gpt-4o-mini",
         });
         return completion;
