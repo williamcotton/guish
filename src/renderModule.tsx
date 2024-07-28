@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React from "react";
 
 import { Plugins } from "./Plugins";
 import { genericPlugin } from "./plugins/genericPlugin";
