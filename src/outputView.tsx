@@ -81,7 +81,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         setIsTable(false);
         setIsSingleColumn(false);
         setIsImage(false);
-        setViewMode("json");
+        setViewMode("raw");
       } else if (isCSVOrTSV(output.trim())) {
         const delimiter = output.includes("\t") ? "\t" : ",";
         const rows = output
@@ -106,7 +106,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
           setParsedData(jsonData);
           setIsTable(true);
           setIsImage(false);
-          setViewMode("table");
+          setViewMode("raw");
         }
       } else {
         setParsedData(null);
