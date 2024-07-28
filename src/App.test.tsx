@@ -41,6 +41,8 @@ jest.mock("./useStore", () => ({
     setFileContent: jest.fn(),
     loading: false,
     setLoading: jest.fn(),
+    minimizedModules: [], // Add this line
+    setMinimizedModules: jest.fn(), // Add this line
   }),
 }));
 
@@ -140,7 +142,7 @@ describe("App", () => {
     };
     (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
 
-    const { getByText } = render(<App electronApi={mockElectronApi} />);
+    const { getByText } = render (<App electronApi={mockElectronApi} />);
     const updateButton = getByText("Update Echo");
     fireEvent.click(updateButton);
 
