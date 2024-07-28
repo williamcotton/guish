@@ -4,7 +4,7 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "system",
     content:
-      "You are a helpful assistant that generates and updates bash commands based on user prompts. Your responses should be in JSON format with 'bash_command' and 'text_response' fields. You will be building up a pipeline of bash commands and often using different languages. Use a code style in each language that is meant for better readability and consistency with normal style. Err on the side of adding more new lines and spaces for readability. Only use pipes and new commands. Do not use semicolons or double ampersands. Do not read, append or save to files with < or >. Do not use subshells calls $(). This tool is for creating shell pipelines alone. Make sure things like '-' are used to ensure std in, like with `paste -sd+ -`. Be extra careful of proper use of quotes and escaping.",
+      "You are a helpful assistant that generates and updates bash commands based on user prompts. Your responses should be in JSON format with 'bash_command' and 'text_response' fields. You will be building up a pipeline of bash commands and often using different languages. Use a code style in each language that is meant for better readability and consistency with normal style. Err on the side of adding more new lines and spaces for readability. Only use pipes and new commands. Do not use semicolons or double ampersands. Do not read, append or save to files with < or >. Do not use subshells calls $(). This tool is for creating shell pipelines alone. Make sure things like '-' are used to ensure std in, like with `paste -sd+ -`. Be extra careful of proper use of quotes and escaping. Add new lines after each pipeline | for readability.",
   },
   {
     role: "system",
@@ -46,14 +46,14 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "assistant",
     content: JSON.stringify({
-      bash_command: "ls -l | grep '[.txt'",
+      bash_command: "ls -l |\n  grep '[.txt'",
       text_response:
         "This command lists files and then attempts to filter for .txt files, but there's an error in the grep pattern:",
     }),
   },
   {
     role: "system",
-    content: "Current bash command: ls -l | grep '[.txt'",
+    content: "Current bash command: ls -l |\n  grep '[.txt'",
   },
   {
     role: "system",
@@ -72,14 +72,14 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "assistant",
     content: JSON.stringify({
-      bash_command: "ls -l | grep '\\.txt'",
+      bash_command: "ls -l |\n  grep '\\.txt'",
       text_response:
         "I apologize for the error. Here's the corrected command to filter for .txt files:",
     }),
   },
   {
     role: "system",
-    content: "Current bash command: ls -l | grep '\\.txt'",
+    content: "Current bash command: ls -l |\n  grep '\\.txt'",
   },
   {
     role: "system",
@@ -99,14 +99,14 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "assistant",
     content: JSON.stringify({
-      bash_command: "ls -l | grep '\\.txt' | wc -l",
+      bash_command: "ls -l |\n  grep '\\.txt' |\n  wc -l",
       text_response:
         "This command lists files, filters for .txt files, and then counts them:",
     }),
   },
   {
     role: "system",
-    content: "Current bash command: ls -l | grep '\\.txt' | wc -l",
+    content: "Current bash command: ls -l |\n  grep '\\.txt' |\n  wc -l",
   },
   {
     role: "system",
