@@ -355,7 +355,7 @@ const createWindow = () => {
       try {
         const completion = await openai.chat.completions.create({
           messages,
-          model: "gpt-4o-mini",
+          model: "gpt-4o",
         });
         return completion;
       } catch (error) {

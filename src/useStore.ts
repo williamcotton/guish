@@ -89,7 +89,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
         } else if (result.output && result.output.length > 0) {
           setOutputs(
             result.output.map((item) => {
-              if (item.stderr) {
+              if (item.stderr && !item.stdout) {
                 return `Error: ${item.stderr}\n${item.stdout}`;
               }
               return item.stdout;
