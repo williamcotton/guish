@@ -8,11 +8,15 @@ export const exemplars: ChatCompletionMessageParam[] = [
   },
   {
     role: "system",
-    content: `Non-standard command using custom functions that should be used: pg -d test_database -c 'SELECT * FROM test_table' | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) + geom_col()' | pngcopyhtml`,
+    content: `Non-standard command using custom functions that should be used: pg -d %%SOME_NAME%% -c 'SELECT *\nFROM %%SOME_NAME%%' | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) +\n    geom_col()' | pngcopyhtml`,
   },
   {
     role: "system",
-    content: `Non-standard command using custom functions that should be used: pg -d test_database -c 'SELECT * FROM test_table' | tsvtohtml | prependcss -c 'tr { border: 1px solid red }'`,
+    content: `Non-standard command using custom functions that should be used: pg -d %%SOME_NAME%% -c 'SELECT *\nFROM %%SOME_NAME%%' | tsvtohtml | prependcss -c 'tr {\n  border: 1px solid red\n}'`,
+  },
+  {
+    role: "system",
+    content: `This tool is a GUI tool that creates modules for each command in a pipeline. Each module has a command and output. The user can modify the command and see the output. The user can also add new modules to the pipeline. The user can execute the pipeline to see the final output.`,
   },
   {
     role: "system",
