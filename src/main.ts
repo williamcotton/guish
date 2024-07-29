@@ -168,46 +168,41 @@ const createWindow = () => {
 
   ipcMain.on("execute-ast", async (event: IpcMainEvent, ast: ScriptNode) => {
     try {
-      let results: Array<{ stdout: string; stderr: string }> = [];
+      let results: Array<{ stdout: Buffer; stderr: Buffer }> = [];
 
       const executeCommand = (
         command: string
-      ): Promise<{ stdout: string; stderr: string }> => {
+      ): Promise<{ stdout: Buffer; stderr: Buffer }> => {
         return new Promise((resolve, reject) => {
-          try {
-            const fullCommand = config.preloadScript
-              ? `${config.preloadScript} && ${command}`
-              : command;
+          const fullCommand = config.preloadScript
+            ? `${config.preloadScript} && ${command}`
+            : command;
 
-            const shellProcess = spawn(config.shell, ["-c", fullCommand], {
-              stdio: ["pipe", "pipe", "pipe"],
-            });
+          const shellProcess = spawn(config.shell, ["-c", fullCommand], {
+            stdio: ["pipe", "pipe", "pipe"],
+          });
 
-            let stdout = "";
-            let stderr = "";
+          let stdout = Buffer.alloc(0);
+          let stderr = Buffer.alloc(0);
 
-            shellProcess.stdout.on("data", (data: Buffer) => {
-              stdout += data.toString();
-            });
+          shellProcess.stdout.on("data", (data: Buffer) => {
+            stdout = Buffer.concat([stdout, data]);
+          });
 
-            shellProcess.stderr.on("data", (data: Buffer) => {
-              stderr += data.toString();
-            });
+          shellProcess.stderr.on("data", (data: Buffer) => {
+            stderr = Buffer.concat([stderr, data]);
+          });
 
-            shellProcess.on("close", () => {
-              resolve({ stdout, stderr });
-            });
-
-          } catch (error) {
-            reject(error);
-          }
+          shellProcess.on("close", () => {
+            resolve({ stdout, stderr });
+          });
         });
       };
 
       const executeCumulativePipeline = async (pipeline: PipelineNode) => {
         results = new Array(pipeline.commands.length).fill({
-          stdout: "",
-          stderr: "",
+          stdout: Buffer.alloc(0),
+          stderr: Buffer.alloc(0),
         });
         const pipelinePromisesExecuteAndReply = results.map(async (_, i) => {
           const partialPipeline: PipelineNode = {

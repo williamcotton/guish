@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Buffer } from "buffer";
 import { useAst } from "./useAst";
 import {
   ModuleType,
@@ -14,8 +15,8 @@ export interface UseStoreType {
   setInputCommand: (cmd: string) => void;
   modules: EnhancedModuleType[];
   compiledCommand: string;
-  outputs: string[];
-  setOutputs: (outputs: string[]) => void;
+  outputs: Buffer[];
+  setOutputs: (outputs: Buffer[]) => void;
   updateModule: (index: number, updates: Partial<ModuleType>) => void;
   removeModule: (index: number) => void;
   executeAst: () => Promise<void>;
@@ -43,7 +44,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [inputCommand, setInputCommand] = useState<string>("");
   const [modules, setModulesState] = useState<EnhancedModuleType[]>([]);
   const [compiledCommand, setCompiledCommand] = useState<string>("");
-  const [outputs, setOutputs] = useState<string[]>([]);
+  const [outputs, setOutputs] = useState<Buffer[]>([]);
   const [updateSource, setUpdateSource] = useState<string | null>(null);
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
   const [lastSavedContent, setLastSavedContent] = useState<string>("");
@@ -88,29 +89,33 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
       }
     );
 
-    electronApi.ipcRenderer.receive(
-      "execute-command-result",
-      (result: {
-        error?: string;
-        output?: Array<{ stdout: string; stderr: string }>;
-      }) => {
-        setLoading(false);
-        if (result.error) {
-          setOutputs([`Error: ${result.error}`]);
-        } else if (result.output && result.output.length > 0) {
-          setOutputs(
-            result.output.map((item) => {
-              if (item.stderr && !item.stdout) {
-                return `Error: ${item.stderr}\n${item.stdout}`;
-              }
-              return item.stdout;
-            })
-          );
-        } else {
-          setOutputs([]);
-        }
+  electronApi.ipcRenderer.receive(
+    "execute-command-result",
+    (result: {
+      error?: string;
+      output?: Array<{ stdout: Buffer; stderr: Buffer }>;
+    }) => {
+      setLoading(false);
+      if (result.error) {
+        setOutputs([Buffer.from(result.error)]);
+      } else if (result.output && result.output.length > 0) {
+        setOutputs(
+          result.output.map((item) => {
+            if (item.stderr.length > 0 && item.stdout.length === 0) {
+              return Buffer.concat([
+                item.stderr,
+                Buffer.from("\n"),
+                item.stdout,
+              ]);
+            }
+            return item.stdout;
+          })
+        );
+      } else {
+        setOutputs([]);
       }
-    );
+    }
+  );
 
     return () => {
       electronApi.ipcRenderer.removeAllListeners("parse-command-result");

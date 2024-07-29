@@ -6,6 +6,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
+import { Buffer } from "buffer";
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
@@ -48,10 +49,15 @@ const App: React.FC<AppProps> = (props) => {
     store.executeAst();
   }, [store]);
 
+  const lastOutput = store.outputs && store.outputs[store.outputs.length - 1];
+  const lastOutputString = lastOutput
+    ? Buffer.from(lastOutput).toString("utf-8")
+    : "";
+
   const handleCopyOutput = () => {
     const output = store.outputs && store.outputs[store.outputs.length - 1];
     if (output) {
-      navigator.clipboard.writeText(output).then(() => {
+      navigator.clipboard.writeText(lastOutputString).then(() => {
         store.setIsCopied(true);
         setTimeout(() => store.setIsCopied(false), 2000);
       });
@@ -140,23 +146,24 @@ const App: React.FC<AppProps> = (props) => {
           )}
         </header>
         {store.isOpenAIEnabled && (
-        <div className="flex m-4">
-          <input
-            type="text"
-            value={store.inputMessage}
-            onChange={(e) => store.setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-grow p-2 border rounded-l"
-            placeholder="Type your message here and press Enter to send..."
-          />
-          <button
-            onClick={handleSendMessage}
-            className="p-2 ml-2 bg-blue-500 text-white rounded"
-            disabled={store.isLoading}
-          >
-            {store.isLoading ? "Updating..." : "Update"}
-          </button>
-        </div>)}
+          <div className="flex m-4">
+            <input
+              type="text"
+              value={store.inputMessage}
+              onChange={(e) => store.setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="flex-grow p-2 border rounded-l"
+              placeholder="Type your message here and press Enter to send..."
+            />
+            <button
+              onClick={handleSendMessage}
+              className="p-2 ml-2 bg-blue-500 text-white rounded"
+              disabled={store.isLoading}
+            >
+              {store.isLoading ? "Updating..." : "Update"}
+            </button>
+          </div>
+        )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 flex overflow-auto p-2">
@@ -213,7 +220,7 @@ const App: React.FC<AppProps> = (props) => {
         ) : (
           <div
             dangerouslySetInnerHTML={{
-              __html: store.outputs && store.outputs[store.outputs.length - 1],
+              __html: lastOutputString,
             }}
           />
         )}

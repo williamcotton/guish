@@ -4,7 +4,7 @@ import { JsonView, darkStyles } from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
 
 interface OutputViewProps {
-  output: string;
+  output: Buffer;
 }
 
 const OutputView: React.FC<OutputViewProps> = ({ output }) => {
@@ -17,6 +17,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
   const [isImage, setIsImage] = useState(false);
   const [imageData, setImageData] = useState<string | null>(null);
 
+  const outputString = output ? Buffer.from(output).toString("utf-8") : "";
 
   const isCSVOrTSV = (str: string): boolean => {
     const lines = str.trim().split("\n");
@@ -29,30 +30,15 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
     return lines.every((line) => line.split(delimiter).length === headerCount);
   };
 
-  const isPNG = (data: string): boolean => {
+  const isPNG = (data: Buffer): boolean => {
     if (!data || data.length < 8) return false;
-    const pngSignature = [253, 80, 78, 71, 13, 10, 26, 10];
-    const bytes = new Uint8Array(8);
-    for (let i = 0; i < data.length; i++) {
-      bytes[i] = data.charCodeAt(i);
-    }
-    return pngSignature.every((byte, index) => byte === bytes[index]);
+    const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+    return pngSignature.every((byte, index) => data[index] === byte);
   };
 
-  const encodeToBase64 = (data: string) => {
-    // Assuming each character in the string is a byte
-    const bytes = new Uint8Array(data.length);
-    for (let i = 0; i < data.length; i++) {
-      bytes[i] = data.charCodeAt(i);
-    }
-
-    // Create a Buffer from the byte array
-    const buffer = Buffer.from(bytes);
-
-    // Convert the Buffer to a Base64 string
-    return buffer.toString("base64");
+  const encodeToBase64 = (data: Buffer) => {
+    return Buffer.from(data).toString("base64");
   };
-
 
   useEffect(() => {
     if (!output) {
@@ -71,20 +57,20 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         setIsTable(false);
         setIsSingleColumn(false);
         setImageData(encodeToBase64(output));
-        // setViewMode("image");
+        setViewMode("image");
       } else if (
-        output.trim().startsWith("{") ||
-        output.trim().startsWith("[")
+        outputString.trim().startsWith("{") ||
+        outputString.trim().startsWith("[")
       ) {
-        const jsonData = JSON.parse(output.trim());
+        const jsonData = JSON.parse(outputString.trim());
         setParsedData(jsonData);
         setIsTable(false);
         setIsSingleColumn(false);
         setIsImage(false);
         setViewMode("raw");
-      } else if (isCSVOrTSV(output.trim())) {
+      } else if (isCSVOrTSV(outputString.trim())) {
         const delimiter = output.includes("\t") ? "\t" : ",";
-        const rows = output
+        const rows = outputString
           .trim()
           .split("\n")
           .map((row) => row.split(delimiter));
@@ -130,7 +116,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
 
     switch (viewMode) {
       case "json":
-        return <JsonView data={parsedData} style={darkStyles}/>;
+        return <JsonView data={parsedData} style={darkStyles} />;
       case "table":
         return (
           <table className="min-w-full divide-y divide-gray-500">
@@ -172,8 +158,9 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
             className="max-w-full h-auto"
           />
         );
-      default:
-        return <pre className=" text-green-400">{output}</pre>;
+      default: {
+        return <pre className=" text-green-400">{outputString}</pre>;
+      }
     }
   };
 
