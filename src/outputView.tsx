@@ -26,8 +26,8 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
     const delimiter = str.includes("\t") ? "\t" : ",";
     const headerCount = lines[0].split(delimiter).length;
 
-    // Check if all rows have the same number of columns
-    return lines.every((line) => line.split(delimiter).length === headerCount);
+    // Check if first row has the same number of columns as the header
+    return lines[1].split(delimiter).length === headerCount;
   };
 
   const isPNG = (data: Buffer): boolean => {
