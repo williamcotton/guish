@@ -26,7 +26,7 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "Hello, World!",
-        quoteChar: '"',
+        enableEscapes: false,
       });
     });
 
@@ -45,7 +45,7 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "Hello, World!",
-        quoteChar: '"',
+        enableEscapes: false,
       });
     });
 
@@ -53,15 +53,15 @@ describe("echoPlugin", () => {
       const command: CommandNode = {
         type: "Command",
         name: { text: "echo", type: "Word" },
-        suffix: [{ text: '"Hello, World!"', type: "Word" }],
+        suffix: [{ text: '"Hello "quoted" World"', type: "Word" }],
       };
 
       const result = echoPlugin.parse(command);
 
       expect(result).toEqual({
         type: "echo",
-        text: "Hello, World!",
-        quoteChar: '"',
+        text: 'Hello "quoted" World',
+        enableEscapes: false,
       });
     });
 
@@ -77,7 +77,26 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "echo",
         text: "",
-        quoteChar: '"',
+        enableEscapes: false,
+      });
+    });
+
+    it("should parse echo command with -e flag", () => {
+      const command: CommandNode = {
+        type: "Command",
+        name: { text: "echo", type: "Word" },
+        suffix: [
+          { text: "-e", type: "Word" },
+          { text: "Hello\\nWorld", type: "Word" },
+        ],
+      };
+
+      const result = echoPlugin.parse(command);
+
+      expect(result).toEqual({
+        type: "echo",
+        text: "Hello\\nWorld",
+        enableEscapes: true,
       });
     });
   });
@@ -87,6 +106,7 @@ describe("echoPlugin", () => {
       const module = {
         type: "echo",
         text: "Hello, World!",
+        enableEscapes: false,
       };
 
       const result = echoPlugin.compile(module);
@@ -102,7 +122,7 @@ describe("echoPlugin", () => {
       const module = {
         type: "echo",
         text: "",
-        quoteChar: '"',
+        enableEscapes: false,
       };
 
       const result = echoPlugin.compile(module);
@@ -110,7 +130,26 @@ describe("echoPlugin", () => {
       expect(result).toEqual({
         type: "Command",
         name: { text: "echo", type: "Word" },
-        suffix: [],
+        suffix: [{ type: "Word", text: "" }],
+      });
+    });
+
+    it("should compile echo command with -e flag", () => {
+      const module = {
+        type: "echo",
+        text: "Hello\\nWorld",
+        enableEscapes: true,
+      };
+
+      const result = echoPlugin.compile(module);
+
+      expect(result).toEqual({
+        type: "Command",
+        name: { text: "echo", type: "Word" },
+        suffix: [
+          { type: "Word", text: "-e" },
+          { type: "Word", text: "Hello\\nWorld" },
+        ],
       });
     });
   });
@@ -118,18 +157,27 @@ describe("echoPlugin", () => {
   describe("component", () => {
     it("should render and update correctly", () => {
       const mockSetText = jest.fn();
-      const { getByRole } = render(
+      const mockSetEnableEscapes = jest.fn();
+      const { getByRole, getByLabelText } = render(
         React.createElement(echoPlugin.component, {
           text: "Hello, World!",
+          enableEscapes: false,
           setText: mockSetText,
+          setEnableEscapes: mockSetEnableEscapes,
         })
       );
 
       const editor = getByRole("textbox");
       expect(editor).toHaveValue("Hello, World!");
 
+      const checkbox = getByLabelText("Enable escape sequences (-e)");
+      expect(checkbox).not.toBeChecked();
+
       fireEvent.change(editor, { target: { value: "New text" } });
       expect(mockSetText).toHaveBeenCalledWith("New text");
+
+      fireEvent.click(checkbox);
+      expect(mockSetEnableEscapes).toHaveBeenCalledWith(true);
     });
   });
 });
