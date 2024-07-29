@@ -31,7 +31,6 @@ And then fill in the blanks in the GUI with a fully fledged code editor like Mon
 
 ![Screenshot 2024-07-22 at 12 16 24 PM](https://github.com/user-attachments/assets/72f085d1-43ec-45d5-9bf9-7a98f3b5f7b8)
 
-
 Commands are executed as-is in a shell process. The application is merely a tool used to construct commands and pipelines.
 
 ## Features
@@ -47,12 +46,14 @@ Commands are executed as-is in a shell process. The application is merely a tool
   - Table view for CSV/TSV data
 - HTML rendering of command output
 - Electron-based desktop application for cross-platform support
-- Code editor integration for complex commands (e.g., SQL, AWK, R, Python)
+- Code editor integration for complex commands (e.g., SQL, AWK, R, Python, Ruby, F#)
 - Keyboard shortcut (Alt+Enter) for quick command execution
 - Configurable shell and preload script via `.guish` configuration file
 - File operations (New, Open, Save, Save As) for pipeline scripts
 - Directory selection for the `cd` command
 - Copy-to-clipboard functionality for pipeline outputs
+- AI-assisted command generation and updates (when OpenAI API key is configured)
+- Minimizable command modules for better workspace management
 
 ## Live Demo
 
@@ -95,6 +96,7 @@ guish currently supports the following commands and plugins:
 - node (JavaScript execution)
 - python (Python script execution)
 - ruby (Ruby script execution)
+- fsharp (F# script execution)
 - paste
 - Generic command support for unsupported commands
 
@@ -180,19 +182,22 @@ To create or modify the configuration, create a file named `.guish` in your home
 ```json
 {
   "shell": "zsh",
-  "preloadScript": ""
+  "preloadScript": "",
+  "openaiApiKey": "your-api-key-here"
 }
 ```
 
 - `shell`: Specifies the shell to use for executing commands (default: "zsh")
 - `preloadScript`: A script to run before executing each command (default: "")
+- `openaiApiKey`: Your OpenAI API key for AI-assisted features (optional)
 
 For example, if you want to source your custom functions before each command, you can set:
 
 ```json
 {
   "shell": "zsh",
-  "preloadScript": "source ~/.zshrc"
+  "preloadScript": "source ~/.zshrc",
+  "openaiApiKey": "your-api-key-here"
 }
 ```
 
@@ -222,9 +227,11 @@ This will create distributable packages for your platform in the `dist` director
 2. The pipeline will be parsed and represented visually as a series of modules.
 3. Modify individual command parameters using the provided UI components or in the CLI.
 4. Click the "Execute" button or press Alt+Enter to run the pipeline.
-5. View the output in the terminal-like display below the input area.
+5. View the output in the terminal-like display below each module.
 6. For HTML output, check the right-hand panel for rendered results.
 7. Use the File menu or keyboard shortcuts to create new pipelines, open existing ones, or save your work.
+8. If OpenAI integration is enabled, use the input field at the top to get AI-assisted updates to your pipeline.
+9. Minimize modules by clicking the chevron icon to manage your workspace more efficiently.
 
 ## Contributing
 
