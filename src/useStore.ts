@@ -35,6 +35,8 @@ export interface UseStoreType {
   setIsLoading: (isLoading: boolean) => void;
   chatHistory: ChatCompletionMessageParam[];
   setChatHistory: (history: ChatCompletionMessageParam[]) => void;
+  isOpenAIEnabled: boolean;
+  setIsOpenAIEnabled: (isOpenAIEnabled: boolean) => void;
 }
 
 export const useStore = (electronApi: ElectronAPI): UseStoreType => {
@@ -52,6 +54,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const [inputMessage, setInputMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [chatHistory, setChatHistory] = useState<ChatCompletionMessageParam[]>(exemplars);
+  const [isOpenAIEnabled, setIsOpenAIEnabled] = useState<boolean>(false);
 
   const { astToModules, modulesToAst, compileCommand } = useAst();
 
@@ -64,6 +67,14 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
   const executeAst = useCallback(async (): Promise<void> => {
     electronApi.executeAst(ast);
   }, [ast]);
+
+  useEffect(() => {
+    const fetchOpenAIStatus = async () => {
+      const status = await electronApi.getOpenAIStatus();
+      setIsOpenAIEnabled(status);
+    };
+    fetchOpenAIStatus();
+  }, [electronApi]);
 
   useEffect(() => {
     electronApi.ipcRenderer.receive(
@@ -184,5 +195,7 @@ export const useStore = (electronApi: ElectronAPI): UseStoreType => {
     setIsLoading,
     chatHistory,
     setChatHistory,
+    isOpenAIEnabled,
+    setIsOpenAIEnabled,
   };
 };

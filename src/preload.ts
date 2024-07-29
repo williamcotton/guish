@@ -50,6 +50,7 @@ const electronApi: ElectronAPI = {
     ipcRenderer.invoke("open-script-file", filePath),
   chatCompletionsCreate: (messages) =>
     ipcRenderer.invoke("chat-completions-create", messages),
+  getOpenAIStatus: () => ipcRenderer.invoke("get-openai-status"),
 };
 
 contextBridge.exposeInMainWorld("electron", electronApi);

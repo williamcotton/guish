@@ -29,6 +29,7 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   saveScriptFile: jest.fn(),
   openScriptFile: jest.fn(),
   chatCompletionsCreate: jest.fn(),
+  getOpenAIStatus: jest.fn(),
 };
 
 // Create a test component that uses the hook

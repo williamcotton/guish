@@ -139,6 +139,7 @@ const App: React.FC<AppProps> = (props) => {
             </div>
           )}
         </header>
+        {store.isOpenAIEnabled && (
         <div className="flex m-4">
           <input
             type="text"
@@ -155,7 +156,7 @@ const App: React.FC<AppProps> = (props) => {
           >
             {store.isLoading ? "Updating..." : "Update"}
           </button>
-        </div>
+        </div>)}
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 flex overflow-auto p-2">

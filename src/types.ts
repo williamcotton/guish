@@ -264,7 +264,10 @@ export interface ElectronAPI {
     ) => void;
     removeAllListeners: (channel: ValidChannels) => void;
   };
-  chatCompletionsCreate: (messages: ChatCompletionCreateParamsBase['messages']) => Promise<ChatCompletion>;
+  chatCompletionsCreate: (
+    messages: ChatCompletionCreateParamsBase["messages"]
+  ) => Promise<ChatCompletion>;
+  getOpenAIStatus: () => Promise<boolean>;
 }
 
 export interface SaveScriptDialogResult {

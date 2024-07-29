@@ -12,20 +12,16 @@ import path from "path";
 import parse from "bash-parser";
 import OpenAI from "openai";
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
-import dotenv from "dotenv";
 import { spawn } from "child_process";
 import fs from "fs";
 import os from "os";
 import { astToCommand } from "./astToCommand";
 import { PipelineNode, ScriptNode } from "./types";
 
-dotenv.config();
-
-const openai = new OpenAI();
-
 interface Config {
   shell: string;
   preloadScript: string;
+  openaiApiKey?: string;
 }
 
 // Load configuration
@@ -33,6 +29,7 @@ const configPath = path.join(os.homedir(), ".guish");
 let config: Config = {
   shell: "zsh",
   preloadScript: "", // Default to no preload script
+  openaiApiKey: "",
 };
 
 try {
@@ -43,6 +40,9 @@ try {
   console.warn(`Could not read config file: ${(error as Error).message}`);
   console.warn("Using default configuration");
 }
+
+const isOpenAIEnabled = config.openaiApiKey !== "";
+const openai = new OpenAI({ apiKey: config.openaiApiKey });
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -365,6 +365,10 @@ const createWindow = () => {
       }
     }
   );
+
+  ipcMain.handle("get-openai-status", () => {
+    return isOpenAIEnabled;
+  });
 };
 
 // This method will be called when Electron has finished
