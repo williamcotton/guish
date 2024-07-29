@@ -174,28 +174,33 @@ const createWindow = () => {
         command: string
       ): Promise<{ stdout: string; stderr: string }> => {
         return new Promise((resolve, reject) => {
-          const fullCommand = config.preloadScript
-            ? `${config.preloadScript} && ${command}`
-            : command;
+          try {
+            const fullCommand = config.preloadScript
+              ? `${config.preloadScript} && ${command}`
+              : command;
 
-          const shellProcess = spawn(config.shell, ["-c", fullCommand], {
-            stdio: ["pipe", "pipe", "pipe"],
-          });
+            const shellProcess = spawn(config.shell, ["-c", fullCommand], {
+              stdio: ["pipe", "pipe", "pipe"],
+            });
 
-          let stdout = "";
-          let stderr = "";
+            let stdout = "";
+            let stderr = "";
 
-          shellProcess.stdout.on("data", (data: Buffer) => {
-            stdout += data.toString();
-          });
+            shellProcess.stdout.on("data", (data: Buffer) => {
+              stdout += data.toString();
+            });
 
-          shellProcess.stderr.on("data", (data: Buffer) => {
-            stderr += data.toString();
-          });
+            shellProcess.stderr.on("data", (data: Buffer) => {
+              stderr += data.toString();
+            });
 
-          shellProcess.on("close", () => {
-            resolve({ stdout, stderr });
-          });
+            shellProcess.on("close", () => {
+              resolve({ stdout, stderr });
+            });
+
+          } catch (error) {
+            reject(error);
+          }
         });
       };
 
