@@ -35,6 +35,7 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   showDirectoryDialog: jest.fn(),
   chatCompletionsCreate: jest.fn(),
   getOpenAIStatus: jest.fn(),
+  getPgSchema: jest.fn(),
 };
 
 // Mock the UseStoreType

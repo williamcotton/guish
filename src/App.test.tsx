@@ -1,4 +1,3 @@
-// App.test.tsx
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -73,6 +72,7 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   openScriptFile: jest.fn(),
   chatCompletionsCreate: jest.fn(),
   getOpenAIStatus: jest.fn(),
+  getPgSchema: jest.fn(),
 };
 
 describe("App", () => {

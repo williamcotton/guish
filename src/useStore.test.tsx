@@ -1,4 +1,3 @@
-// useStore.test.tsx
 import React from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -30,6 +29,7 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   openScriptFile: jest.fn(),
   chatCompletionsCreate: jest.fn(),
   getOpenAIStatus: jest.fn(),
+  getPgSchema: jest.fn(),
 };
 
 // Create a test component that uses the hook
