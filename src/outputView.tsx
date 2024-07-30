@@ -69,7 +69,7 @@ const OutputView: React.FC<OutputViewProps> = ({ output }) => {
         setIsImage(false);
         setViewMode("raw");
       } else if (isCSVOrTSV(outputString.trim())) {
-        const delimiter = output.includes("\t") ? "\t" : ",";
+        const delimiter = outputString.includes("\t") ? "\t" : ",";
         const rows = outputString
           .trim()
           .split("\n")
