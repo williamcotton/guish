@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
 import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
@@ -35,104 +35,118 @@ const PgComponent: React.FC<PgComponentProps> = ({
   setUser,
   setPassword,
   setPort,
-}) => (
-  <>
-    <h2 className="text-lg font-semibold mb-2">pg</h2>
-    <div className="mb-2">
-      <label
-        htmlFor="database-input"
-        className="block text-sm font-medium text-gray-700"
+}) => {
+  const [showSettings, setShowSettings] = useState(false);
+
+  return (
+    <>
+      <h2 className="text-lg font-semibold mb-2">pg</h2>
+      <button
+        onClick={() => setShowSettings(!showSettings)}
+        className="mb-2 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
-        Database
-      </label>
-      <input
-        id="database-input"
-        type="text"
-        value={database}
-        onChange={(e) => setDatabase(e.target.value)}
-        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        placeholder="Enter database name..."
-      />
-    </div>
-    <div className="mb-2">
-      <label
-        htmlFor="hostname-input"
-        className="block text-sm font-medium text-gray-700"
-      >
-        Hostname
-      </label>
-      <input
-        id="hostname-input"
-        type="text"
-        value={hostname}
-        onChange={(e) => setHostname(e.target.value)}
-        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        placeholder="Enter hostname..."
-      />
-    </div>
-    <div className="mb-2">
-      <label
-        htmlFor="user-input"
-        className="block text-sm font-medium text-gray-700"
-      >
-        User
-      </label>
-      <input
-        id="user-input"
-        type="text"
-        value={user}
-        onChange={(e) => setUser(e.target.value)}
-        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        placeholder="Enter user..."
-      />
-    </div>
-    <div className="mb-2">
-      <label
-        htmlFor="password-input"
-        className="block text-sm font-medium text-gray-700"
-      >
-        Password
-      </label>
-      <input
-        id="password-input"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        placeholder="Enter password..."
-      />
-    </div>
-    <div className="mb-2">
-      <label
-        htmlFor="port-input"
-        className="block text-sm font-medium text-gray-700"
-      >
-        Port
-      </label>
-      <input
-        id="port-input"
-        type="text"
-        value={port}
-        onChange={(e) => setPort(e.target.value)}
-        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        placeholder="Enter port..."
-      />
-    </div>
-    <div className="h-full">
-      <label
-        htmlFor="query-editor"
-        className="block text-sm font-medium text-gray-700"
-      >
-        Query
-      </label>
-      <CodeEditor
-        value={query}
-        onChange={setQuery}
-        language="sql"
-      />
-    </div>
-  </>
-);
+        {showSettings ? "Hide Settings" : "Show Settings"}
+      </button>
+      {showSettings && (
+        <>
+          <div className="mb-2">
+            <label
+              htmlFor="database-input"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Database
+            </label>
+            <input
+              id="database-input"
+              type="text"
+              value={database}
+              onChange={(e) => setDatabase(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              placeholder="Enter database name..."
+            />
+          </div>
+          <div className="mb-2">
+            <label
+              htmlFor="hostname-input"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Hostname
+            </label>
+            <input
+              id="hostname-input"
+              type="text"
+              value={hostname}
+              onChange={(e) => setHostname(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              placeholder="Enter hostname..."
+            />
+          </div>
+          <div className="mb-2">
+            <label
+              htmlFor="user-input"
+              className="block text-sm font-medium text-gray-700"
+            >
+              User
+            </label>
+            <input
+              id="user-input"
+              type="text"
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              placeholder="Enter user..."
+            />
+          </div>
+          <div className="mb-2">
+            <label
+              htmlFor="password-input"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              id="password-input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              placeholder="Enter password..."
+            />
+          </div>
+          <div className="mb-2">
+            <label
+              htmlFor="port-input"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Port
+            </label>
+            <input
+              id="port-input"
+              type="text"
+              value={port}
+              onChange={(e) => setPort(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              placeholder="Enter port..."
+            />
+          </div>
+        </>
+      )}
+      <div className="h-full">
+        <label
+          htmlFor="query-editor"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Query
+        </label>
+        <CodeEditor
+          value={query}
+          onChange={setQuery}
+          language="sql"
+        />
+      </div>
+    </>
+  );
+};
 
 export const pgPlugin: Plugin = {
   name: "PostgreSQL",
