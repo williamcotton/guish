@@ -17,6 +17,7 @@ import fs from "fs";
 import os from "os";
 import { astToCommand } from "./astToCommand";
 import { PipelineNode, ScriptNode } from "./types";
+import { Client } from "pg";
 
 interface Config {
   shell: string;
@@ -369,6 +370,45 @@ const createWindow = () => {
   ipcMain.handle("get-openai-status", () => {
     return isOpenAIEnabled;
   });
+
+  ipcMain.handle(
+    "get-pg-schema",
+    async (
+      _event: IpcMainInvokeEvent,
+      connectionInfo: { user: string; host: string; database: string; password: string; port: number }
+    ) => {
+      const client = new Client(connectionInfo);
+      try {
+        await client.connect();
+        const res = await client.query(`
+          SELECT 
+              t.table_schema,
+              t.table_name,
+              c.column_name,
+              c.data_type
+          FROM 
+              (SELECT table_schema, table_name
+               FROM information_schema.tables
+               WHERE table_type = 'BASE TABLE' 
+               AND table_schema NOT IN ('pg_catalog', 'information_schema')
+              ) AS t
+          JOIN 
+              information_schema.columns AS c 
+          ON 
+              t.table_schema = c.table_schema 
+              AND t.table_name = c.table_name
+          ORDER BY 
+              t.table_schema, t.table_name, c.ordinal_position;
+        `);
+        await client.end();
+        return { success: true, schema: res.rows };
+      } catch (error) {
+        await client.end();
+        console.error("Error querying PostgreSQL schema:", error);
+        return { success: false, error: (error as Error).message };
+      }
+    }
+  );
 };
 
 // This method will be called when Electron has finished

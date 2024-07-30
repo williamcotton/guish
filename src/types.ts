@@ -268,6 +268,9 @@ export interface ElectronAPI {
     messages: ChatCompletionCreateParamsBase["messages"]
   ) => Promise<ChatCompletion>;
   getOpenAIStatus: () => Promise<boolean>;
+  getPgSchema: (
+    connectionInfo: { user: string; host: string; database: string; password: string; port: number }
+  ) => Promise<{ success: boolean; schema?: any[]; error?: string }>;
 }
 
 export interface SaveScriptDialogResult {
