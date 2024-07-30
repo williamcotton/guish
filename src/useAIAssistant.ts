@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
+import { Buffer } from "buffer";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { ElectronAPI } from "./types";
 import { UseStoreType } from "./useStore";
-import { PgModuleType } from "./plugins/pgPlugin";
-import { Buffer } from "buffer";
+
+import { postgresAssistant } from './ai-assistants/postgresAssistant';
 
 export const useAIAssistant = (store: UseStoreType, electronApi: ElectronAPI) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -37,39 +38,7 @@ export const useAIAssistant = (store: UseStoreType, electronApi: ElectronAPI) =>
       newMessage,
     ];
 
-    const schemaNotAdded = !store.chatHistory.some(
-      (msg) => msg.role === "system" && msg.content.includes("Postgres schema")
-    );
-
-    if (schemaNotAdded) {
-      const pgSchema = await Promise.all(
-        store.modules.map(async (module) => {
-          if (module.type === "pg") {
-            const pgModule = module as PgModuleType;
-            const response = await electronApi.getPgSchema({
-              database: pgModule.database,
-              host: pgModule.hostname,
-              user: pgModule.user,
-              password: pgModule.password,
-              port: parseInt(pgModule.port, 10),
-            });
-            return JSON.stringify(response.schema);
-          }
-          return "";
-        })
-      );
-
-      const pgSchemaContent = pgSchema
-        .filter((schema) => schema !== "")
-        .join(", ");
-      if (pgSchemaContent) {
-        const pgMessage: ChatCompletionMessageParam = {
-          role: "system",
-          content: `Postgres schema: ${pgSchemaContent}`,
-        };
-        updatedChatHistory.push(pgMessage);
-      }
-    }
+    postgresAssistant(store, electronApi, updatedChatHistory);
 
     try {
       const response = await electronApi.chatCompletionsCreate(
