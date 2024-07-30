@@ -237,7 +237,7 @@ describe("pgPlugin", () => {
       const mockSetUser = jest.fn();
       const mockSetPassword = jest.fn();
       const mockSetPort = jest.fn();
-      const { getByLabelText, getByTestId } = render(
+      const { getByLabelText, getByTestId, getByText } = render(
         React.createElement(pgPlugin.component, {
           database: "mydb",
           query: "SELECT * FROM users",
@@ -253,6 +253,9 @@ describe("pgPlugin", () => {
           setPort: mockSetPort,
         })
       );
+
+      const showSettingsButton = getByText("Show Settings");
+      fireEvent.click(showSettingsButton);
 
       const databaseInput = getByLabelText("Database");
       expect(databaseInput).toHaveValue("mydb");
