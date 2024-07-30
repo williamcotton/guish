@@ -2,11 +2,9 @@ import React, { useEffect, useCallback } from "react";
 import { Terminal, CircleDot, Loader, Copy, Check } from "lucide-react";
 import { Buffer } from "buffer";
 
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-
 import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
-import { PgModuleType } from "./plugins/pgPlugin";
+import { useAIAssistant } from "./useAIAssistant";
 import { ModuleType, ElectronAPI } from "./types";
 import RenderModule from "./renderModule";
 
@@ -17,6 +15,10 @@ interface AppProps {
 const App: React.FC<AppProps> = (props) => {
   const store = useStore(props.electronApi);
   useFileOperations(store, props.electronApi);
+  const { isLoading, handleSendMessage } = useAIAssistant(
+    store,
+    props.electronApi
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -66,100 +68,6 @@ const App: React.FC<AppProps> = (props) => {
     [store]
   );
 
-  const handleSendMessage = useCallback(async () => {
-    if (!store.inputMessage.trim()) return;
-
-    store.setIsLoading(true);
-
-    const newMessage: ChatCompletionMessageParam = {
-      role: "user",
-      content: store.inputMessage,
-    };
-    const contextMessage: ChatCompletionMessageParam = {
-      role: "system",
-      content: `Current bash command: ${store.inputCommand}`,
-    };
-    const outputMessages: ChatCompletionMessageParam[] = store.outputs.map(
-      (output, i) => {
-        const outputString = Buffer.from(output).toString("utf-8");
-        return {
-          role: "system",
-          content: `Module ${i + 1} output: ${outputString.slice(0, 100)}...`,
-        };
-      }
-    );
-    const updatedChatHistory = [
-      ...store.chatHistory,
-      contextMessage,
-      ...outputMessages,
-      newMessage,
-    ];
-
-    const schemaNotAdded = !store.chatHistory.some(
-      (msg) => msg.role === "system" && msg.content.includes("Postgres schema")
-    );
-
-    if (schemaNotAdded) {
-      const pgSchema = await Promise.all(
-        store.modules.map(async (module) => {
-          if (module.type === "pg") {
-            const pgModule = module as PgModuleType;
-            const response = await props.electronApi.getPgSchema({
-              database: pgModule.database,
-              host: pgModule.hostname,
-              user: pgModule.user,
-              password: pgModule.password,
-              port: parseInt(pgModule.port, 10),
-            });
-            return JSON.stringify(response.schema);
-          }
-          return "";
-        })
-      );
-
-      const pgSchemaContent = pgSchema
-        .filter((schema) => schema !== "")
-        .join(", ");
-      if (pgSchemaContent) {
-        const pgMessage: ChatCompletionMessageParam = {
-          role: "system",
-          content: `Postgres schema: ${pgSchemaContent}`,
-        };
-        updatedChatHistory.push(pgMessage);
-      }
-    }
-
-    try {
-      const response = await props.electronApi.chatCompletionsCreate(
-        updatedChatHistory
-      );
-
-      if (response.choices && response.choices.length > 0) {
-        const assistantResponse = response.choices[0].message.content;
-        try {
-          const parsedResponse = JSON.parse(assistantResponse);
-          if (parsedResponse.bash_command && parsedResponse.text_response) {
-            store.setInputCommand(parsedResponse.bash_command);
-            store.setChatHistory([
-              ...updatedChatHistory,
-              { role: "assistant", content: assistantResponse },
-            ]);
-            console.log("Assistant's response:", parsedResponse.text_response);
-          } else {
-            throw new Error("Invalid response format");
-          }
-        } catch (parseError) {
-          console.error("Error parsing assistant's response:", parseError);
-        }
-      }
-    } catch (error) {
-      console.error("Error in chat completion:", error);
-    } finally {
-      store.setIsLoading(false);
-      store.setInputMessage("");
-    }
-  }, [props.electronApi, store]);
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -195,9 +103,9 @@ const App: React.FC<AppProps> = (props) => {
             <button
               onClick={handleSendMessage}
               className="p-2 ml-2 bg-blue-500 text-white rounded"
-              disabled={store.isLoading}
+              disabled={isLoading}
             >
-              {store.isLoading ? "Updating..." : "Update"}
+              {isLoading ? "Updating..." : "Update"}
             </button>
           </div>
         )}
