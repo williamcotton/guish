@@ -29,7 +29,7 @@ pg | tsvtocsv | ggplot | pngtohtml
 
 And then fill in the blanks in the GUI with a fully fledged code editor like Monaco all while seeing the output of each step in the pipeline.
 
-![Screenshot 2024-07-22 at 12 16 24 PM](https://github.com/user-attachments/assets/72f085d1-43ec-45d5-9bf9-7a98f3b5f7b8)
+![Screenshot 2024-07-22 at 12 16 24 PM](https://github.com/user-attachments/assets/72f085d1-43ec-45d5-9bf9-7a98f3b5f7b8)
 
 Commands are executed as-is in a shell process. The application is merely a tool used to construct commands and pipelines.
 
@@ -54,6 +54,8 @@ Commands are executed as-is in a shell process. The application is merely a tool
 - Copy-to-clipboard functionality for pipeline outputs
 - AI-assisted command generation and updates (when OpenAI API key is configured)
 - Minimizable command modules for better workspace management
+- PostgreSQL schema integration for improved AI assistance with database queries
+- Improved error handling and user feedback
 
 ## Live Demo
 
@@ -63,12 +65,11 @@ Commands are executed as-is in a shell process. The application is merely a tool
 
 ### curl and jq
 
-![Screenshot 2024-07-22 at 12 15 44 PM](https://github.com/user-attachments/assets/ab7f2e03-202a-49b8-96f3-4e19423a9d86)
+![Screenshot 2024-07-22 at 12 15 44 PM](https://github.com/user-attachments/assets/ab7f2e03-202a-49b8-96f3-4e19423a9d86)
 
 ### postgres and html table
 
-![Screenshot 2024-07-22 at 12 16 02 PM](https://github.com/user-attachments/assets/202de3a4-33ba-423b-9470-ba50967e2e1c)
-
+![Screenshot 2024-07-22 at 12 16 02 PM](https://github.com/user-attachments/assets/202de3a4-33ba-423b-9470-ba50967e2e1c)
 
 ## Supported Commands
 
@@ -232,10 +233,11 @@ This will create distributable packages for your platform in the `dist` director
 7. Use the File menu or keyboard shortcuts to create new pipelines, open existing ones, or save your work.
 8. If OpenAI integration is enabled, use the input field at the top to get AI-assisted updates to your pipeline.
 9. Minimize modules by clicking the chevron icon to manage your workspace more efficiently.
+10. For PostgreSQL queries, the AI assistant will automatically fetch and use the database schema for improved suggestions.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request or at the very least open a detail Issue.
+Contributions are welcome! Please feel free to submit a Pull Request or at the very least open a detailed Issue.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
