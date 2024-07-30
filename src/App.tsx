@@ -1,17 +1,12 @@
 import React, { useEffect, useCallback } from "react";
-import {
-  Terminal,
-  CircleDot,
-  Loader,
-  Copy,
-  Check,
-} from "lucide-react";
+import { Terminal, CircleDot, Loader, Copy, Check } from "lucide-react";
 import { Buffer } from "buffer";
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 import { useStore } from "./useStore";
 import { useFileOperations } from "./useFileOperations";
+import { PgModuleType } from "./plugins/pgPlugin";
 import { ModuleType, ElectronAPI } from "./types";
 import RenderModule from "./renderModule";
 
@@ -85,12 +80,54 @@ const App: React.FC<AppProps> = (props) => {
       content: `Current bash command: ${store.inputCommand}`,
     };
     const outputMessages: ChatCompletionMessageParam[] = store.outputs.map(
-      (output, i) => ({
-        role: "system",
-        content: `Module ${i + 1} output: ${output.slice(0, 100)}...`,
-      })
+      (output, i) => {
+        const outputString = Buffer.from(output).toString("utf-8");
+        return {
+          role: "system",
+          content: `Module ${i + 1} output: ${outputString.slice(0, 100)}...`,
+        };
+      }
     );
-    const updatedChatHistory = [...store.chatHistory, contextMessage, ...outputMessages, newMessage];
+    const updatedChatHistory = [
+      ...store.chatHistory,
+      contextMessage,
+      ...outputMessages,
+      newMessage,
+    ];
+
+    const schemaNotAdded = !store.chatHistory.some(
+      (msg) => msg.role === "system" && msg.content.includes("Postgres schema")
+    );
+
+    if (schemaNotAdded) {
+      const pgSchema = await Promise.all(
+        store.modules.map(async (module) => {
+          if (module.type === "pg") {
+            const pgModule = module as PgModuleType;
+            const response = await props.electronApi.getPgSchema({
+              database: pgModule.database,
+              host: pgModule.hostname,
+              user: pgModule.user,
+              password: pgModule.password,
+              port: parseInt(pgModule.port, 10),
+            });
+            return JSON.stringify(response.schema);
+          }
+          return "";
+        })
+      );
+
+      const pgSchemaContent = pgSchema
+        .filter((schema) => schema !== "")
+        .join(", ");
+      if (pgSchemaContent) {
+        const pgMessage: ChatCompletionMessageParam = {
+          role: "system",
+          content: `Postgres schema: ${pgSchemaContent}`,
+        };
+        updatedChatHistory.push(pgMessage);
+      }
+    }
 
     try {
       const response = await props.electronApi.chatCompletionsCreate(

@@ -3,7 +3,7 @@ import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
 import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
 
-interface PgModuleType extends ModuleType {
+export interface PgModuleType extends ModuleType {
   type: "pg";
   database: string;
   query: string;
