@@ -84,13 +84,32 @@ const App: React.FC<AppProps> = (props) => {
       role: "system",
       content: `Current bash command: ${store.inputCommand}`,
     };
+
+    // Fetch database schema information if pgPlugin is utilized
+    let databaseSchemaInfo = "";
+    const pgModule = store.modules.find((module) => module.type === "pg");
+    if (pgModule) {
+      try {
+        const schemaInfo = await props.electronApi.fetchDatabaseSchema(pgModule);
+        databaseSchemaInfo = `Database schema information: ${schemaInfo}`;
+      } catch (error) {
+        console.error("Error fetching database schema information:", error);
+      }
+    }
+
     const outputMessages: ChatCompletionMessageParam[] = store.outputs.map(
       (output, i) => ({
         role: "system",
         content: `Module ${i + 1} output: ${output.slice(0, 100)}...`,
       })
     );
-    const updatedChatHistory = [...store.chatHistory, contextMessage, ...outputMessages, newMessage];
+    const updatedChatHistory = [
+      ...store.chatHistory,
+      contextMessage,
+      ...outputMessages,
+      newMessage,
+      { role: "system", content: databaseSchemaInfo },
+    ];
 
     try {
       const response = await props.electronApi.chatCompletionsCreate(

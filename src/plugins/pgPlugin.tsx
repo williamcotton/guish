@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CodeEditor from "../codeEditor";
 import { Plugin } from "../Plugins";
 import { ModuleType, RedirectNode, CommandNode, WordNode } from "../types";
@@ -11,6 +11,7 @@ interface PgModuleType extends ModuleType {
   user: string;
   password: string;
   port: string;
+  schemaInfo: string;
 }
 
 interface PgComponentProps extends PgModuleType {
@@ -20,6 +21,7 @@ interface PgComponentProps extends PgModuleType {
   setUser: (value: string) => void;
   setPassword: (value: string) => void;
   setPort: (value: string) => void;
+  setSchemaInfo: (value: string) => void;
 }
 
 const PgComponent: React.FC<PgComponentProps> = ({
@@ -29,14 +31,37 @@ const PgComponent: React.FC<PgComponentProps> = ({
   user,
   password,
   port,
+  schemaInfo,
   setDatabase,
   setQuery,
   setHostname,
   setUser,
   setPassword,
   setPort,
+  setSchemaInfo,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
+
+  useEffect(() => {
+    const fetchSchemaInfo = async () => {
+      try {
+        const schemaInfo = await window.electron.fetchDatabaseSchema({
+          database,
+          hostname,
+          user,
+          password,
+          port,
+        });
+        setSchemaInfo(schemaInfo);
+      } catch (error) {
+        console.error("Error fetching database schema information:", error);
+      }
+    };
+
+    if (database && hostname && user && password && port) {
+      fetchSchemaInfo();
+    }
+  }, [database, hostname, user, password, port, setSchemaInfo]);
 
   return (
     <>
@@ -158,6 +183,7 @@ export const pgPlugin: Plugin = {
     let user = "";
     let password = "";
     let port = "";
+    let schemaInfo = "";
     if (command.suffix) {
       const dArgIndex = command.suffix.findIndex(
         (arg: WordNode | RedirectNode) => arg.text === "-d"
@@ -204,6 +230,7 @@ export const pgPlugin: Plugin = {
       user: user,
       password: password,
       port: port,
+      schemaInfo: schemaInfo,
     };
   },
   component: PgComponent,

@@ -51,6 +51,8 @@ const electronApi: ElectronAPI = {
   chatCompletionsCreate: (messages) =>
     ipcRenderer.invoke("chat-completions-create", messages),
   getOpenAIStatus: () => ipcRenderer.invoke("get-openai-status"),
+  fetchDatabaseSchema: (config) =>
+    ipcRenderer.invoke("fetch-database-schema", config),
 };
 
 contextBridge.exposeInMainWorld("electron", electronApi);
