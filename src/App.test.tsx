@@ -16,6 +16,10 @@ const mockExecuteAst = jest.fn();
 const mockSetInputCommand = jest.fn();
 const mockUpdateModule = jest.fn();
 const mockRemoveModule = jest.fn();
+const mockSetOutputs = jest.fn();
+const mockSetIsCopied = jest.fn();
+const mockSetInputMessage = jest.fn();
+const mockHandleSendMessage = jest.fn();
 
 // Mock the useStore hook
 jest.mock("./useStore", () => ({
@@ -29,8 +33,8 @@ jest.mock("./useStore", () => ({
       },
     ],
     compiledCommand: "",
-    outputs: [],
-    setOutputs: jest.fn(),
+    outputs: [Buffer.from("Test output")],
+    setOutputs: mockSetOutputs,
     updateModule: mockUpdateModule,
     removeModule: mockRemoveModule,
     executeAst: mockExecuteAst,
@@ -42,6 +46,11 @@ jest.mock("./useStore", () => ({
     setLoading: jest.fn(),
     minimizedModules: [], // Add this line
     setMinimizedModules: jest.fn(), // Add this line
+    isCopied: false,
+    setIsCopied: mockSetIsCopied,
+    inputMessage: "",
+    setInputMessage: mockSetInputMessage,
+    isOpenAIEnabled: true,
   }),
 }));
 
@@ -74,6 +83,22 @@ const mockElectronApi: jest.Mocked<ElectronAPI> = {
   getOpenAIStatus: jest.fn(),
   getPgSchema: jest.fn(),
 };
+
+// Mock the useAIAssistant hook
+jest.mock("./useAIAssistant", () => ({
+  useAIAssistant: () => ({
+    isLoading: false,
+    handleSendMessage: mockHandleSendMessage,
+  }),
+}));
+
+// Mock navigator.clipboard
+const mockClipboard = {
+  writeText: jest.fn(() => Promise.resolve()),
+};
+Object.assign(navigator, {
+  clipboard: mockClipboard,
+});
 
 describe("App", () => {
   beforeEach(() => {
@@ -137,13 +162,13 @@ describe("App", () => {
 
   it("calls updateModule when a module is updated", () => {
     const mockEchoPlugin = {
-      component: ({ setText }: { setText: (text: string) => void}) => (
+      component: ({ setText }: { setText: (text: string) => void }) => (
         <button onClick={() => setText("Updated text")}>Update Echo</button>
       ),
     };
     (Plugins.get as jest.Mock).mockReturnValue(mockEchoPlugin);
 
-    const { getByText } = render (<App electronApi={mockElectronApi} />);
+    const { getByText } = render(<App electronApi={mockElectronApi} />);
     const updateButton = getByText("Update Echo");
     fireEvent.click(updateButton);
 
@@ -162,5 +187,52 @@ describe("App", () => {
     fireEvent.click(closeButton);
 
     expect(mockRemoveModule).toHaveBeenCalledWith(0);
+  });
+
+  it("handles global key press event", () => {
+    render(<App electronApi={mockElectronApi} />);
+    const event = new KeyboardEvent("keydown", { key: "Enter", altKey: true });
+    fireEvent(window, event);
+    expect(mockExecuteAst).toHaveBeenCalled();
+  });
+
+  it("handles copy output button click", async () => {
+    render(<App electronApi={mockElectronApi} />);
+    const copyButton = screen.getByText("Copy");
+    fireEvent.click(copyButton);
+    await waitFor(() => {
+      expect(mockSetIsCopied).toHaveBeenCalledWith(true);
+    });
+  });
+
+  it("handles key press event and calls handleSendMessage", async () => {
+    render(<App electronApi={mockElectronApi} />);
+
+    const input = screen.getByPlaceholderText(
+      "Type your message here and press Enter to send..."
+    );
+    expect(input).toBeInTheDocument();
+
+    fireEvent.keyPress(input, { key: "Enter", code: "Enter", charCode: 13 });
+
+    expect(mockHandleSendMessage).toHaveBeenCalled();
+  });
+
+  it("does not call handleSendMessage when Shift+Enter is pressed", async () => {
+    render(<App electronApi={mockElectronApi} />);
+
+    const input = screen.getByPlaceholderText(
+      "Type your message here and press Enter to send..."
+    );
+    expect(input).toBeInTheDocument();
+
+    fireEvent.keyPress(input, {
+      key: "Enter",
+      code: "Enter",
+      charCode: 13,
+      shiftKey: true,
+    });
+
+    expect(mockHandleSendMessage).not.toHaveBeenCalled();
   });
 });
