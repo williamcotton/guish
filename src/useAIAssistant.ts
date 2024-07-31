@@ -3,8 +3,7 @@ import { Buffer } from "buffer";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { ElectronAPI } from "./types";
 import { UseStoreType } from "./useStore";
-
-import { postgresAssistant } from './ai-assistants/postgresAssistant';
+import { AiAssistants } from "./AiAssistants";
 
 export const useAIAssistant = (store: UseStoreType, electronApi: ElectronAPI) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +37,7 @@ export const useAIAssistant = (store: UseStoreType, electronApi: ElectronAPI) =>
       newMessage,
     ];
 
-    postgresAssistant(store, electronApi, updatedChatHistory);
+    await AiAssistants.run(store, electronApi, updatedChatHistory);
 
     try {
       const response = await electronApi.chatCompletionsCreate(
