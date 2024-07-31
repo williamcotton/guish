@@ -59,17 +59,16 @@ Commands are executed as-is in a shell process. The application is merely a tool
 
 ## Live Demo
 
-![guish-latest-demo-lowres](https://github.com/user-attachments/assets/b000d05f-39f6-46fb-ab1f-4ba033855175)
+![guish-latest-demo](https://github.com/user-attachments/assets/2b1615df-4a11-495a-932e-2a39a246b9e8)
+
 
 ## Screenshots
 
-### curl and jq
+![Screenshot 2024-07-31 at 9 18 01 AM](https://github.com/user-attachments/assets/31521871-c086-4ddc-afb7-b0c8cca408c7)
+![Screenshot 2024-07-31 at 9 18 30 AM](https://github.com/user-attachments/assets/5d5485c5-2b51-49a9-bf7c-66c824ab13b0)
+![Screenshot 2024-07-31 at 9 19 02 AM](https://github.com/user-attachments/assets/3cc91ca6-5f98-4f76-944d-76e9d4b6e919)
+![Screenshot 2024-07-31 at 9 19 53 AM](https://github.com/user-attachments/assets/9d76fa02-e70d-474f-89eb-005a22035eeb)
 
-![Screenshot 2024-07-22 at 12 15 44 PM](https://github.com/user-attachments/assets/ab7f2e03-202a-49b8-96f3-4e19423a9d86)
-
-### postgres and html table
-
-![Screenshot 2024-07-22 at 12 16 02 PM](https://github.com/user-attachments/assets/202de3a4-33ba-423b-9470-ba50967e2e1c)
 
 ## Supported Commands
 
