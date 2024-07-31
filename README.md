@@ -18,18 +18,18 @@ Instead of having to write something like this into the line editor, sometimes p
 pg -d test_database -c 'SELECT * from test_table;' | tsvtocsv | ggplot 'ggplot(df, aes(as.Date(date), value)) +
     geom_col(fill = "red") +
     labs(x = "date") +
-    theme_minimal()' | pngtohtml
+    theme_minimal()' | pngcopyhtml
 ```
 
 One can write,
 
 ```sh
-pg | tsvtocsv | ggplot | pngtohtml
+pg | tsvtocsv | ggplot | pngcopyhtml
 ```
 
 And then fill in the blanks in the GUI with a fully fledged code editor like Monaco all while seeing the output of each step in the pipeline.
 
-![Screenshot 2024-07-22 at 12 16 24 PM](https://github.com/user-attachments/assets/72f085d1-43ec-45d5-9bf9-7a98f3b5f7b8)
+![Screenshot 2024-07-31 at 9 28 45 AM](https://github.com/user-attachments/assets/85357148-aabe-4ebb-a76b-c6287fbdcc8a)
 
 Commands are executed as-is in a shell process. The application is merely a tool used to construct commands and pipelines.
 
