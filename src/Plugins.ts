@@ -26,6 +26,7 @@ import { pythonPlugin } from "./plugins/pythonPlugin";
 import { rubyPlugin } from "./plugins/rubyPlugin";
 import { pastePlugin } from "./plugins/pastePlugin";
 import { fsharpPlugin } from "./plugins/fsharpPlugin";
+import { tablechoPlugin } from "./plugins/tablechoPlugin";
 
 // Define the Plugin interface
 export interface Plugin {
@@ -76,3 +77,4 @@ Plugins.register(pythonPlugin);
 Plugins.register(rubyPlugin);
 Plugins.register(pastePlugin);
 Plugins.register(fsharpPlugin);
+Plugins.register(tablechoPlugin);
