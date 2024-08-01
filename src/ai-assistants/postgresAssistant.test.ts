@@ -28,10 +28,10 @@ describe("postgresAssistant", () => {
       ...mockStore.chatHistory,
     ];
 
-    await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
+    const result = await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
 
     expect(mockElectronApi.getPgSchema).not.toHaveBeenCalled();
-    expect(updatedChatHistory).toEqual(mockStore.chatHistory);
+    expect(result).toEqual(mockStore.chatHistory);
   });
 
   it("should add schema for pg module if not present in chat history", async () => {
@@ -56,7 +56,7 @@ describe("postgresAssistant", () => {
       schema: mockSchema,
     });
 
-    await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
+    const result = await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
 
     expect(mockElectronApi.getPgSchema).toHaveBeenCalledWith({
       database: "testdb",
@@ -65,7 +65,7 @@ describe("postgresAssistant", () => {
       password: "testpass",
       port: 5432,
     });
-    expect(updatedChatHistory).toEqual([
+    expect(result).toEqual([
       {
         role: "system",
         content: `Postgres schema: ${JSON.stringify(mockSchema)}`,
@@ -105,10 +105,10 @@ describe("postgresAssistant", () => {
       .mockResolvedValueOnce({ success: true, schema: mockSchema1 })
       .mockResolvedValueOnce({ success: true, schema: mockSchema2 });
 
-    await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
+    const result = await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
 
     expect(mockElectronApi.getPgSchema).toHaveBeenCalledTimes(2);
-    expect(updatedChatHistory).toEqual([
+    expect(result).toEqual([
       {
         role: "system",
         content: `Postgres schema: ${JSON.stringify(
@@ -123,10 +123,10 @@ describe("postgresAssistant", () => {
     mockStore.chatHistory = [];
     const updatedChatHistory: ChatCompletionMessageParam[] = [];
 
-    await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
+    const result = await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
 
     expect(mockElectronApi.getPgSchema).not.toHaveBeenCalled();
-    expect(updatedChatHistory).toEqual([]);
+    expect(result).toEqual([]);
   });
 
   it("should handle errors when fetching schema", async () => {
@@ -148,9 +148,9 @@ describe("postgresAssistant", () => {
       error: "Database connection failed",
     });
 
-    await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
+    const result = await postgresAssistant(mockStore, mockElectronApi, updatedChatHistory);
 
     expect(mockElectronApi.getPgSchema).toHaveBeenCalled();
-    expect(updatedChatHistory).toEqual([]);
+    expect(result).toEqual([]);
   });
 });

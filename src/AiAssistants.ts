@@ -1,4 +1,3 @@
-
 import { ElectronAPI } from "./types";
 import { UseStoreType } from "./useStore";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
@@ -8,7 +7,7 @@ import { postgresAssistant } from "./ai-assistants/postgresAssistant";
 
 // Define the Assistant interface
 export interface AiAssistant {
-  (store: UseStoreType, electronApi: ElectronAPI, updatedChatHistory: ChatCompletionMessageParam[]): Promise<void>;
+  (store: UseStoreType, electronApi: ElectronAPI, updatedChatHistory: ChatCompletionMessageParam[]): Promise<ChatCompletionMessageParam[]>;
 }
 
 export class AiAssistants {
@@ -18,10 +17,12 @@ export class AiAssistants {
     this.plugins.push(plugin);
   }
 
-  static async run(store: UseStoreType, electronApi: ElectronAPI, updatedChatHistory: ChatCompletionMessageParam[]): Promise<void> {
+  static async run(store: UseStoreType, electronApi: ElectronAPI, updatedChatHistory: ChatCompletionMessageParam[]): Promise<ChatCompletionMessageParam[]> {
+    let modifiedChatHistory = [...updatedChatHistory];
     for (const plugin of this.plugins) {
-      await plugin(store, electronApi, updatedChatHistory);
+      modifiedChatHistory = await plugin(store, electronApi, modifiedChatHistory);
     }
+    return modifiedChatHistory;
   }
 }
 
