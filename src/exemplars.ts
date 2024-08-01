@@ -9,7 +9,7 @@ export const exemplars: ChatCompletionMessageParam[] = [
   {
     role: "system",
     content:
-      "This tool creates modules for each command in a pipeline. Users can modify commands, see output, and add new modules. Whe asked for changes update first attempt to update existing modules before adding new ones.",
+      "This tool creates modules for each command in a pipeline. Users can modify commands, see output, and add new modules. When asked for changes or updates, first attempt to update existing commands before adding new commands or removing existing commands.",
   },
   {
     role: "system",
