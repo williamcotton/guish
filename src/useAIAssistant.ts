@@ -37,11 +37,11 @@ export const useAIAssistant = (store: UseStoreType, electronApi: ElectronAPI) =>
       newMessage,
     ];
 
-    await AiAssistants.run(store, electronApi, updatedChatHistory);
+    const updatedAssistedChatHistory = await AiAssistants.run(store, electronApi, updatedChatHistory);
 
     try {
       const response = await electronApi.chatCompletionsCreate(
-        updatedChatHistory
+        updatedAssistedChatHistory
       );
 
       if (response.choices && response.choices.length > 0) {
@@ -51,7 +51,7 @@ export const useAIAssistant = (store: UseStoreType, electronApi: ElectronAPI) =>
           if (parsedResponse.bash_command && parsedResponse.text_response) {
             store.setInputCommand(parsedResponse.bash_command);
             store.setChatHistory([
-              ...updatedChatHistory,
+              ...updatedAssistedChatHistory,
               { role: "assistant", content: assistantResponse },
             ]);
             console.log("Assistant's response:", parsedResponse.text_response);

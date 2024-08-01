@@ -3,12 +3,11 @@ import { PgModuleType } from "../plugins/pgPlugin";
 import { ElectronAPI } from "../types";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-
 export const postgresAssistant = async (
   store: UseStoreType,
   electronApi: ElectronAPI,
   updatedChatHistory: ChatCompletionMessageParam[]
-) => {
+): Promise<ChatCompletionMessageParam[]> => {
   const schemaNotAdded = !store.chatHistory.some(
     (msg) => msg.role === "system" && msg.content.includes("Postgres schema")
   );
@@ -42,4 +41,6 @@ export const postgresAssistant = async (
       updatedChatHistory.push(pgMessage);
     }
   }
+
+  return updatedChatHistory;
 };
