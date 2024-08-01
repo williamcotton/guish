@@ -18,9 +18,12 @@ export class AiAssistants {
   }
 
   static async run(store: UseStoreType, electronApi: ElectronAPI, updatedChatHistory: ChatCompletionMessageParam[]): Promise<ChatCompletionMessageParam[]> {
-    let modifiedChatHistory = [...updatedChatHistory];
+    const modifiedChatHistory = [...updatedChatHistory];
     for (const plugin of this.plugins) {
-      modifiedChatHistory = await plugin(store, electronApi, modifiedChatHistory);
+      const pluginResponse = await plugin(store, electronApi, modifiedChatHistory);
+      if (pluginResponse) {
+        modifiedChatHistory.push(...pluginResponse);
+      }
     }
     return modifiedChatHistory;
   }
