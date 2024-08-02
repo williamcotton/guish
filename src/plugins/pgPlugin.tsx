@@ -9,7 +9,6 @@ export interface PgModuleType extends ModuleType {
   query: string;
   hostname: string;
   user: string;
-  password: string;
   port: string;
 }
 
@@ -18,7 +17,6 @@ interface PgComponentProps extends PgModuleType {
   setQuery: (value: string) => void;
   setHostname: (value: string) => void;
   setUser: (value: string) => void;
-  setPassword: (value: string) => void;
   setPort: (value: string) => void;
 }
 
@@ -27,13 +25,11 @@ const PgComponent: React.FC<PgComponentProps> = ({
   query,
   hostname,
   user,
-  password,
   port,
   setDatabase,
   setQuery,
   setHostname,
   setUser,
-  setPassword,
   setPort,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
@@ -99,22 +95,6 @@ const PgComponent: React.FC<PgComponentProps> = ({
           </div>
           <div className="mb-2">
             <label
-              htmlFor="password-input"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-              placeholder="Enter password..."
-            />
-          </div>
-          <div className="mb-2">
-            <label
               htmlFor="port-input"
               className="block text-sm font-medium text-gray-700"
             >
@@ -156,7 +136,6 @@ export const pgPlugin: Plugin = {
     let database = "";
     let hostname = "";
     let user = "";
-    let password = "";
     let port = "";
     if (command.suffix) {
       const dArgIndex = command.suffix.findIndex(
@@ -183,12 +162,6 @@ export const pgPlugin: Plugin = {
       if (uArgIndex !== -1 && uArgIndex + 1 < command.suffix.length) {
         user = command.suffix[uArgIndex + 1].text || "";
       }
-      const pArgIndex = command.suffix.findIndex(
-        (arg: WordNode | RedirectNode) => arg.text === "-W"
-      );
-      if (pArgIndex !== -1 && pArgIndex + 1 < command.suffix.length) {
-        password = command.suffix[pArgIndex + 1].text || "";
-      }
       const PArgIndex = command.suffix.findIndex(
         (arg: WordNode | RedirectNode) => arg.text === "-p"
       );
@@ -202,54 +175,42 @@ export const pgPlugin: Plugin = {
       query: query,
       hostname: hostname,
       user: user,
-      password: password,
       port: port,
     };
   },
   component: PgComponent,
   compile: (module: ModuleType): CommandNode => {
     const pgModule = module as PgModuleType;
+    const suffix: WordNode[] = [];
+
+    // Add all other arguments first
+    if (pgModule.database) {
+      suffix.push({ type: "Word", text: "-d" });
+      suffix.push({ type: "Word", text: pgModule.database });
+    }
+    if (pgModule.hostname) {
+      suffix.push({ type: "Word", text: "-h" });
+      suffix.push({ type: "Word", text: pgModule.hostname });
+    }
+    if (pgModule.user) {
+      suffix.push({ type: "Word", text: "-U" });
+      suffix.push({ type: "Word", text: pgModule.user });
+    }
+    if (pgModule.port) {
+      suffix.push({ type: "Word", text: "-p" });
+      suffix.push({ type: "Word", text: pgModule.port });
+    }
+
+    // Add the query last
+    if (pgModule.query) {
+      suffix.push({ type: "Word", text: "-c" });
+      suffix.push({ type: "Word", text: pgModule.query });
+    }
+
     return {
       type: "Command",
       name: { text: "pg", type: "Word" },
-      suffix: [
-        ...(pgModule.database
-          ? [
-              { type: "Word", text: "-d" } as WordNode,
-              { type: "Word", text: pgModule.database } as WordNode,
-            ]
-          : []),
-        ...(pgModule.query
-          ? [
-              { type: "Word", text: "-c" } as WordNode,
-              { type: "Word", text: pgModule.query } as WordNode,
-            ]
-          : []),
-        ...(pgModule.hostname
-          ? [
-              { type: "Word", text: "-h" } as WordNode,
-              { type: "Word", text: pgModule.hostname } as WordNode,
-            ]
-          : []),
-        ...(pgModule.user
-          ? [
-              { type: "Word", text: "-U" } as WordNode,
-              { type: "Word", text: pgModule.user } as WordNode,
-            ]
-          : []),
-        ...(pgModule.password
-          ? [
-              { type: "Word", text: "-W" } as WordNode,
-              { type: "Word", text: pgModule.password } as WordNode,
-            ]
-          : []),
-        ...(pgModule.port
-          ? [
-              { type: "Word", text: "-p" } as WordNode,
-              { type: "Word", text: pgModule.port } as WordNode,
-            ]
-          : []),
-      ],
+      suffix: suffix,
     };
   },
 };

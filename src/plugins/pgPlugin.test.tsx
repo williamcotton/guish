@@ -38,7 +38,6 @@ describe("pgPlugin", () => {
         query: "SELECT * FROM users",
         hostname: "",
         user: "",
-        password: "",
         port: "",
       });
     });
@@ -61,7 +60,6 @@ describe("pgPlugin", () => {
         query: "SELECT * FROM users",
         hostname: "",
         user: "",
-        password: "",
         port: "",
       });
     });
@@ -84,12 +82,11 @@ describe("pgPlugin", () => {
         query: "",
         hostname: "",
         user: "",
-        password: "",
         port: "",
       });
     });
 
-    it("should parse a pg command with hostname, user, password, and port", () => {
+    it("should parse a pg command with hostname, user, and port", () => {
       const command: CommandNode = {
         type: "Command",
         name: { text: "pg", type: "Word" },
@@ -103,7 +100,6 @@ describe("pgPlugin", () => {
           { text: "-U", type: "Word" },
           { text: "user", type: "Word" },
           { text: "-W", type: "Word" },
-          { text: "password", type: "Word" },
           { text: "-p", type: "Word" },
           { text: "5432", type: "Word" },
         ],
@@ -117,7 +113,6 @@ describe("pgPlugin", () => {
         query: "SELECT * FROM users",
         hostname: "localhost",
         user: "user",
-        password: "password",
         port: "5432",
       });
     });
@@ -131,7 +126,6 @@ describe("pgPlugin", () => {
         query: "SELECT * FROM users",
         hostname: "",
         user: "",
-        password: "",
         port: "",
       };
 
@@ -156,7 +150,6 @@ describe("pgPlugin", () => {
         query: "SELECT * FROM users",
         hostname: "",
         user: "",
-        password: "",
         port: "",
       };
 
@@ -179,7 +172,6 @@ describe("pgPlugin", () => {
         query: "",
         hostname: "",
         user: "",
-        password: "",
         port: "",
       };
 
@@ -195,14 +187,13 @@ describe("pgPlugin", () => {
       });
     });
 
-    it("should compile a pg command with hostname, user, password, and port", () => {
+    it("should compile a pg command with hostname, user, and port", () => {
       const module = {
         type: "pg",
         database: "mydb",
         query: "SELECT * FROM users",
         hostname: "localhost",
         user: "user",
-        password: "password",
         port: "5432",
       };
 
@@ -214,16 +205,14 @@ describe("pgPlugin", () => {
         suffix: [
           { type: "Word", text: "-d" },
           { type: "Word", text: "mydb" },
-          { type: "Word", text: "-c" },
-          { type: "Word", text: "SELECT * FROM users" },
           { type: "Word", text: "-h" },
           { type: "Word", text: "localhost" },
           { type: "Word", text: "-U" },
           { type: "Word", text: "user" },
-          { type: "Word", text: "-W" },
-          { type: "Word", text: "password" },
           { type: "Word", text: "-p" },
           { type: "Word", text: "5432" },
+          { type: "Word", text: "-c" },
+          { type: "Word", text: "SELECT * FROM users" },
         ],
       });
     });
@@ -235,7 +224,6 @@ describe("pgPlugin", () => {
       const mockSetQuery = jest.fn();
       const mockSetHostname = jest.fn();
       const mockSetUser = jest.fn();
-      const mockSetPassword = jest.fn();
       const mockSetPort = jest.fn();
       const { getByLabelText, getByTestId, getByText } = render(
         React.createElement(pgPlugin.component, {
@@ -243,13 +231,11 @@ describe("pgPlugin", () => {
           query: "SELECT * FROM users",
           hostname: "localhost",
           user: "user",
-          password: "password",
           port: "5432",
           setDatabase: mockSetDatabase,
           setQuery: mockSetQuery,
           setHostname: mockSetHostname,
           setUser: mockSetUser,
-          setPassword: mockSetPassword,
           setPort: mockSetPort,
         })
       );
@@ -269,9 +255,6 @@ describe("pgPlugin", () => {
       const userInput = getByLabelText("User");
       expect(userInput).toHaveValue("user");
 
-      const passwordInput = getByLabelText("Password");
-      expect(passwordInput).toHaveValue("password");
-
       const portInput = getByLabelText("Port");
       expect(portInput).toHaveValue("5432");
 
@@ -288,9 +271,6 @@ describe("pgPlugin", () => {
 
       fireEvent.change(userInput, { target: { value: "newuser" } });
       expect(mockSetUser).toHaveBeenCalledWith("newuser");
-
-      fireEvent.change(passwordInput, { target: { value: "newpassword" } });
-      expect(mockSetPassword).toHaveBeenCalledWith("newpassword");
 
       fireEvent.change(portInput, { target: { value: "1234" } });
       expect(mockSetPort).toHaveBeenCalledWith("1234");
