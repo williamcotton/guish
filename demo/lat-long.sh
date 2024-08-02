@@ -8,4 +8,4 @@ US <- get_map("United States", zoom=2)
 
 ggmap(US) + 
     geom_point(data=df, aes(x=lon, y=lat),size=0.2, color = "blue") +
-    geom_text(data=df, aes(x=lon, y=lat, label=name), vjust=-0.1, hjust=-0.1, color="blue", size=1)' | pngcopyhtml
+    geom_text(data=df, aes(x=lon, y=lat, label=name), vjust=-0.1, hjust=-0.1, color="blue", size=1)' | pngtohtml

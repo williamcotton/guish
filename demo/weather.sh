@@ -15,4 +15,4 @@ ggplot(df_long, aes(x = time, y = value, color = variable)) +
   labs(title = "Weather Data in Austin, TX", x = "Time", y = "Value") +
   scale_x_datetime(date_breaks = "1 day", date_labels = "%b %d") +
   scale_y_continuous(breaks = seq(0, 100, by = 10)) +
-  theme_minimal()' | pngcopyhtml
+  theme_minimal()' | pngtohtml

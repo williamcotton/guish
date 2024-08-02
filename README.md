@@ -143,7 +143,7 @@ To create or modify the configuration, create a file named `.guish` in your home
 {
   "shell": "zsh",
   "preloadScript": "",
-  "openaiApiKey": "your-api-key-here"
+  "openaiApiKey": ""
 }
 ```
 
@@ -151,7 +151,7 @@ To create or modify the configuration, create a file named `.guish` in your home
 - `preloadScript`: A script to run before executing each command (default: "")
 - `openaiApiKey`: Your OpenAI API key for AI-assisted features (optional)
 
-For example, if you want to source your custom functions before each command, you can set:
+For example, if you want to source your own custom functions before each command and use the AI assistant, you can set:
 
 ```json
 {
@@ -186,205 +186,34 @@ This will launch the Electron app with hot-reloading enabled.
 
 ## Custom Commands
 
-These are custom shell functions and scripts that will need to be included or made available in a file referenced by the `preloadScript` section of the [`~/.guish`](#configuration) configuration in order to replicate some of the functionality seen above.
+The following custom commands are automatically included in the shell execution runtime through the `shell-functions.sh` file. To use these commands, ensure you have the following prerequisites installed on your system:
 
-### pg
+### Prerequisites
 
-`pg` requires that `psql` is on the host system.
+- `psql`: PostgreSQL command-line tool
+- `rush`: Data processing tool (https://github.com/shenwei356/rush)
+- `R` with `tidyverse` library: For `ggplot` functionality
+- `dotnet`: .NET SDK for F# support
+- `node` with `react` and `react-dom`: For JSX support
+- `python3`: For various utility functions
+- `esbuild`: JavaScript bundler (for `nodejsx`)
 
-```sh
-function pg() {
-  local query=""
-  local args=()
-  local input_from_stdin=1  # Assume input is from stdin initially.
+### Available Commands
 
-  # Process arguments
-  while (( "$#" )); do
-    if [[ "$1" == "-c" ]]; then
-      if [[ -n "$2" ]]; then
-        query="$2"         # Set the query from the next argument
-        shift 2            # Skip the next argument as it's the query
-        input_from_stdin=0 # No input from stdin since query is specified
-        break
-      else
-        echo "Error: Expected a query after -c flag"
-        return 1
-      fi
-    else
-      args+=("$1")        # Collect other arguments
-      shift
-    fi
-  done
+- `pg`: Execute PostgreSQL queries
+- `ggplot`: Generate plots using R's ggplot2
+- `fsharp`: Execute F# code
+- `nodejsx`: Execute JSX code using Node.js
+- `prependcss`: Prepend CSS to HTML content
+- `pngcopyhtml`: Convert PNG to HTML and copy to clipboard (requires `impbcopy`)
+- `pngtohtml`: Convert PNG to HTML
+- `tsvtohtml`: Convert TSV to HTML table
+- `tablecho`: Echo table data
+- `tsvtocsv`: Convert TSV to CSV
 
-  # Read query from stdin if not provided via -c
-  if [[ "$input_from_stdin" -eq 1 ]]; then
-    query=$(cat)
-  fi
+These commands are automatically available in the guish environment without needing to manually add them to your shell configuration.
 
-  # Execute the query with collected arguments
-  psql -X -A -F $'\t' --no-align --pset footer=off "${args[@]}" -c "$query"
-}
-```
-
-### ggplot
-
-`ggplot` requires that R and [rush](https://jeroenjanssens.github.io/rush/) are on the host system.
-
-```sh
-function ggplot() {
-  if [[ "$1" == "-f" ]]; then
-    shift
-    rush run --library tidyverse "$(cat "$1")" -
-  else
-    rush run --library tidyverse "$@" -
-  fi
-}
-```
-
-### fsharp
-
-`fsharp` requires that `dotnet` is installed on the host system.
-
-```bash
-function fsharp() {
-  # Create a temporary file with a .fsx extension
-  local tmpfile=$(mktemp /tmp/temp_fsharp_script.XXXXXX.fsx)
-
-  # Write all arguments to this temp file
-  echo "$@" > $tmpfile
-
-  # Execute the F# script using dotnet fsi
-  # Redirecting stderr to /dev/null to suppress F# Interactive headers
-  dotnet fsi $tmpfile 2> /dev/null
-
-  # Remove the temporary file after execution
-  rm $tmpfile
-}
-```
-
-### nodejsx
-
-`nodejsx` requires that `node`, `react` and `react-dom` are globally available on the host system.
-
-```js
-#!/usr/bin/env node
-
-const { execSync } = require("child_process");
-const fs = require("fs");
-const os = require("os");
-const path = require("path");
-const vm = require("vm");
-
-const jsxCode = process.argv[2];
-
-// Read from stdin
-const stdin = fs.readFileSync(0, "utf8");
-
-// Create a temporary file with .jsx extension
-const tmpDir = os.tmpdir();
-const tmpFile = path.join(tmpDir, `nodejsx-${Date.now()}.jsx`);
-
-try {
-  // Prepend necessary imports and STDIN assignment to the JSX code
-  const fullCode = `
-    import React from 'react';
-    import ReactDOMServer from 'react-dom/server';
-    const STDIN = ${JSON.stringify(stdin)};
-    ${jsxCode}
-    if (typeof App !== 'undefined') {
-      console.log(ReactDOMServer.renderToString(<App />));
-    }
-  `;
-
-  // Write the full code to the temporary file
-  fs.writeFileSync(tmpFile, fullCode);
-
-  // Use esbuild CLI to transpile JSX to JavaScript
-  const transpiledCode = execSync(
-    `esbuild ${tmpFile} --format=cjs --target=node14 --bundle --external:react --external:react-dom/server`,
-    {
-      encoding: "utf8",
-    }
-  );
-
-  // Create a context with required modules
-  const context = vm.createContext({
-    require,
-    process,
-    console,
-    Buffer,
-    setTimeout,
-    clearTimeout,
-    setInterval,
-    clearInterval,
-  });
-
-  // Execute the transpiled code
-  vm.runInContext(transpiledCode, context);
-} finally {
-  // Clean up: remove the temporary file
-  fs.unlinkSync(tmpFile);
-}
-```
-
-### prependcss
-
-```bash
-prependcss() {
-  local html="$(cat -)"
-  local css=""
-  local inline_css=""
-
-  while [[ "$#" -gt 0 ]]; do
-    case "$1" in
-      -c) # Handle inline CSS
-        shift # Move past the '-c' to the actual CSS content
-        inline_css+="$1"
-        shift # Move past the CSS content
-        ;;
-      *) # Handle CSS files
-        if [[ -f "$1" ]]; then
-          css+=$(cat "$1")
-        fi
-        shift # Move to the next argument
-        ;;
-    esac
-  done
-
-  # Combine file CSS and inline CSS
-  css="$css$inline_css"
-
-  echo "<style>$css</style>$html"
-}
-```
-
-### pngcopyhtml
-
-Tip: PNG images piped through this command will convert to HTML for display but also copy the image to system pasteboard. Opening up the Preview.app in macOS and typing `Command + V` will create a new image with the contents of the pasteboard.
-
-```bash
-pngcopyhtml() {
-  tee >(pngtohtml) >(impbcopy -) > /dev/null
-}
-```
-
-### pngtohtml
-
-```python
-#!/usr/bin/env python3
-import base64
-import sys
-
-# Read the input bytes from stdin
-png_bytes = sys.stdin.buffer.read()
-
-# Encode the bytes as a base64 data URI
-data_uri = "data:image/png;base64," + base64.b64encode(png_bytes).decode()
-
-# Output the HTML img tag with the data URI
-html = f'<img src="{data_uri}">'
-sys.stdout.write(html)
-```
+Note: The actual implementation of these commands is handled internally by guish, so you don't need to worry about the specific shell function definitions. 
 
 ### impbcopy
 
@@ -435,47 +264,6 @@ if arguments.count < 2 {
 let path = arguments[1]
 let success = copyToClipboard(path: path)
 exit(success ? EXIT_SUCCESS : EXIT_FAILURE)
-```
-
-### tsvtohtml
-
-```python
-#!/usr/bin/env python3
-
-import csv
-import sys
-
-def tsv_to_html():
-    reader = csv.reader(sys.stdin, delimiter='\t')
-    rows = list(reader)
-
-    html = '<table>\n'
-    for row in rows:
-        html += '  <tr>\n'
-        for cell in row:
-            html += f'    <td>{cell}</td>\n'
-        html += '  </tr>\n'
-    html += '</table>\n'
-
-    data = rows
-    script = f'<script>const data = {data};</script>\n'
-    html = script + html
-
-    return html
-
-if __name__ == '__main__':
-    html = tsv_to_html()
-    sys.stdout.write(html)
-```
-
-### tablecho
-
-`tablecho` is currently no more than an alias for echo.
-
-```bash
-tablecho () {
-        echo "$@"
-}
 ```
 
 ## Contributing

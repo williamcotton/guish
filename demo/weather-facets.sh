@@ -22,4 +22,4 @@ df_long$variable[df_long$variable == "wind_speed_10m"] <- "Wind (m/s)"
     labs(title = "Weather Data in Austin, TX", x = "Time", y = "Value") +
     scale_x_datetime(date_breaks = "1 day", date_labels = "%b %d") +
     theme_minimal()' |
-  pngcopyhtml
+  pngtohtml

@@ -13,6 +13,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     icon: path.join(__dirname, "assets", "Icon.icns"),
+    extraResource: ["./resources/shell-functions.sh"],
   },
   rebuildConfig: {},
   makers: [

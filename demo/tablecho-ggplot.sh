@@ -11,4 +11,4 @@ total_row <- data.frame(
 df <- rbind(df, total_row)
 ggplot(df, aes(x = month, y = balance)) + 
     geom_col(fill = "red") + 
-    theme_minimal()' | pngcopyhtml
+    theme_minimal()' | pngtohtml

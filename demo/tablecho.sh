@@ -15,4 +15,4 @@ END {
     print "total", total_debit, total_credit, total_debit - total_credit
 }' | ggplot 'ggplot(df, aes(month, balance)) +
     geom_col(fill = "red") +
-    theme_minimal()' | pngcopyhtml
+    theme_minimal()' | pngtohtml
