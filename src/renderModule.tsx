@@ -26,7 +26,7 @@ export default (store: UseStoreType, module: ModuleType, index: number) => {
     <div
       key={`${module.type}-${index}`}
       className={`
-        mt-2 flex flex-col w-full min-w-[180px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
+        flex flex-col w-full min-w-[180px] max-h-[calc(100vh-2rem)] bg-white rounded shadow mx-2 relative group overflow-hidden
         ${plugin.containerClasses || ""}
         ${isMinimized && "max-w-[120px]"}
       `}

@@ -1,5 +1,13 @@
-import React, { useEffect, useCallback } from "react";
-import { Terminal, CircleDot, Loader, Copy, Check } from "lucide-react";
+import React, { useEffect, useCallback, useState } from "react";
+import {
+  Terminal,
+  CircleDot,
+  Loader,
+  Copy,
+  Check,
+  List,
+  Layout,
+} from "lucide-react";
 import { Buffer } from "buffer";
 
 import { useStore } from "./useStore";
@@ -7,6 +15,8 @@ import { useFileOperations } from "./useFileOperations";
 import { useAIAssistant } from "./useAIAssistant";
 import { ModuleType, ElectronAPI } from "./types";
 import RenderModule from "./renderModule";
+import { Plugins } from "./Plugins";
+import { genericPlugin } from "./plugins/genericPlugin";
 
 interface AppProps {
   electronApi: ElectronAPI;
@@ -19,6 +29,9 @@ const App: React.FC<AppProps> = (props) => {
     store,
     props.electronApi
   );
+
+  const [viewMode, setViewMode] = useState<"all" | "single">("all");
+  const [selectedModuleIndex, setSelectedModuleIndex] = useState<number>(0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -75,12 +88,36 @@ const App: React.FC<AppProps> = (props) => {
     }
   };
 
+  const toggleViewMode = () => {
+    if (viewMode === "all" && store.modules.length === 0) {
+      // Don't switch to single view if there are no modules
+      return;
+    }
+    setViewMode(viewMode === "all" ? "single" : "all");
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    (<div className="flex h-screen bg-gray-100">
       {/* Main content column */}
       <div className="flex flex-col w-3/4">
         <header className="flex justify-between items-center bg-gray-800 text-white pt-2 pb-2">
-          <h1 className="text-2xl font-bold pl-2">guish</h1>
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold pl-2 mr-4 ml-2">guish</h1>
+            <button
+              onClick={toggleViewMode}
+              className={`px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center ${
+                store.modules.length === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
+              disabled={store.modules.length === 0}
+            >
+              {viewMode === "all" ? <List size={16} /> : <Layout size={16} />}
+              <span className="ml-1">
+                {viewMode === "all" ? "View Single" : "View All"}
+              </span>
+            </button>
+          </div>
           {store.currentFilePath && (
             <div className="flex items-center text-sm text-gray-300 truncate max-w-[50%] pr-2">
               {store.hasUnsavedChanges && (
@@ -110,32 +147,69 @@ const App: React.FC<AppProps> = (props) => {
           </div>
         )}
 
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 flex overflow-auto p-2">
-            {store.modules.map(renderModule)}
-          </div>
-
-          <div className="bg-gray-800 p-4 mt-4">
-            <div className="flex items-center mb-2">
-              <Terminal className="text-white mr-2" />
-              <textarea
-                value={store.inputCommand}
-                onChange={handleInputChange}
-                className="flex-1 pl-2 pr-2 bg-gray-700 text-white rounded border border-gray-600 font-mono text-sm"
-                placeholder="Enter command..."
-                rows={Math.min(store.inputCommand.split("\n").length, 3)}
-              />
-              <button
-                onClick={handleExecuteCommand}
-                className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Execute
-              </button>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Module list (only shown in single view and when there are modules) */}
+          {viewMode === "single" && store.modules.length > 0 && (
+            <div className="w-1/4 overflow-y-auto ml-4 max-w-40">
+              {store.modules.map((module, index) => {
+                const plugin = Plugins.get(module.type) || genericPlugin;
+                return (
+                  (<button
+                    key={index}
+                    onClick={() => setSelectedModuleIndex(index)}
+                    className={`w-full text-left p-2 mb-2 rounded ${
+                      selectedModuleIndex === index
+                        ? "bg-blue-500 text-white"
+                        : "bg-white"
+                    }`}
+                  >
+                    {module.command || plugin.name}
+                  </button>)
+                );
+              })}
             </div>
+          )}
+
+          {/* Module view */}
+          <div
+            className={`flex-1 flex ${
+              viewMode === "all" ? "flex-row" : "flex-col"
+            } overflow-auto px-2`}
+          >
+            {store.modules.length === 0 ? (
+              <div className="flex items-center justify-center w-full h-full text-gray-500">
+                No modules available. Enter a command to get started.
+              </div>
+            ) : viewMode === "all" ? (
+              store.modules.map(renderModule)
+            ) : (
+              renderModule(
+                store.modules[selectedModuleIndex],
+                selectedModuleIndex
+              )
+            )}
+          </div>
+        </div>
+
+        <div className="bg-gray-800 p-4 mt-4">
+          <div className="flex items-center mb-2">
+            <Terminal className="text-white mr-2" />
+            <textarea
+              value={store.inputCommand}
+              onChange={handleInputChange}
+              className="flex-1 pl-2 pr-2 bg-gray-700 text-white rounded border border-gray-600 font-mono text-sm"
+              placeholder="Enter command..."
+              rows={Math.min(store.inputCommand.split("\n").length, 3)}
+            />
+            <button
+              onClick={handleExecuteCommand}
+              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Execute
+            </button>
           </div>
         </div>
       </div>
-
       {/* HTML output column */}
       <div className="w-1/4 bg-white p-4 overflow-auto">
         <div className="flex justify-between items-center mb-4">
@@ -170,7 +244,7 @@ const App: React.FC<AppProps> = (props) => {
           />
         )}
       </div>
-    </div>
+    </div>)
   );
 };
 
