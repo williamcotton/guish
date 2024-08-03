@@ -177,7 +177,7 @@ function tsvtocsv() {
         rebuilt=1 
       }
     }
-    if (!rebuilt) { $1=$1 }gs
+    if (!rebuilt) { $1=$1 }
     print
   }'
 }
