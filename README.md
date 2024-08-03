@@ -191,7 +191,7 @@ The following custom commands are automatically included in the shell execution 
 ### Prerequisites
 
 - `psql`: PostgreSQL command-line tool
-- `rush`: Data processing tool (https://github.com/shenwei356/rush)
+- `rush`: Data processing tool (https://jeroenjanssens.github.io/rush/)
 - `R` with `tidyverse` library: For `ggplot` functionality
 - `dotnet`: .NET SDK for F# support
 - `node` with `react` and `react-dom`: For JSX support
