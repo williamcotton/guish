@@ -7,6 +7,8 @@ import {
   Check,
   List,
   Layout,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import { Buffer } from "buffer";
 
@@ -32,6 +34,7 @@ const App: React.FC<AppProps> = (props) => {
 
   const [viewMode, setViewMode] = useState<"all" | "single">("all");
   const [selectedModuleIndex, setSelectedModuleIndex] = useState<number>(0);
+  const [isFullWidthOutput, setIsFullWidthOutput] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     store.setOutputs([]);
@@ -95,11 +98,14 @@ const App: React.FC<AppProps> = (props) => {
     }
     setViewMode(viewMode === "all" ? "single" : "all");
   };
+  const toggleOutputWidth = () => {
+    setIsFullWidthOutput(!isFullWidthOutput);
+  };
 
   return (
-    (<div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100">
       {/* Main content column */}
-      <div className="flex flex-col w-3/4">
+      <div className={`flex flex-col ${isFullWidthOutput ? "w-0" : "w-3/4"}`}>
         <header className="flex justify-between items-center bg-gray-800 text-white pt-2 pb-2">
           <div className="flex items-center">
             <h1 className="text-2xl font-bold pl-2 mr-4 ml-2">guish</h1>
@@ -154,7 +160,7 @@ const App: React.FC<AppProps> = (props) => {
               {store.modules.map((module, index) => {
                 const plugin = Plugins.get(module.type) || genericPlugin;
                 return (
-                  (<button
+                  <button
                     key={index}
                     onClick={() => setSelectedModuleIndex(index)}
                     className={`w-full text-left p-2 mb-2 rounded ${
@@ -164,7 +170,7 @@ const App: React.FC<AppProps> = (props) => {
                     }`}
                   >
                     {module.command || plugin.name}
-                  </button>)
+                  </button>
                 );
               })}
             </div>
@@ -211,26 +217,48 @@ const App: React.FC<AppProps> = (props) => {
         </div>
       </div>
       {/* HTML output column */}
-      <div className="w-1/4 bg-white p-4 overflow-auto">
+      <div
+        className={`bg-white p-4 overflow-auto ${
+          isFullWidthOutput ? "w-full" : "w-1/4"
+        }`}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">HTML Output</h2>
-          <button
-            onClick={handleCopyOutput}
-            className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            disabled={!store.outputs || store.outputs.length === 0}
-          >
-            {store.isCopied ? (
-              <>
-                <Check size={16} className="mr-1" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy size={16} className="mr-1" />
-                Copy
-              </>
-            )}
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={handleCopyOutput}
+              className="flex items-center px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mr-2"
+              disabled={!store.outputs || store.outputs.length === 0}
+            >
+              {store.isCopied ? (
+                <>
+                  <Check size={16} className="mr-1" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy size={16} className="mr-1" />
+                  Copy
+                </>
+              )}
+            </button>
+            <button
+              onClick={toggleOutputWidth}
+              className="flex items-center px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            >
+              {isFullWidthOutput ? (
+                <>
+                  <Minimize size={16} className="mr-1" />
+                  Minimize
+                </>
+              ) : (
+                <>
+                  <Maximize size={16} className="mr-1" />
+                  Maximize
+                </>
+              )}
+            </button>
+          </div>
         </div>
         {store.loading ? (
           <div className="flex justify-center items-center h-full">
@@ -244,7 +272,7 @@ const App: React.FC<AppProps> = (props) => {
           />
         )}
       </div>
-    </div>)
+    </div>
   );
 };
 
