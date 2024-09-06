@@ -361,9 +361,31 @@ ipcMain.on("execute-ast", async (event: IpcMainEvent, ast: ScriptNode) => {
     ) => {
       try {
         const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini-2024-07-18",
           messages,
-          response_format: { type: "json_object" },
-          model: "gpt-4o-mini",
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "bash_command_response",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  bash_command: {
+                    type: "string",
+                    description: "The generated or updated bash command",
+                  },
+                  text_response: {
+                    type: "string",
+                    description:
+                      "An explanation or description of the bash command",
+                  },
+                },
+                required: ["bash_command", "text_response"],
+                additionalProperties: false,
+              },
+            },
+          },
         });
         return completion;
       } catch (error) {
