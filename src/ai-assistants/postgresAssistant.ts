@@ -9,7 +9,10 @@ export const postgresAssistant = async (
   updatedChatHistory: ChatCompletionMessageParam[]
 ): Promise<ChatCompletionMessageParam[]> => {
   const schemaNotAdded = !store.chatHistory.some(
-    (msg) => msg.role === "system" && msg.content.includes("Postgres schema")
+    msg => {
+      const msgContent = msg.content as string;
+      return msg.role === "system" && msgContent.includes("Postgres schema");
+    }
   );
 
   if (schemaNotAdded) {
